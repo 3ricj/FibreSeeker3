@@ -16,6 +16,8 @@ Firmware files for the FibreSeeker 3 (SK3). These are downloaded directly from t
 
 ### 2.2.42.831.320
 
+> *Changelog first observed in OTA rollout logs on 2026-09-11.*
+
 #### New Features
 
 - **Material type pre-check** — verifies the slicing file matches the material roll loaded on the machine; a pop-up prompts if they do not match (error code `10076`).
