@@ -4,11 +4,13 @@ Firmware files for the FibreSeeker 3 (SK3). These are downloaded directly from t
 
 > **Note:** Firmware is not mirrored in this repository. Use the official links below, and always verify you're downloading from `ota.fibreseek3d.com`.
 
-| Version | File | Download |
-|---------|------|----------|
-| 2.2.42.831.320 | `fibreseek-sk3-2.2.42.831.320.fibrepack` | [Download](https://ota.fibreseek3d.com/firmware/fibreseek-sk3-2.2.42.831.320.fibrepack) |
-| 2.2.38.721.295 | `fibreseek-sk3-2.2.38.721.295.fibrepack` | [Download](https://ota.fibreseek3d.com/firmware/fibreseek-sk3-2.2.38.721.295.fibrepack) |
-| 2.2.30.613.256 | `fibreseek-sk3-2.2.30.613.256.fibrepack` | [Download](https://ota.fibreseek3d.com/firmware/fibreseek-sk3-2.2.30.613.256.fibrepack) |
+| Version | Release date¹ | File | Download |
+|---------|---------------|------|----------|
+| 2.2.42.831.320 | 2026-08-31 | `fibreseek-sk3-2.2.42.831.320.fibrepack` | [Download](https://ota.fibreseek3d.com/firmware/fibreseek-sk3-2.2.42.831.320.fibrepack) |
+| 2.2.38.721.295 | 2026-07-21 | `fibreseek-sk3-2.2.38.721.295.fibrepack` | [Download](https://ota.fibreseek3d.com/firmware/fibreseek-sk3-2.2.38.721.295.fibrepack) |
+| 2.2.30.613.256 | 2026-06-13 | `fibreseek-sk3-2.2.30.613.256.fibrepack` | [Download](https://ota.fibreseek3d.com/firmware/fibreseek-sk3-2.2.30.613.256.fibrepack) |
+
+¹ *Approximate — taken from the `Last-Modified` timestamp of each file on the OTA server (retrieved 2026-09-15). Rollout to individual machines may lag behind these dates.*
 
 ---
 
@@ -16,7 +18,7 @@ Firmware files for the FibreSeeker 3 (SK3). These are downloaded directly from t
 
 ### 2.2.42.831.320
 
-> *Changelog first observed in OTA rollout logs on 2026-09-11.*
+> *Released 2026-08-31 (per OTA server upload date); changelog first observed in OTA rollout logs on 2026-09-11.*
 
 #### New Features
 
@@ -59,7 +61,7 @@ Firmware files for the FibreSeeker 3 (SK3). These are downloaded directly from t
 
 > **Update note:** After the update completes, perform a full-process print calibration to ensure the fast leveling function is working properly.
 >
-> *Source: [factory_update.json](https://ota.fibreseek3d.com/firmware/factory_update.json) (official release manifest; minimum hardware version 2.2).*
+> *Released 2026-07-21 (per OTA server upload date). Source: [factory_update.json](https://ota.fibreseek3d.com/firmware/factory_update.json) (official release manifest; minimum hardware version 2.2).*
 
 #### New Features
 
