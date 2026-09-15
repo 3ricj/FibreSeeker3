@@ -7,6 +7,7 @@ Firmware files for the FibreSeeker 3 (SK3). These are downloaded directly from t
 | Version | File | Download |
 |---------|------|----------|
 | 2.2.42.831.320 | `fibreseek-sk3-2.2.42.831.320.fibrepack` | [Download](https://ota.fibreseek3d.com/firmware/fibreseek-sk3-2.2.42.831.320.fibrepack) |
+| 2.2.38.721.295 | `fibreseek-sk3-2.2.38.721.295.fibrepack` | [Download](https://ota.fibreseek3d.com/firmware/fibreseek-sk3-2.2.38.721.295.fibrepack) |
 | 2.2.30.613.256 | `fibreseek-sk3-2.2.30.613.256.fibrepack` | [Download](https://ota.fibreseek3d.com/firmware/fibreseek-sk3-2.2.30.613.256.fibrepack) |
 
 ---
@@ -51,6 +52,10 @@ Firmware files for the FibreSeeker 3 (SK3). These are downloaded directly from t
 - Fixed timeout when downloading update packages under poor network conditions (timeout extended from 3 minutes to 30 minutes).
 - Fixed issue of not cleaning the installation directory after a failed update.
 - Fixed failure to write the serial number file.
+
+### 2.2.38.721.295
+
+*No changelog available yet — community contributions welcome!*
 
 ### 2.2.30.613.256
 
