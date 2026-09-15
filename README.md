@@ -26,6 +26,7 @@ The [`Documentation/`](Documentation/) folder collects official manuals and main
 ## 🧠 Knowledge Base
 
 - [Error Code Reference](ERROR_CODES.md) — what the machine's error codes mean and how to resolve them
+- [Tools](TOOLS.md) — community tools and tricks (G-code inspector, the printer's hidden web homepage)
 - Tips, workarounds, and hard-won knowledge live in the [wiki](../../wiki) and resolved [issues](../../issues?q=is%3Aissue+is%3Aclosed)
 
 If you solve a problem that stumped you, consider sharing it — future owners will thank you.
