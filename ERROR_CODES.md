@@ -4,12 +4,13 @@ A community-maintained reference of FibreSeeker 3 error codes — what they mean
 
 > **Note:** Where a fix is attributed to a firmware release, it's based on changelog analysis, not an official statement — treat it as the best available guidance. See [FIRMWARE.md](FIRMWARE.md) for firmware downloads.
 
-## Entries with known firmware fixes
+## Entries with known fixes
 
-| Code | Description | Update to at least |
-|------|-------------|--------------------|
-| [`10052`](#10052--z-axis-out-of-range) | Z axis out of range | `2.2.38.721.295` |
-| [`10065`](#10065--right-plastic-missing) | Right nozzle plastic filament missing | `2.2.38.721.295` |
+| Code | Description | First fix to try |
+|------|-------------|------------------|
+| [`10052`](#10052--z-axis-out-of-range) | Z axis out of range | Update firmware to `2.2.38.721.295`+ |
+| [`10065`](#10065--right-plastic-missing) | Right nozzle plastic filament missing | Update firmware to `2.2.38.721.295`+ |
+| [`10072`](#10072--platform-not-flat) | Platform not flat | Level the heatbed — see the manual's *Heatbed Leveling* section |
 
 ---
 
@@ -47,6 +48,27 @@ The run-out sensor is a switch, and a desynchronized switch state makes the mach
 2. Re-seat the filament in the right plastic channel and clear the error.
 3. If it recurs, check the run-out sensor physically — dust on an optical sensor mimics a run-out.
 4. If the error persists on current firmware, open an [issue](../../issues) with details.
+
+---
+
+## 10072 — Platform not flat
+
+**Example message:** `bed_mesh: platform not flat, range %1 mm > %2 mm`
+
+The bed-mesh scan measured more variation across the build surface than the allowed limit — the print platform (heatbed) isn't flat within tolerance. This is a mechanical condition, not a firmware bug: **you need to adjust the flatness of the bed.**
+
+**First thing to try:** level the heatbed. The step-by-step procedure is in the **[FibreSeeker Manual](Documentation/Fibreseeker%20Manual%201_Sep_2026.pdf)** — see the **"Heatbed Leveling"** section (page 44). Key points from that section:
+
+1. **Preheat the heatbed before leveling** — the bed deforms when hot, so leveling it cold gives wrong results.
+2. **Clean the heatbed surface** first; debris between bed and plate skews the reading.
+3. Adjust the **leveling screws** at the points the mesh reports as low/high, then re-run the mesh scan to confirm the range is within tolerance.
+
+Other guides in this repo that touch on leveling:
+
+- [Quick Start Guide](Documentation/FibreSeeker%203%20Quick%20Start%20Guide.pdf) — "Bed Level" calibration step (p. 21) and re-verification of heatbed leveling after moving the machine (p. 31)
+- [Troubleshooting First Layer Print Failure](Documentation/Troubleshooting%C2%A0First%20Layer%20Print%20Failure%20(1).pdf) — insufficient heatbed leveling as a first-layer failure cause
+
+If the mesh still reports out-of-range after careful hot leveling, the bed surface or plate may be physically damaged — open an [issue](../../issues) with your mesh readings.
 
 ---
 
