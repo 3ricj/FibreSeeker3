@@ -59,7 +59,7 @@ Firmware files for the FibreSeeker 3 (SK3). These are downloaded directly from t
 
 > **Update note:** After the update completes, perform a full-process print calibration to ensure the fast leveling function is working properly.
 >
-> *Changelog first observed in OTA rollout logs on 2026-09-10.*
+> *Source: [factory_update.json](https://ota.fibreseek3d.com/firmware/factory_update.json) (official release manifest; minimum hardware version 2.2).*
 
 #### New Features
 
@@ -88,7 +88,7 @@ Firmware files for the FibreSeeker 3 (SK3). These are downloaded directly from t
 
 - Fixed PID calibration getting stuck.
 - Fixed conflict between material shortage and pause; occasional desynchronization of the material-shortage switch.
-- Fixed errors from rapid repeated material-feed clicks and resulting state-machine errors.
+- Fixed errors from rapidly and repeatedly clicking filament load/unload, and load state-machine errors.
 - Fixed repeated print initiation after stopping a remote print, and errors from multiple print initiations on the web.
 - Fixed resuming from pause when print height exceeds the travel limit.
 - Fixed post-print errors such as "timer too close" after print completion.
