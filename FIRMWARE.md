@@ -55,7 +55,44 @@ Firmware files for the FibreSeeker 3 (SK3). These are downloaded directly from t
 
 ### 2.2.38.721.295
 
-*No changelog available yet — community contributions welcome!*
+> **Update note:** After the update completes, perform a full-process print calibration to ensure the fast leveling function is working properly.
+>
+> *Changelog first observed in OTA rollout logs on 2026-09-10.*
+
+#### New Features
+
+- **Fast leveling** — new supported leveling mode.
+- **In-print temperature adjustment** — temperature can be modified directly from the interface during printing.
+- **LAN upload progress** — shows upload progress when sending files remotely over the LAN.
+- **Material shortage recovery guide** — pop-up guidance on running out of material; printing automatically resumes after material is fed.
+- **Expanded AI visual inspection** — ongoing enhancements including fried noodles, foreign objects, print platform installation, and casing fall-off detection.
+- **More detection settings** — sensitivity and on/off settings for additional detection types.
+- **Camera image cropping** — reduces privacy risks.
+- **Fiber length calibration reset** — supports restoring default values.
+- **Fan speed controls** — exhaust fan, auxiliary cooling fan, and filter fan speeds adjustable from the interface.
+- **Built-in / demo model updates** — including PLA and PETG small boats.
+
+#### Experience Optimization
+
+- **Fiber clog / material shortage detection** — tuned detection and prompts to reduce false positives and missed alerts during printing.
+- **Automatic material retraction** — material retracts automatically after a plastic-shortage pause for easier cleanup of residual material.
+- **More precise leveling compensation** — bed center point alignment and automatic checks for abnormal data.
+- **Automatic retry for accidental G28 triggers** — reduces homing interference.
+- **Pause / resume / cancel** — improved state management.
+- **UI consistency** — improvements to copy, translation, and interface interaction.
+- **HMI startup** — optimized startup method for the human-computer interaction program, reducing the risk of occasional black screens on startup.
+
+#### Bug Fixes
+
+- Fixed PID calibration getting stuck.
+- Fixed conflict between material shortage and pause; occasional desynchronization of the material-shortage switch.
+- Fixed errors from rapid repeated material-feed clicks and resulting state-machine errors.
+- Fixed repeated print initiation after stopping a remote print, and errors from multiple print initiations on the web.
+- Fixed resuming from pause when print height exceeds the travel limit.
+- Fixed post-print errors such as "timer too close" after print completion.
+- Fixed Z-offset inaccuracies caused by key tilt affecting deviation calibration.
+- Fixed display errors in time-lapse photography and print thumbnails.
+- Fixed machine name not synchronizing after remote modification.
 
 ### 2.2.30.613.256
 
