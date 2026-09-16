@@ -9,6 +9,7 @@ A community-maintained reference of FibreSeeker 3 error codes — what they mean
 | Code | Description | First fix to try |
 |------|-------------|------------------|
 | [`10052`](#10052--z-axis-out-of-range) | Z axis out of range | Update firmware to `2.2.38.721.295`+ |
+| [`10057`](#10057--unhandled-exception-during-run) | Unhandled exception during run — comma-decimal G-code at the CFC tool change (`Rotation distance can not be zero` / `10009`) | Slicer bug, **not** fixed in firmware — re-slice with a period-decimal locale or use the drag-&-drop `Fixer.bat` |
 | [`10065`](#10065--right-plastic-missing) | Right nozzle plastic filament missing | Update firmware to `2.2.38.721.295`+ |
 | [`10072`](#10072--platform-not-flat) | Platform not flat | Level the heatbed — see the manual's *Heatbed Leveling* section |
 
@@ -29,6 +30,65 @@ A bad calibration reading producing a spurious `-0.405` Z value would trip the o
 1. Update firmware (current release: `2.2.42.831.320` — see [FIRMWARE.md](FIRMWARE.md)).
 2. After updating, run a full-process print calibration to reset Z-offset values.
 3. If the error persists on current firmware, open an [issue](../../issues) with your firmware version, what you were doing when it appeared (print start vs. pause/resume), and whether recalibration cleared it.
+
+---
+
+## 10057 — Unhandled exception during run
+
+> *Cause and fix contributed by Sébastien Seb — [Facebook post](https://www.facebook.com/groups/772897998822068/posts/1063285146450017/), Sept 7, 2026.*
+
+**Example message:** `code 10057, Unhandled exception during run` — raised at the exact moment the tool change switches to the **CFC (fiber) extruder**, and accompanied on the Klipper side by `Rotation distance can not be zero` (code [`10009`](#full-error-code-reference)).
+
+If the print dies right as the fiber head is engaged, **don't panic — your machine is fine.** This is a known software bug in Rocket Slicer, not a hardware fault.
+
+### Cause: the comma error
+
+Rocket Slicer generates its G-code using your PC's **local number format**. If Windows is set to a language that uses a comma as the decimal separator (French, German, and many others), the slicer writes decimal values with a comma instead of a dot — for example `P0,05` instead of `P0.05`.
+
+Klipper's firmware does not understand that comma. It reads the value as `0`, which trips a mechanical safety check — *"rotation distance can not be zero"* — and shuts down immediately to protect the extruder motor. The UI surfaces this as the generic `10057 Unhandled exception during run`.
+
+### Solution: the automatic fixer (drag & drop)
+
+You don't have to dig into the G-code for every print, and you don't have to change your global Windows settings. A small script fixes any sliced file in about a second.
+
+**1. Create the fix file.** On your desktop, right-click → **New → Text Document**, open it, and paste exactly this code inside:
+
+```bat
+@echo off
+chcp 65001 >nul
+echo ==========================================
+echo G-code Fixer (Rocket Slicer Bug)
+echo ==========================================
+echo.
+if "%~1"=="" (
+    echo [ERROR] No file detected.
+    echo Please DRAG AND DROP a .gcode file directly onto the icon of this .bat script
+    echo.
+    pause
+    exit /b
+)
+set "fichier_entree=%~1"
+set "dossier=%~dp1"
+set "nom_fichier=%~n1"
+set "extension=%~x1"
+set "fichier_sortie=%dossier%%nom_fichier%_fixed%extension%"
+echo Target file: "%nom_fichier%%extension%"
+echo Replacing commas with dots in progress...
+powershell -Command "(Get-Content -LiteralPath '%fichier_entree%' -Encoding UTF8) -replace '(\d),(\d)', '$1.$2' | Set-Content -LiteralPath '%fichier_sortie%' -Encoding UTF8"
+echo.
+echo Success! The cleaned file has been created here:
+echo "%nom_fichier%_fixed%extension%"
+echo.
+pause
+```
+
+Then go to **File → Save As…**, choose **All Files (\*.\*)** in the *Save as type* dropdown, name the file **`Fixer.bat`**, and save it.
+
+**2. Use it.** Grab the defective `.gcode` file produced by Rocket Slicer and **drag and drop it onto the `Fixer.bat` icon**. A console window opens briefly, and a new file with the `_fixed` suffix appears next to the original. Send **that** file to the printer.
+
+> **Alternative — fix it at the source.** Set your Windows *Regional format* to one that uses a period as the decimal symbol (Control Panel → Region), then re-slice. This removes the root cause but affects your whole system, so most people prefer the script above.
+
+> **Status:** No firmware release addresses this, and it is not in any changelog — the comma/decimal formatting lives in Rocket Slicer on your PC, not in the machine firmware (see [FIRMWARE.md](FIRMWARE.md) for the full changelog). Until the slicer emits locale-independent G-code, use the workaround above. If the crash still happens on a file you sliced with a period-decimal locale, open an [issue](../../issues) with your Rocket Slicer and firmware versions.
 
 ---
 
