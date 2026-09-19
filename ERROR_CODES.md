@@ -12,6 +12,7 @@ A community-maintained reference of FibreSeeker 3 error codes — what they mean
 | [`10057`](#10057--unhandled-exception-during-run) | Unhandled exception during run — comma-decimal G-code at the CFC tool change (`Rotation distance can not be zero` / `10009`) | Slicer bug, **not** fixed in firmware — re-slice with a period-decimal locale or use the drag-&-drop `Fixer.bat` |
 | [`10065`](#10065--right-plastic-missing) | Right nozzle plastic filament missing | Update firmware to `2.2.38.721.295`+ |
 | [`10072`](#10072--platform-not-flat) | Platform not flat | Level the heatbed — see the manual's *Heatbed Leveling* section |
+| [`10077`](#10077--chamber-temperature-too-high-wrong-sensor) | "Chamber temperature too high" — but the check reads the **toolhead** sensor, not the chamber | Not fixed in firmware — see [issue #10](../../issues/10); community config workaround below |
 
 ---
 
@@ -129,6 +130,70 @@ Other guides in this repo that touch on leveling:
 - [Troubleshooting First Layer Print Failure](Documentation/Troubleshooting%C2%A0First%20Layer%20Print%20Failure%20(1).pdf) — insufficient heatbed leveling as a first-layer failure cause
 
 If the mesh still reports out-of-range after careful hot leveling, the bed surface or plate may be physically damaged — open an [issue](../../issues) with your mesh readings.
+
+---
+
+## 10077 — Chamber temperature too high (wrong sensor)
+
+**Example message:** `code 10077, Chamber temperature too high: 63.8C (limit 63.0C for PETG)`
+
+Introduced in firmware **`2.2.42.831.320`** as *"In-cabin temperature monitoring & exception reporting"* (see [FIRMWARE.md](FIRMWARE.md)): the machine is supposed to raise an exception when the in-cabin (chamber) temperature exceeds **53°C for PLA/PLA-CF** or **63°C for PETG**. **The check does not read the chamber sensor.** The implementing Moonraker component, `enclosure_temp_monitor`, ships configured to monitor **`temperature_sensor toolhead_temp`** — the sensor on the toolhead board — and reports that value as the chamber temperature.
+
+### Evidence from the printer's own logs
+
+The shipped Moonraker configuration and its startup logs name the sensor directly:
+
+```text
+[enclosure_temp_monitor]
+enable = True
+sensor = temperature_sensor toolhead_temp   # ← wrong sensor
+check_interval = 5.0
+```
+
+```text
+EnclosureTempMonitor: loaded (enable=True, sensor=temperature_sensor toolhead_temp,
+  limits={'PLA': 53.0, 'PLA_CF': 53.0, 'PETG': 63.0}, interval=5.0s, ...)
+EnclosureTempMonitor: subscribed to temperature_sensor toolhead_temp (temp=49.0)
+```
+
+And the alarm notification payload identifies it again at trigger time:
+
+```text
+notify_enclosure_temp_monitor_alarm: {'message': 'Chamber temperature too high: 63.8C
+  (limit 63.0C for PETG)', 'temperature': 63.76, 'limit': 63.0, 'material': 'PETG',
+  'sensor': 'temperature_sensor toolhead_temp', 'paused': True}
+```
+
+Meanwhile the machine's *actual* chamber sensor is a separate, properly configured device that was nowhere near the limit:
+
+```ini
+[heater_generic chamber]            # the real chamber sensor
+sensor_type: Generic 3950
+sensor_pin: PB0                     # ≈ 34.8°C at the moment of the alarm
+
+[temperature_sensor toolhead_temp]  # the sensor the 10077 check actually reads
+sensor_type: Generic 3950
+sensor_pin: toolhead:PC3            # ≈ 63.8°C — exactly the value shown in error 10077
+```
+
+The reported value tracks the toolhead, not the chamber: the alarm fired when `toolhead_temp` hit ~63.8°C (chamber ~34.8°C), and it cleared ~8 minutes later at `temp=60.9` as the toolhead cooled. Full capture: [issue #10](../../issues/10).
+
+### Why it matters
+
+The toolhead sits beside the hotends and routinely reaches 60–70°C during normal PETG printing, so the check **pauses healthy prints for a condition that isn't occurring**. The accompanying guidance ("open the chamber door and top cover to ventilate") then sends users chasing chamber cooling while the dashboard's chamber reading contradicts the error. Conversely, a *genuine* chamber overheat is not what this check is protecting against.
+
+### Workaround (community-suggested, unverified)
+
+The monitored sensor is a configuration option in `[enclosure_temp_monitor]`:
+
+1. In the Moonraker config (typically `~/printer_data/config/moonraker.cfg`), change `sensor = temperature_sensor toolhead_temp` to `sensor = heater_generic chamber` — or set `enable = False` to disable the check entirely.
+2. Restart Moonraker.
+
+> **Caveats:** this section is part of the firmware-supplied configuration — a later OTA update may overwrite the edit. This workaround has not been verified by the maintainers.
+
+### Status
+
+Open — tracked in [issue #10](../../issues/10). No firmware release fixes this as of `2.2.42.831.320`. If monitoring the toolhead sensor turns out to be intentional (as a proxy for cabin temperature), the error message and sensor labeling still need correcting — they currently report a toolhead reading as "chamber" temperature.
 
 ---
 

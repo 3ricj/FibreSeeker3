@@ -22,6 +22,7 @@ Firmware files for the FibreSeeker 3 (SK3). These are downloaded directly from t
 
 - **Material type pre-check** — verifies the slicing file matches the material roll loaded on the machine; a pop-up prompts if they do not match (error code `10076`).
 - **In-cabin temperature monitoring & exception reporting** — reports an exception when the in-cabin temperature exceeds 53°C for PLA or 63°C for PETG.
+  > **⚠️ Not accurate as worded:** the component that implements this feature (Moonraker's `enclosure_temp_monitor`) ships configured with `sensor = temperature_sensor toolhead_temp`, so it reads the **toolhead-board** temperature and reports it as "in-cabin/chamber" temperature (error code `10077`). False pauses have been observed on PETG prints while the actual chamber sensor (`heater_generic chamber`) read ~35°C. See [error code 10077](ERROR_CODES.md#10077--chamber-temperature-too-high-wrong-sensor) and [issue #10](https://github.com/3ricj/FibreSeeker3/issues/10).
 - **Enhanced pause-shift interface** — supports XY repositioning and switching print heads while paused.
 - **Editing of loaded material channels** — added an editing entry for loaded material channels.
 - **Built-in model updates** — new built-in models for PLA and PETG.
