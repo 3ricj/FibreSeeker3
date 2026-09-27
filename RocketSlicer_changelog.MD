@@ -57,6 +57,45 @@ This update focuses on improving slicing quality for complex models, continuous 
 
 ---
 
+## Rocket Slicer 1.3.2 — July 2026
+
+> *Source: [FIBRESEEK Wiki — Rocket Slicer 1.3.2 Public Release Note](https://wiki.fibreseek3d.com/en/software/rocket-slicer/release-notes/rs-v132)*
+
+### New/Updated Material Profiles
+
+- Added new material profiles for PA and PPS.
+- Optimized the material profiles for PETG and PET-GF.
+
+### Bug Fixes
+
+- Fixed an issue where plastic perimeters could extend beyond the model boundary under certain conditions.
+- Fixed an issue where, after enabling adaptive fiber perimeter count, fiber infill segments could be generated outside the outer shell and overlap with the solid infill associated with the fiber perimeters.
+- Fixed an issue where the plastic and fiber extrusion compensation factors were not set to the default value of 1.0 after opening older projects.
+
+---
+
+## Rocket Slicer 1.3.1 — July 2026
+
+> *Source: [FIBRESEEK Wiki — Rocket Slicer 1.3.1 Public Release Note](https://wiki.fibreseek3d.com/en/software/rocket-slicer/release-notes/rs-v131)*
+
+### New Features
+
+- Added new parameters related to micro infill.
+- Added separate plastic and fiber extrusion compensation ratios, allowing the extrusion amounts to be adjusted independently. The default value is 1.0, with an effective range of approximately 0.01–2.0.
+- Added Overhang Infill controls, including infill pattern, extrusion multiplier, line width, speed, infill angle, and extension distance. Overhang infill toolpaths can now be viewed and toggled independently in the preview.
+- Added parameters related to Replace Fiber Plastic Solid.
+- Replaced the previous fiber perimeter count setting with separate inner and outer contour settings, and moved them to the commonly used parameters section.
+- Added the "Place Fiber Seam at the End of the Longest Edge" option. When enabled, other seam position adjustment options are automatically disabled to prevent conflicts.
+- Added three new top surface infill patterns: Hilbert Curve, Archimedean Chords, and Octagram Spiral.
+
+### Experience Improvements
+
+- Fixed an issue where printer acceleration and other parameters could be incorrectly set to excessively low values, such as 50, when opening or importing legacy 3MF files or older projects.
+- Missing new parameters in older projects are now automatically populated with reasonable default values, reducing parameter errors and slicing result deviations after import.
+- Fixed an issue where templates contained in a project could not be exported after opening the project.
+
+---
+
 ## Rocket Slicer 1.3.0 — July 2026
 
 > *Historical entry — details available in the [Rocket Slicer Quick Start Guide V1.3.0](Documentation/Rocket%20Slicer%20Quick%20Start%20Guide%20V1.3.0%202026-07-11.pdf).*
