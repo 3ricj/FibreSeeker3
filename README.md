@@ -32,6 +32,14 @@ The [`Documentation/`](Documentation/) folder collects official manuals and main
 
 If you solve a problem that stumped you, consider sharing it — future owners will thank you.
 
+## 🔍 Exploration
+
+Working investigation notes from hands-on teardown and firmware analysis — discovery records, not official documentation:
+
+- [Hardware Info](Exploration/HardwareInfo.md) — controller board inventory: connectors, ICs, drivers, signal map, power architecture
+- [Heads](Exploration/Heads.md) — the two-head toolchanger: naming, extruder semantics, tool-change behavior
+- [Fiber Usage](Exploration/FibreUsage.md) — how CFC fiber printing actually works at the G-code level (cut/tail-reuse mechanics, `M1001` budgets)
+
 ## 🤝 Contributing
 
 This project thrives on community contributions:
