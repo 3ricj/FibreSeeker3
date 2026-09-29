@@ -70,15 +70,15 @@ The functional assignments of covered regions are inferences; the exposed connec
 
 ### 2.2 PCB markings
 
-The upper-right silkscreen is partly obscured by the heatsink. Readable portions are approximately:
+The upper-right silkscreen is now **fully confirmed** (2026-09-29 owner inspection):
 
 ```text
-…01-PCB-020(A2)
-…S3_CTRL_BOARD
-…0260113    V2.2
+001-PCB-020(A2)
+FS3_CTRL_BOARD
+20260113   V2.2
 ```
 
-`V2.2` is clear. Leading characters and the complete numeric string remain unverified; a second close-up pass corroborated the visible strings but did not expose the hidden prefix. Do not convert the partly visible string into a manufacturing date without clearer visual confirmation.
+Board ID `001-PCB-020(A2)`, product name `FS3_CTRL_BOARD` (FibreSeeker 3 control board), date code `20260113`, revision `V2.2`. The earlier partly obscured reading of this block is superseded. The eight-digit field reads as an ISO date code (2026-01-13); it precedes the vendor kernel build date of 2026-04-23 (3.1), consistent with board-before-software, but the date remains a marking reading, not a vendor-documented manufacture date.
 
 ### 2.3 Manufacturer and module identity
 
