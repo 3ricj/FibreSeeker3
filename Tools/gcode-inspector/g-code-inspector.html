@@ -1,0 +1,2718 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>G-code Inspector — FibreSeeker 3</title>
+<style>
+  :root {
+    --bg: #0f1115; --panel: #171b22; --panel2: #1e242e; --line: #2a323f;
+    --fg: #dfe6ef; --dim: #8b98a9; --acc: #4aa8ff;
+    --critical: #ff5b5b; --warning: #ffb443; --info: #57c98b;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; background: var(--bg); color: var(--fg);
+    font: 14px/1.5 -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  }
+  header {
+    padding: 14px 20px; border-bottom: 1px solid var(--line);
+    display: flex; align-items: baseline; gap: 14px; flex-wrap: wrap;
+  }
+  header h1 { font-size: 17px; margin: 0; letter-spacing: .3px; }
+  header .sub { color: var(--dim); font-size: 12px; }
+  main { padding: 18px 20px 60px; max-width: 1500px; margin: 0 auto; }
+  .bar {
+    display: flex; gap: 10px; align-items: center; flex-wrap: wrap;
+    background: var(--panel); border: 1px solid var(--line); border-radius: 8px;
+    padding: 12px 14px; margin-bottom: 16px;
+  }
+  .bar label { color: var(--dim); font-size: 12px; display: flex; gap: 5px; align-items: center; }
+  .bar input[type=number] { width: 68px; background: var(--panel2); color: var(--fg); border: 1px solid var(--line); border-radius: 5px; padding: 4px 6px; }
+  button, .filebtn {
+    background: var(--acc); color: #04121f; border: 0; border-radius: 6px;
+    padding: 8px 14px; font-weight: 600; cursor: pointer; font-size: 13px;
+  }
+  button.ghost { background: var(--panel2); color: var(--fg); border: 1px solid var(--line); font-weight: 500; }
+  button:disabled { opacity: .45; cursor: default; }
+  input[type=file] { display: none; }
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 10px; margin-bottom: 16px; }
+  .card { background: var(--panel); border: 1px solid var(--line); border-radius: 8px; padding: 10px 12px; }
+  .card h3 { margin: 0 0 6px; font-size: 13px; }
+  .card .num { font-size: 22px; font-weight: 700; }
+  .card .lbl { color: var(--dim); font-size: 11px; text-transform: uppercase; letter-spacing: .5px; }
+  table { border-collapse: collapse; width: 100%; font-size: 12.5px; }
+  th, td { border-bottom: 1px solid var(--line); padding: 6px 8px; text-align: left; vertical-align: top; }
+  th { color: var(--dim); font-weight: 600; font-size: 11px; text-transform: uppercase; letter-spacing: .4px; position: sticky; top: 0; background: var(--panel); }
+  td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+  tr.row { cursor: pointer; }
+  tr.row:hover td { background: var(--panel2); }
+  tr.sel td { background: #1b2b3d; }
+  .sev { font-weight: 700; text-transform: uppercase; font-size: 10.5px; letter-spacing: .5px; }
+  .sev.critical { color: var(--critical); }
+  .sev.warning { color: var(--warning); }
+  .sev.info { color: var(--info); }
+  .pill { display: inline-block; padding: 1px 7px; border-radius: 9px; background: var(--panel2); border: 1px solid var(--line); font-size: 11px; }
+  .pill.hit { border-color: var(--acc); color: var(--acc); }
+  details { background: var(--panel); border: 1px solid var(--line); border-radius: 8px; padding: 10px 14px; margin-bottom: 14px; }
+  summary { cursor: pointer; font-weight: 600; }
+  .findings { max-height: 460px; overflow: auto; border: 1px solid var(--line); border-radius: 6px; margin-top: 8px; }
+  .muted { color: var(--dim); }
+  .mono { font-family: ui-monospace, "SF Mono", Consolas, monospace; font-size: 12px; }
+  .drop { border: 1px dashed var(--line); border-radius: 8px; padding: 26px; text-align: center; color: var(--dim); margin-bottom: 16px; }
+  .drop.over { border-color: var(--acc); color: var(--acc); }
+  .split { display: grid; grid-template-columns: 1fr 380px; gap: 14px; align-items: start; }
+  @media (max-width: 1100px) { .split { grid-template-columns: 1fr; } }
+  .kv { display: grid; grid-template-columns: auto 1fr; gap: 3px 12px; font-size: 12.5px; }
+  .kv div:nth-child(odd) { color: var(--dim); }
+  .hist { display: flex; align-items: flex-end; gap: 2px; height: 70px; }
+  .hist div { flex: 1; background: var(--acc); min-height: 1px; border-radius: 2px 2px 0 0; }
+  a { color: var(--acc); }
+</style>
+</head>
+<body>
+<header>
+  <h1>FibreSeeker 3 G-code Inspector</h1>
+  <span class="sub">static analyser for Rocket Slicer output &mdash; files are read locally and never leave this tab</span>
+</header>
+
+<main>
+  <div class="bar">
+    <label class="filebtn" for="files">Choose .gcode files</label>
+    <input type="file" id="files" multiple accept=".gcode,.gco,.g,.txt">
+    <button id="run" disabled>Inspect</button>
+    <label>cell <input type="number" id="cell" value="0.2" step="0.05" min="0.1" max="1"> mm</label>
+    <label>gap &times;bead <input type="number" id="gapRatio" value="1.5" step="0.1" min="1" max="4"></label>
+    <label>unsupported floor <input type="number" id="minUnsup" value="16" step="1" min="2"> mm</label>
+    <label>seam run <input type="number" id="minSeam" value="10" step="1" min="2"> layers</label>
+    <label><input type="checkbox" id="coverage" checked> coverage raster</label>
+    <button class="ghost" id="export">Export JSON</button>
+    <span class="muted" id="status"></span>
+  </div>
+
+  <div class="drop" id="drop">Drop <span class="mono">.gcode</span> files here, or use “Choose .gcode files”. Files never leave the browser.</div>
+
+  <div id="out"></div>
+</main>
+
+<script>
+/* Bundled engine — generated by build_bundle.js from:
+   src/dialect.js, src/raster.js, src/inspector.js
+   Do not edit this file by hand; edit src/*.js and re-run the builder. */
+/* ===== src/dialect.js ===== */
+/*
+ * FibreSeeker 3 G-code Inspector — dialect helpers
+ *
+ * Everything the Rocket Slicer emits that a generic G-code parser gets wrong is
+ * centralised here (see GCODE_REFERENCE.md in this repository):
+ *   - `U` / `V` are relative extrusion axes (a fiber move has no `E` word at all)
+ *   - `P` on a G1 move is a fiber process parameter, not dwell/probe
+ *   - layer markers are `; LAYER:<1-based> [<absolute Z>]` (space after `;`)
+ *   - feature type comes from `; <Feature> start` comments, not `;TYPE:`
+ *   - `M106 P<n> S<...>` is a multi-port fan selector
+ *   - `; MATERIAL_PRINT_DATA:` is the slicer's declared per-tool material use
+ *   - machine-assist features (AI detection, bed mesh, runout) can only appear
+ *     as executable commands — see MACHINE_FLAGS
+ *
+ * OrcaSlicer / PrusaSlicer output is also recognised, because the same engine
+ * has to read it: features come from `;TYPE:<role>` (TYPE_FEATURES), bead widths
+ * from `; <role> extrusion width = <n>mm` header lines (TYPE_WIDTH_LINES), and
+ * profile settings from a flat `; <key> = <value>` config dump (parseConfigDump
+ * + flatSettings) instead of a `; SESSION:` JSON blob. The Rocket-only readers
+ * are untouched, so a Rocket file never reaches the flat-config path.
+ *
+ * Loaded as a plain browser script (attaches to window.FS3) or via require() in Node.
+ */
+(function (root) {
+  'use strict';
+
+  // ---- verbs -------------------------------------------------------------
+  var MOTION_VERBS = { G0: 1, G1: 1 };
+  var STANDARD_G = {
+    G0: 1, G1: 1, G4: 1, G10: 1, G11: 1, G21: 1, G28: 28, G90: 1, G91: 1, G92: 1
+  };
+  // M73 is universal progress reporting (Klipper and Marlin both implement it),
+  // so flagging it as an undefined verb is noise rather than a contract finding.
+  var STANDARD_M = {
+    M82: 1, M83: 1, M104: 1, M106: 1, M107: 1, M109: 1, M112: 1, M115: 1, M118: 1,
+    M140: 1, M141: 1, M190: 1, M191: 1, M203: 1, M204: 1, M205: 1, M220: 1, M221: 1,
+    M400: 1, M600: 1, M605: 1, M73: 1, M1001: 1, M1002: 1, M2800: 1
+  };
+  // Macros the slicer/firmware contract documents as defined (GCODE_REFERENCE.md §3).
+  var KNOWN_MACROS = {
+    MOVE_TO_BRUSH_STATION: 1,
+    CLEAN_NOZZLE: 1,
+    MOVE_OUT_BRUSH_STATION: 1,
+    SET_PRINT_STATS_INFO: 1,
+    SET_PRINT_PREP_STAGE: 1,
+    SET_PRESSURE_ADVANCE: 1,
+    SET_VELOCITY_LIMIT: 1,
+    SET_TOOL_CORNER_VELOCITY: 1,
+    PRINT_START: 1,
+    PRINT_RESUME: 1,
+    PRINT_CANCEL: 1,
+    GCODE: 1
+  };
+
+  // ---- feature sections --------------------------------------------------
+  // name -> {type, entity key used for bead width, wall: is this a perimeter?}
+  var FEATURES = {
+    'Inset 0': { type: 'WALL', entity: 'INSET0', wall: true },
+    'Inset XP': { type: 'WALL', entity: 'INSET_XP', wall: true },
+    'Inset XF': { type: 'WALL', entity: 'INSET_XF', wall: true },
+    'Cellular infill': { type: 'FILL', entity: 'INFILL_CELLULAR_P' },
+    'Micro infill': { type: 'SOLID', entity: 'MICRO_INFILL_P' },
+    'Solid infill': { type: 'SOLID', entity: 'INFILL_SOLID_P' },
+    'Top most solid infill': { type: 'TOP', entity: 'INFILL_SOLID_P_TOP_MOST' },
+    'Top intermediate solid infill': { type: 'TOP', entity: 'INFILL_SOLID_P_TOP_INTERMEDIATE' },
+    'Bottom most solid infill': { type: 'BOTTOM', entity: 'INFILL_SOLID_P_BOTTOM_MOST' },
+    'Bottom intermediate solid infill': { type: 'BOTTOM', entity: 'INFILL_SOLID_P_BOTTOM_INTERMEDIATE' },
+    'Bridge solid infill': { type: 'BRIDGE', entity: 'BRIDGE_SOLID_INFILL' },
+    'Overhang infill': { type: 'OVERHANG', entity: 'OVERHANG_INFILL' },
+    'Overhang solid infill': { type: 'OVERHANG', entity: 'OVERHANG_SOLID_INFILL' },
+    'Fiber infill': { type: 'FIBER', entity: 'INFILL_FIBER' },
+    'Replace fiber plastic solid infill': { type: 'SOLID', entity: 'REPLACE_FIBER_PLASTIC_SOLID' },
+    'Support thick': { type: 'SUPPORT', entity: 'SUPPORT_THICK' },
+    'Support thin': { type: 'SUPPORT', entity: 'SUPPORT_THIN' },
+    'Support interface': { type: 'SUPPORT', entity: 'SUPPORT_INTERFACE' },
+    'Skirt': { type: 'SKIRT', entity: 'SKIRT' },
+    'Brim': { type: 'BRIM', entity: 'BRIM' },
+    'Priming line': { type: 'PRIMING', entity: 'FIBER_PREPARATION' },
+    'Wipe tower': { type: 'WIPE', entity: 'WIPE_TOWER' }
+  };
+
+  // ---- OrcaSlicer / PrusaSlicer `;TYPE:` roles -----------------------------
+  // Same contract as FEATURES: a type label plus the width key to look up in the
+  // header's extrusion-width lines, and `wall` for the coverage raster. Without
+  // this map every bead on an Orca file is UNKNOWN and falls back to the 0.4 mm
+  // default instead of the header's declared 0.42 mm.
+  var TYPE_FEATURES = {
+    'Outer wall': { type: 'WALL', entity: 'INSET0', wall: true },
+    'Inner wall': { type: 'WALL', entity: 'INSET_XP', wall: true },
+    'Sparse infill': { type: 'FILL', entity: 'INFILL_CELLULAR_P' },
+    'Internal solid infill': { type: 'SOLID', entity: 'INFILL_SOLID_P' },
+    'Top surface': { type: 'TOP', entity: 'INFILL_SOLID_P_TOP_MOST' },
+    'Bottom surface': { type: 'BOTTOM', entity: 'INFILL_SOLID_P_BOTTOM_MOST' },
+    'Support': { type: 'SUPPORT', entity: 'SUPPORT_THICK' },
+    'Support material': { type: 'SUPPORT', entity: 'SUPPORT_THICK' },
+    'Support base': { type: 'SUPPORT', entity: 'SUPPORT_THICK' },
+    'Support interface': { type: 'SUPPORT', entity: 'SUPPORT_INTERFACE' },
+    'Support roof': { type: 'SUPPORT', entity: 'SUPPORT_INTERFACE' },
+    'Skirt': { type: 'SKIRT', entity: 'SKIRT' },
+    'Brim': { type: 'BRIM', entity: 'BRIM' },
+    'Brim_EligibleSpace': { type: 'BRIM', entity: 'BRIM' },
+    'Wipe tower': { type: 'WIPE', entity: 'WIPE_TOWER' },
+    'Wipe tower purge': { type: 'WIPE', entity: 'WIPE_TOWER' },
+    'Purge line': { type: 'PRIMING', entity: 'FIBER_PREPARATION' },
+    // `;TYPE:Custom` brackets preamble/postamble and tool changes. It is not a
+    // geometry role, so it maps to no printable feature — tracked here so it is
+    // not reported as an unknown role.
+    'Custom': { type: 'CUSTOM', entity: 'UNKNOWN' }
+  };
+
+  // Orca/Prusa header width lines, `; external perimeters extrusion width =
+  // 0.42mm`, keyed by role text and mapped onto the FEATURES entity keys.
+  var TYPE_WIDTH_LINES = {
+    'external perimeters': 'INSET0',
+    'perimeters': 'INSET_XP',
+    'infill': 'INFILL_CELLULAR_P',
+    'solid infill': 'INFILL_SOLID_P',
+    'top infill': 'INFILL_SOLID_P_TOP_MOST',
+    'first layer': 'FIRST_LAYER'
+  };
+
+  // Fallback bead widths (mm) when the SESSION echo has no EntitySizes entry.
+  var DEFAULT_WIDTH = {
+    INSET0: 0.4, INSET_XP: 0.4, INSET_XF: 0.8, INFILL_CELLULAR_P: 0.45,
+    MICRO_INFILL_P: 0.4, INFILL_SOLID_P: 0.35, INFILL_SOLID_P_TOP: 0.4,
+    INFILL_SOLID_P_TOP_MOST: 0.4, INFILL_SOLID_P_TOP_INTERMEDIATE: 0.4,
+    INFILL_SOLID_P_BOTTOM: 0.4, INFILL_SOLID_P_BOTTOM_MOST: 0.4,
+    INFILL_SOLID_P_BOTTOM_INTERMEDIATE: 0.4, BRIDGE_SOLID_INFILL: 0.4,
+    OVERHANG_INFILL: 0.4, OVERHANG_SOLID_INFILL: 0.35, INFILL_FIBER: 0.8,
+    REPLACE_FIBER_PLASTIC_SOLID: 0.4, SUPPORT_THICK: 0.4, SUPPORT_THIN: 0.4,
+    SUPPORT_INTERFACE: 0.4, SKIRT: 0.54, BRIM: 0.4, FIBER_PREPARATION: 0.8,
+    WIPE_TOWER: 0.4
+  };
+
+  // Comment-embedded numbers follow the slicer host's locale, so a file can
+  // declare `; LAYER:1 [0,2]` and `; SEAM Plastic at X31,150` while the G-code
+  // body still uses dots (`X81.634`). Every comment-side number goes through
+  // num() so a comma decimal separator cannot silently drop a layer marker.
+  var RE_LAYER = /^;\s*LAYER:(\d+)\s*\[([^\]]+)\]/;
+  var RE_MACROLAYER = /^;\s*MACROLAYER:/;
+  var RE_SEAM = /^;\s*SEAM\s+(Plastic|Fiber)\s+at\s+X([-\d.,]+)\s+Y([-\d.,]+)\s+Z([-\d.,]+)/;
+
+  // Parse a comment-side number tolerating a comma decimal separator. When both
+  // separators appear the comma is a thousands group, so it is simply dropped.
+  function num(text) {
+    if (typeof text === 'number') return text;
+    var s = String(text).trim();
+    if (s.indexOf(',') === -1) return parseFloat(s);
+    if (s.indexOf('.') === -1) return parseFloat(s.replace(',', '.'));
+    return parseFloat(s.replace(/,/g, ''));
+  }
+  var RE_SECTION = /^;\s*(.+?)\s+(start|end)\s*$/;
+  // OrcaSlicer / PrusaSlicer markers and header lines.
+  var RE_TYPE = /^;\s*TYPE:\s*(.+?)\s*$/;
+  var RE_GEN_ORCA = /^;\s*generated by (.+)$/;
+  // Orca writes `; total layer number: 32` in the header block and
+  // `; total layers count = 32` in the summary block; Prusa writes the latter.
+  var RE_LAYERCOUNT_ORCA = /^;\s*total (?:layer number|layers count)\s*[:=]\s*(\d+)/i;
+  // `; <key> = <value>` config dump. Keys are lower snake_case in every
+  // Orca/Prusa export; requiring that shape keeps `; filament used [g] = 0.94`
+  // and `; thumbnail begin …` out of the parse.
+  var RE_CONFIG_LINE = /^;\s*([a-z][a-z0-9_]*)\s*=\s*(.*)$/;
+  var RE_EW_LINE = /^;\s*(.+?)\s+extrusion width\s*=\s*([\d.,]+)\s*mm/;
+  var RE_SESSION = /^;\s*SESSION:\s*/;
+  var RE_MATERIAL = /^;\s*MATERIAL_PRINT_DATA:\s*/;
+  var RE_ENTITY = /^;\s*ENTITY_PRINT_DATA:\s*/;
+  var RE_THUMB_START = /^;\s*thumbnail start/;
+  var RE_GEN = /^;\s*Generated with (.+)$/;
+  var RE_PROC = /^;\s*Printer Processor Type:\s*(.+)$/;
+  var RE_MODE = /^;\s*PRINTING_MODE:\s*(.+)$/;
+  var RE_LAYERCOUNT = /^;\s*LAYER_COUNT:\s*(\d+)/;
+
+  // ---- line parsing ------------------------------------------------------
+  function parseLine(line) {
+    var semi = line.indexOf(';');
+    var code = semi === -1 ? line : line.slice(0, semi);
+    var comment = semi === -1 ? '' : line.slice(semi);
+    var out = {
+      verb: '', code: code.trim(), comment: comment, args: null,
+      isComment: /^\s*;/.test(line)
+    };
+    if (!out.code) return out;
+
+    var parts = out.code.split(/[\s,]+/);
+    out.verb = parts[0].toUpperCase();
+    var args = {};
+    for (var i = 1; i < parts.length; i++) {
+      var p = parts[i];
+      if (!p) continue;
+      var k = p.charAt(0).toUpperCase();
+      var v = parseFloat(p.slice(1));
+      if (!isNaN(v)) args[k] = v;
+      else if (/^[A-Z_]+$/.test(p)) args[p] = true;
+    }
+    out.args = args;
+    return out;
+  }
+
+  // Extrusion axes: E (plastic), U (fiber), V (matrix). All relative (M83).
+  function extrusionDeltas(args, absE, lastE) {
+    var dE = 0, dU = 0, dV = 0;
+    if (args.E !== undefined) dE = absE ? args.E - lastE : args.E;
+    if (args.U !== undefined) dU = args.U;
+    if (args.V !== undefined) dV = args.V;
+    return { dE: dE, dU: dU, dV: dV };
+  }
+
+  function isCustomVerb(verb, extraDefined) {
+    if (!verb) return false;
+    if (MOTION_VERBS[verb]) return false;
+    if (STANDARD_G[verb]) return false;
+    if (STANDARD_M[verb]) return false;
+    if (/^T\d+$/.test(verb)) return false;
+    if (KNOWN_MACROS[verb]) return false;
+    if (extraDefined && extraDefined[verb]) return false;
+    return true;
+  }
+
+  // ---- SESSION metadata --------------------------------------------------
+  function parseSession(text) {
+    var m = RE_SESSION.exec(text);
+    if (!m) return null;
+    var start = text.indexOf('{', m.index + m[0].length - 1);
+    if (start < 0) return null;
+    // The SESSION echo is one JSON object on a single line; find its end by brace balance.
+    var depth = 0, inStr = false, esc = false, end = -1;
+    for (var i = start; i < text.length; i++) {
+      var c = text.charAt(i);
+      if (inStr) {
+        if (esc) esc = false;
+        else if (c === '\\') esc = true;
+        else if (c === '"') inStr = false;
+        continue;
+      }
+      if (c === '"') { inStr = true; continue; }
+      if (c === '{') depth++;
+      else if (c === '}') { depth--; if (depth === 0) { end = i; break; } }
+    }
+    if (end < 0) return null;
+    try { return JSON.parse(text.slice(start, end + 1)); } catch (e) { return null; }
+  }
+
+  // Flatten the interesting bits of the SESSION echo into one settings object.
+  function sessionSettings(session) {
+    var s = {
+      material: null, filamentDiameter: 1.75, zhopP: null, doZHop: null,
+      minLayerTime: null, coolingWindow: null, travelSpeedXY: 500, travelSpeedZ: 10, areaX: 305, areaY: 305,
+      inset0Speed: null, inset0EWMM: null, macroLayerHeight: null,
+      seamDistributionPlastic: null, seamStartPlastic: null,
+      retractOnLayerChange: null, retractOnlyWhenCrossing: null,
+      retractLenOnTravel: null, retractSpeed: 20, retractMinTravelNoCrossing: null,
+      retractMinTravelOnCrossing: null, startGCode: '', endGCode: '',
+      fanSchedule: null, widths: {}, slicerSaysPlasticOnly: false,
+      // Fortified = the fibre is part of the part's own perimeters from the
+      // bottom up, so it must be laid down on layer 1. `CurrentSliceType` 2 is
+      // the slicer's "Composite Only" mode and `MustGenerateFiberPerimeters`
+      // is the matching profile switch; both are true only on the fortified
+      // fixture in this corpus.
+      currentSliceType: null, mustGenerateFiberPerimeters: null, fortified: false,
+      closeFanFirstLayers: null, settingsSource: 'none',
+      // Which profile key each value came from, so evidence strings name the
+      // dialect's authority that actually fired.
+      minLayerTimeSource: 'Profile.MinLayerTimeForSlowing',
+      minLayerTimeKey: 'MinLayerTimeForSlowing',
+      doZHopKey: 'DoZHop',
+      coolingWindowSource: 'Profile.LayerTimeForMaxCooling'
+    };
+    if (!session) return s;
+    s.settingsSource = 'session';
+    var P = session.Profile || {};
+    var PR = session.Printer || {};
+    s.doZHop = P.DoZHop === undefined ? null : !!P.DoZHop;
+    s.minLayerTime = P.MinLayerTimeForSlowing === undefined ? null : P.MinLayerTimeForSlowing;
+    s.coolingWindow = P.LayerTimeForMaxCooling === undefined ? null : P.LayerTimeForMaxCooling;
+    s.inset0Speed = P.Inset0Speed === undefined ? null : P.Inset0Speed;
+    s.inset0EWMM = P.Inset0EWMM === undefined ? null : P.Inset0EWMM;
+    s.macroLayerHeight = P.MacroLayerHeight === undefined ? null : P.MacroLayerHeight;
+    s.seamDistributionPlastic = P.EnableAdjustSeamDistributionPositionPlastic === undefined
+      ? null : !!P.EnableAdjustSeamDistributionPositionPlastic;
+    s.seamStartPlastic = P.EnableAdjustSeamStartPositionPlastic === undefined
+      ? null : !!P.EnableAdjustSeamStartPositionPlastic;
+    s.retractOnLayerChange = P.DoRetractOnLayerChange === undefined ? null : !!P.DoRetractOnLayerChange;
+    s.retractOnlyWhenCrossing = P.DoRetractOnlyWhenCrossingPerimeters === undefined
+      ? null : !!P.DoRetractOnlyWhenCrossingPerimeters;
+    s.startGCode = String(P.StartGCode || '') + '\n' + String(PR.StartGCode || '');
+    s.endGCode = String(P.EndGCode || '') + '\n' + String(PR.EndGCode || '');
+    s.fanSchedule = P.LayersAndFanSpeedsArray || null;
+    s.currentSliceType = session.CurrentSliceType === undefined ? null : session.CurrentSliceType;
+    s.mustGenerateFiberPerimeters = P.MustGenerateFiberPerimeters === undefined
+      ? null : !!P.MustGenerateFiberPerimeters;
+    s.fortified = s.currentSliceType === 2 || s.mustGenerateFiberPerimeters === true;
+    s.travelSpeedXY = PR.TravelSpeedXY === undefined ? 500 : PR.TravelSpeedXY;
+    s.travelSpeedZ = PR.TravelSpeedZ === undefined ? 10 : PR.TravelSpeedZ;
+    s.areaX = PR.AreaSizeX === undefined ? 305 : PR.AreaSizeX;
+    s.areaY = PR.AreaSizeY === undefined ? 305 : PR.AreaSizeY;
+
+    var keys = Object.keys(session);
+    for (var i = 0; i < keys.length; i++) {
+      if (!/Slot$/.test(keys[i])) continue;
+      var slot = session[keys[i]] || {};
+      var mat = slot.Plastic || slot.Composite || null;
+      if (mat) {
+        if (mat.PlasticType) s.material = s.material || mat.PlasticType;
+        if (mat.FilamentDiameter) s.filamentDiameter = mat.FilamentDiameter;
+        if (mat.ZhopP !== undefined && s.zhopP === null) s.zhopP = mat.ZhopP;
+        if (mat.RetractionSpeed) s.retractSpeed = mat.RetractionSpeed;
+      }
+    }
+    var es = session.EntitySizes || {};
+    var ek = Object.keys(es);
+    for (var j = 0; j < ek.length; j++) {
+      var w = es[ek[j]].Width;
+      if (w > 0) s.widths[ek[j]] = w;
+    }
+    return s;
+  }
+
+  function beadWidth(settings, entityKey) {
+    if (settings.widths[entityKey]) return settings.widths[entityKey];
+    return DEFAULT_WIDTH[entityKey] || 0.4;
+  }
+
+  // ---- OrcaSlicer / PrusaSlicer flat config dump ---------------------------
+  /*
+   * Orca and Prusa export the whole profile as `; <key> = <value>` comment lines
+   * (716 of them in one Orca sample) instead of a `; SESSION:` JSON blob. Collect
+   * them into a flat map. Requiring a lower snake_case key plus skipping the
+   * thumbnail block keeps base64 payload lines out of the parse.
+   */
+  function parseConfigDump(lines) {
+    var cfg = {}, thumb = false;
+    for (var i = 0; i < lines.length; i++) {
+      if (/^;\s*thumbnail (?:begin|start)/.test(lines[i])) { thumb = true; continue; }
+      if (/^;\s*thumbnail end/.test(lines[i])) { thumb = false; continue; }
+      if (thumb) continue;
+      var m = RE_CONFIG_LINE.exec(lines[i]);
+      if (!m) continue;
+      if (cfg[m[1]] === undefined) cfg[m[1]] = m[2].trim();
+    }
+    return cfg;
+  }
+
+  function numOr(value, fallback) {
+    if (value === undefined || value === null || value === '') return fallback;
+    var n = parseFloat(String(value).replace(',', '.'));
+    return isNaN(n) ? fallback : n;
+  }
+
+  // `bed_shape = 0x0,300x0,300x300,0x300` -> [300, 300]
+  function bedExtent(value) {
+    if (!value) return null;
+    var maxX = 0, maxY = 0;
+    String(value).split(',').forEach(function (pt) {
+      var m = /^\s*([\d.]+)\s*x\s*([\d.]+)\s*$/.exec(pt);
+      if (!m) return;
+      maxX = Math.max(maxX, parseFloat(m[1]));
+      maxY = Math.max(maxY, parseFloat(m[2]));
+    });
+    return maxX > 0 ? [maxX, maxY] : null;
+  }
+
+  /*
+   * Flatten the flat dump into the same settings shape `sessionSettings`
+   * returns, so every rule that reads a profile value works on both dialects.
+   * Fields with no Orca/Prusa equivalent stay null rather than being guessed —
+   * a rule with no authority for a file must say so, not invent one. The
+   * `*Key` fields name the config key each value came from, so evidence strings
+   * quote the dialect the file actually speaks.
+   */
+  function flatSettings(cfg) {
+    var s = {
+      material: null, filamentDiameter: 1.75, zhopP: null, doZHop: null,
+      minLayerTime: null, coolingWindow: null, travelSpeedXY: 500, travelSpeedZ: 10, areaX: 305, areaY: 305,
+      inset0Speed: null, inset0EWMM: null, macroLayerHeight: null,
+      seamDistributionPlastic: null, seamStartPlastic: null,
+      retractOnLayerChange: null, retractOnlyWhenCrossing: null,
+      retractLenOnTravel: null, retractSpeed: 20, retractMinTravelNoCrossing: null,
+      retractMinTravelOnCrossing: null, startGCode: '', endGCode: '',
+      fanSchedule: null, widths: {}, slicerSaysPlasticOnly: false,
+      currentSliceType: null, mustGenerateFiberPerimeters: null, fortified: false,
+      closeFanFirstLayers: null, settingsSource: 'none',
+      minLayerTimeSource: 'slow_down_layer_time', minLayerTimeKey: 'slow_down_layer_time',
+      doZHopKey: 'z_hop', coolingWindowSource: 'fan_cooling_layer_time'
+    };
+    if (!cfg || !Object.keys(cfg).length) return s;
+
+    s.settingsSource = 'flat-config';
+    if (cfg.filament_type) s.material = String(cfg.filament_type).split(',')[0].trim();
+    s.filamentDiameter = numOr(cfg.filament_diameter, 1.75);
+    // `z_hop` is the on/off switch (0 = off); the lift height lives in the
+    // per-filament `filament_z_hop`.
+    if (cfg.z_hop !== undefined) {
+      var zh = numOr(cfg.z_hop, 0);
+      s.doZHop = zh > 0;
+      if (zh > 0.05) s.zhopP = zh;
+    }
+    if (s.zhopP === null) s.zhopP = numOr(cfg.filament_z_hop, null);
+    // Orca's slowdown floor is `slow_down_layer_time`; the window that governs
+    // full fan speed is `fan_cooling_layer_time`.
+    s.minLayerTime = numOr(cfg.slow_down_layer_time, null);
+    s.coolingWindow = numOr(cfg.fan_cooling_layer_time, null);
+    s.closeFanFirstLayers = numOr(cfg.close_fan_the_first_x_layers, null);
+    s.macroLayerHeight = numOr(cfg.layer_height, null);
+    s.retractSpeed = numOr(cfg.retraction_speed, 20);
+    s.travelSpeedXY = numOr(cfg.travel_speed, 500) * 60;   // Orca mm/s -> mm/min
+    var tz = numOr(cfg.travel_speed_z, 0);
+    if (tz > 0) s.travelSpeedZ = tz;
+    var bed = bedExtent(cfg.bed_shape);
+    if (bed) { s.areaX = bed[0]; s.areaY = bed[1]; }
+    // Start/end gcode arrive as one line with literal \n escapes. Unescaping
+    // them keeps the C07 "header echo only" and C09 CASE_FAN rules working the
+    // way they do on a Rocket SESSION blob.
+    s.startGCode = String(cfg.machine_start_gcode || '').replace(/\\n/g, '\n');
+    s.endGCode = String(cfg.machine_end_gcode || '').replace(/\\n/g, '\n');
+    return s;
+  }
+
+  /*
+   * `; MATERIAL_PRINT_DATA: [ ... ]` — the slicer's own per-extruder material
+   * accounting, emitted near EOF. Shape:
+   *
+   *   [{"Type":0,"Extruder":{"Index":1,"Name":"FFF - 0.4 mm"},
+   *     "Materials":[{"MaterialType":0,"Name":"PETG","Length":1.43,"Volume":3.4,
+   *                   "Mass":4.4,"Cost":0.088}]}]
+   *
+   * `Type` 0 is the plastic (FFF) tool and 1 the composite (CFC) tool. Within a
+   * tool, `MaterialType` 0 is the matrix filament and 1 the continuous fibre tow.
+   * `Length` is in metres. This is the slicer's *declared* consumption, so it is
+   * the independent cross-check for the U/E totals the engine measures directly.
+   */
+  function parseMaterialPrintData(text) {
+    var m = RE_MATERIAL.exec(text);
+    if (!m) return null;
+    var start = text.indexOf('[', m.index + m[0].length - 1);
+    if (start < 0) return null;
+    var depth = 0, inStr = false, esc = false, end = -1;
+    for (var i = start; i < text.length; i++) {
+      var c = text.charAt(i);
+      if (inStr) {
+        if (esc) esc = false;
+        else if (c === '\\') esc = true;
+        else if (c === '"') inStr = false;
+        continue;
+      }
+      if (c === '"') { inStr = true; continue; }
+      if (c === '[') depth++;
+      else if (c === ']') { depth--; if (depth === 0) { end = i; break; } }
+    }
+    if (end < 0) return null;
+    try { return JSON.parse(text.slice(start, end + 1)); } catch (e) { return null; }
+  }
+
+  // Flatten MATERIAL_PRINT_DATA into { plastic: {..}, fiber: {..}, tow: {..} }
+  // with length in metres. Missing blocks yield null, not zero — "the slicer
+  // said nothing" and "the slicer said zero" are different findings.
+  function materialSummary(data) {
+    var out = { plastic: null, fiber: null, tow: null, entries: [] };
+    if (!Array.isArray(data)) return out;
+    data.forEach(function (grp) {
+      var extruder = (grp.Extruder && grp.Extruder.Name) || '';
+      (grp.Materials || []).forEach(function (mat) {
+        var rec = {
+          extruder: extruder, name: mat.Name || null,
+          toolType: grp.Type, materialType: mat.MaterialType,
+          lengthM: typeof mat.Length === 'number' ? mat.Length : null,
+          volumeCm3: typeof mat.Volume === 'number' ? mat.Volume : null,
+          massG: typeof mat.Mass === 'number' ? mat.Mass : null
+        };
+        out.entries.push(rec);
+        if (mat.MaterialType === 1) {
+          if (rec.lengthM && (!out.tow || out.tow.lengthM < rec.lengthM)) out.tow = rec;
+          else if (!out.tow) out.tow = rec;
+        } else if (grp.Type === 1) {
+          if (!out.fiber || out.fiber.lengthM < rec.lengthM) out.fiber = rec;
+        } else {
+          if (!out.plastic || out.plastic.lengthM < rec.lengthM) out.plastic = rec;
+        }
+      });
+    });
+    return out;
+  }
+
+  /*
+   * Machine-assist flags (issue-free owner request, 2026-10-03).
+   *
+   * The machine ships with AI/spaghetti detection, piezo bed mesh, resonance
+   * testing, filament runout and Z-probing (Exploration/HardwareInfo.md,
+   * ERROR_CODES.md 10072-10074 / 30001-30015). None of them are ever expressed
+   * as a SESSION key — the exported Profile/Printer vocabulary is purely
+   * slicing geometry and motion — so the only place a print can declare them is
+   * as an executable command. Each entry below is the token that would have to
+   * appear for the feature to be *active in this print*.
+   *
+   * `re` matches the command; `macro` means it is a firmware macro rather than
+   * a G/M verb. `expect` is a one-line note on what the token means.
+   *
+   * Every macro token carries a trailing `\w*`: Klipper-style macro names are
+   * underscore-joined, so `AI_DETECT` alone followed by `_START` has no word
+   * boundary after it and a bare `\b`-terminated pattern silently misses the
+   * very command it exists to find.
+   */
+  var MACHINE_FLAGS = [
+    { key: 'home', label: 'Homing (G28)', re: /\bG28\b/, expect: 'G28 homes the axes before the print' },
+    { key: 'bedMesh', label: 'Bed mesh / auto-leveling', re: /\b(G29\b|BED_MESH\w*|QUAD_GANTRY_LEVEL\w*|SCREWS_TILT_CALCULATE\w*|AUTO_LEVEL\w*)/, expect: 'G29 or BED_MESH_CALIBRATE runs a mesh before printing' },
+    { key: 'probe', label: 'Z probe / probe calibration', re: /\b(PROBE\w*|CALIBRATE\w*|SET_GCODE_OFFSET\w*|Z_END_CALIBRATE\w*)/, expect: 'a probe verb establishes or applies the Z offset' },
+    { key: 'aiDetect', label: 'AI / spaghetti detection', re: /\b(AI\w*DETECT\w*|AI_\w+|SPAGHETTI\w*|CAMERA\w*|MONITOR\w*|DETECT_(START|STOP)\w*)/, expect: 'an AI/camera detection macro is started by the print' },
+    { key: 'filamentSensor', label: 'Filament runout / motion sensor', re: /\b(FILAMENT\w*SENSOR\w*|CHECK_FILAMENT\w*|M411\b|M412\b)/, expect: 'a filament sensor is enabled for the print' },
+    { key: 'resonance', label: 'Resonance / input shaper calibration', re: /\b(RESONANCE\w*|SHAPER_CALIBRATE\w*|SET_INPUT_SHAPER\w*|INPUT_SHAPER\w*|ADXL\w*CONSULT\w*)/, expect: 'resonance or input-shaper calibration is invoked' },
+    { key: 'powerLoss', label: 'Power-loss recovery', re: /\b(POWER_LOSS\w*|RECOVER\b|RESTORE\b)/, expect: 'a power-loss recovery hook is present' },
+    { key: 'crashDetect', label: 'Crash detection', re: /\b(CRASH\w*|SET_CRASH\w*|STALLGUARD\w*|STEALTHBURNER\w*)/, expect: 'stallGuard/stealthBurner crash detection is enabled' },
+    { key: 'pauseOnFail', label: 'Pause/cancel-on-failure hook', re: /\b(PAUSE\w*|CANCEL_OBJECT\w*|SET_PRINT_STATUS\w*|PRINT_START\b|PRINT_RESUME\b|PRINT_CANCEL\b)/, expect: 'a pause/cancel-on-failure hook is armed' }
+  ];
+
+  root.FS3 = root.FS3 || {};
+  root.FS3.Dialect = {
+    FEATURES: FEATURES,
+    TYPE_FEATURES: TYPE_FEATURES,
+    TYPE_WIDTH_LINES: TYPE_WIDTH_LINES,
+    KNOWN_MACROS: KNOWN_MACROS,
+    MACHINE_FLAGS: MACHINE_FLAGS,
+    parseLine: parseLine,
+    num: num,
+    extrusionDeltas: extrusionDeltas,
+    isCustomVerb: isCustomVerb,
+    parseSession: parseSession,
+    parseMaterialPrintData: parseMaterialPrintData,
+    materialSummary: materialSummary,
+    sessionSettings: sessionSettings,
+    parseConfigDump: parseConfigDump,
+    flatSettings: flatSettings,
+    beadWidth: beadWidth,
+    RE_LAYER: RE_LAYER,
+    RE_MACROLAYER: RE_MACROLAYER,
+    RE_SEAM: RE_SEAM,
+    RE_SECTION: RE_SECTION,
+    RE_TYPE: RE_TYPE,
+    RE_GEN_ORCA: RE_GEN_ORCA,
+    RE_LAYERCOUNT_ORCA: RE_LAYERCOUNT_ORCA,
+    RE_CONFIG_LINE: RE_CONFIG_LINE,
+    RE_EW_LINE: RE_EW_LINE,
+    RE_SESSION: RE_SESSION,
+    RE_MATERIAL: RE_MATERIAL,
+    RE_ENTITY: RE_ENTITY,
+    RE_THUMB_START: RE_THUMB_START,
+    RE_GEN: RE_GEN,
+    RE_PROC: RE_PROC,
+    RE_MODE: RE_MODE,
+    RE_LAYERCOUNT: RE_LAYERCOUNT
+  };
+})(typeof self !== 'undefined' ? self : globalThis);
+
+/* ===== src/raster.js ===== */
+/*
+ * Layer-coverage raster.
+ *
+ * Grids over the build plate, all updated from extrusion moves:
+ *   cur    — the portion of the *current* layer deposited so far
+ *   below  — cumulative footprint of every completed layer
+ *   wall   — cells laid down by a perimeter bead this layer
+ *   last   — index of the layer that last deposited into each cell (0 = never)
+ *
+ * `cur` + `below` answer the travel-classification question the way issue #1
+ * poses it: "all completed layers and the portion of the current layer already
+ * printed".
+ *
+ * `last` answers the bridge question for issue #6. Support is a function of
+ * *age*: a column is a substrate when plastic was deposited in it within the
+ * last few layers, and a void otherwise. `supported()` reads this grid, and it
+ * deliberately ignores `last == current layer`, because the rest of the current
+ * layer is not support either — otherwise a bridge would support itself after
+ * its first segment.
+ *
+ * `enclosedVoids()` answers issue #3: holes fully surrounded by deposited
+ * material inside one layer are splits/voids the beads were supposed to close.
+ *
+ * Stamping is a distance test, not a radius in cells: a cell is covered when
+ * its centre lies within width/2 of the bead path. That keeps the footprint
+ * physically correct at any grid resolution, which matters because the whole
+ * point of the coverage model is to decide what is *not* a void.
+ */
+(function (root) {
+  'use strict';
+
+  var MAX_VOID_MM = 6;      // wider than this is designed geometry, not a bead gap
+  var MAX_GAP_MM = 4;       // widest perimeter separation worth reporting
+  var GAP_BIN = 0.25;       // width histogram bin size (mm)
+  var GAP_BINS = 20;        // width histogram length
+
+  function Raster(areaX, areaY, cell) {
+    this.cell = cell || 0.2;
+    this.areaX = areaX || 305;
+    this.areaY = areaY || 305;
+    this.nx = Math.ceil(this.areaX / this.cell) + 2;
+    this.ny = Math.ceil(this.areaY / this.cell) + 2;
+    var n = this.nx * this.ny;
+    this.below = new Uint8Array(n);
+    this.cur = new Uint8Array(n);
+    this.wall = new Uint8Array(n);
+    // Layer index at which each cell was last deposited (0 = never). Storing the
+    // index instead of a bitmap means the support window is a subtraction, so a
+    // multi-layer probe costs nothing and needs no per-layer clearing pass.
+    this.last = new Uint16Array(n);
+    this.layerIndex = 1;
+    this.mark = new Uint8Array(n);      // flood-fill scratch: 0 open, 1 exterior, 2 member
+    this.stack = new Int32Array(n);
+    this.comp = new Int32Array(n);
+    this.z = 0;
+    this.bb = null;
+    this.maxVoidCells = Math.max(1, Math.round(MAX_VOID_MM / this.cell));
+  }
+
+  Raster.prototype.setZ = function (z) { this.z = z; };
+
+  Raster.prototype._cell = function (x, y) {
+    var cx = Math.floor(x / this.cell) + 1;
+    var cy = Math.floor(y / this.cell) + 1;
+    if (cx < 0) cx = 0; else if (cx >= this.nx) cx = this.nx - 1;
+    if (cy < 0) cy = 0; else if (cy >= this.ny) cy = this.ny - 1;
+    this._cx = cx; this._cy = cy;
+    return cy * this.nx + cx;
+  };
+
+  Raster.prototype._grow = function (cx, cy) {
+    var bb = this.bb;
+    if (!bb) this.bb = { x0: cx, x1: cx, y0: cy, y1: cy };
+    else {
+      if (cx < bb.x0) bb.x0 = cx;
+      if (cx > bb.x1) bb.x1 = cx;
+      if (cy < bb.y0) bb.y0 = cy;
+      if (cy > bb.y1) bb.y1 = cy;
+    }
+  };
+
+  /*
+   * Stamp a deposition segment of the given line width into the current-layer
+   * bitmap. `isWall` additionally records the cells as perimeter material,
+   * which is what issue #3 needs: a void is only a *perimeter* gap if a bead
+   * bounds it.
+   */
+  Raster.prototype.stamp = function (x0, y0, x1, y1, width, isWall) {
+    var dx = x1 - x0, dy = y1 - y0;
+    var len = Math.sqrt(dx * dx + dy * dy);
+    var cell = this.cell, cur = this.cur, wall = this.wall, nx = this.nx;
+    var last = this.last, li = this.layerIndex;
+    var half = width * 0.5;
+    var r = Math.ceil(half / cell);
+    var n = Math.max(1, Math.ceil(len / (cell * 0.5)));
+    for (var i = 0; i <= n; i++) {
+      var t = i / n;
+      var px = x0 + dx * t, py = y0 + dy * t;
+      this._cell(px, py);
+      var cx = this._cx, cy = this._cy;
+      this._grow(cx, cy);
+      for (var oy = -r; oy <= r; oy++) {
+        var yy = cy + oy;
+        if (yy < 0 || yy >= this.ny) continue;
+        var wy = (yy - 0.5) * cell - py;
+        var base = yy * nx + cx;
+        for (var ox = -r; ox <= r; ox++) {
+          var xx = cx + ox;
+          if (xx < 0 || xx >= this.nx) continue;
+          var wx = (xx - 0.5) * cell - px;
+          if (wx * wx + wy * wy > half * half) continue;
+          var idx = base + ox;
+          cur[idx] = 1;
+          last[idx] = li;
+          if (isWall) wall[idx] = 1;
+        }
+      }
+    }
+  };
+
+  // Any deposited material within one cell of the point, from either grid.
+  Raster.prototype._probe = function (x, y, a, b) {
+    this._cell(x, y);
+    var cx = this._cx, cy = this._cy, nx = this.nx;
+    for (var oy = -1; oy <= 1; oy++) {
+      var yy = cy + oy;
+      if (yy < 0 || yy >= this.ny) continue;
+      var base = yy * nx + cx;
+      for (var ox = -1; ox <= 1; ox++) {
+        var xx = cx + ox;
+        if (xx < 0 || xx >= this.nx) continue;
+        var i = base + ox;
+        if (a[i] || b[i]) return true;
+      }
+    }
+    return false;
+  };
+
+  Raster.prototype.covered = function (x, y) {
+    return this._probe(x, y, this.cur, this.below);
+  };
+
+
+  // Classify a travel path against the issue #1 model: 'solid' | 'void' | 'air'.
+  Raster.prototype.classifyTravel = function (x0, y0, x1, y1) {
+    var dx = x1 - x0, dy = y1 - y0;
+    var len = Math.sqrt(dx * dx + dy * dy);
+    if (len === 0) return 'solid';
+    var n = Math.max(1, Math.ceil(len / 0.25));
+    var covered = 0;
+    for (var i = 0; i <= n; i++) {
+      var t = i / n;
+      if (this.covered(x0 + dx * t, y0 + dy * t)) covered++;
+    }
+    if (covered === n + 1) return 'solid';
+    if (covered === 0) return 'air';
+    return 'void';
+  };
+
+  /*
+   * Issue #3: gaps enclosed by deposited material inside the finished layer.
+   *
+   * Flood-fill the empty space inward from the padded bounding box; empty cells
+   * the flood never reaches are holes/splits inside the part. Each enclosed
+   * component gets its inscribed width from a distance transform running from
+   * its boundary inward — a 1-cell split measures one cell wide, a 7-cell hole
+   * on a 0.2 mm grid measures 1.4 mm.
+   *
+   * Only components at least `widthThreshold` wide are counted. Two ceilings
+   * keep this measuring the reported bug rather than the part's geometry:
+   *   MAX_GAP_MM — a wider enclosed hole is a designed opening (the Benchy
+   *   cabin, the mast channel), not a bead that failed to close;
+   *   MAX_VOID_MM — hard cap on the component search itself.
+   *
+   * Returns { comps, wallComps, total, area, widest, widestWall, hist, skipped }.
+   */
+  Raster.prototype.enclosedVoids = function (widthThreshold) {
+    var bb = this.bb;
+    if (!bb) return this._emptyVoids();
+    var thr = widthThreshold || 0;
+    var pad = 2, nx = this.nx, ny = this.ny;
+    var x0 = Math.max(0, bb.x0 - pad), x1 = Math.min(nx - 1, bb.x1 + pad);
+    var y0 = Math.max(0, bb.y0 - pad), y1 = Math.min(ny - 1, bb.y1 + pad);
+    var mark = this.mark, stack = this.stack, cur = this.cur, wall = this.wall;
+    var comp = this.comp, dist = this.dist;
+    var sp = 0, i, xx, yy;
+
+    // Clear the working region, then seed the flood from its border.
+    for (yy = y0; yy <= y1; yy++) {
+      var row = yy * nx;
+      for (xx = x0; xx <= x1; xx++) mark[row + xx] = 0;
+    }
+    for (xx = x0; xx <= x1; xx++) {
+      if (!cur[y0 * nx + xx] && !mark[y0 * nx + xx]) { mark[y0 * nx + xx] = 1; stack[sp++] = y0 * nx + xx; }
+      if (!cur[y1 * nx + xx] && !mark[y1 * nx + xx]) { mark[y1 * nx + xx] = 1; stack[sp++] = y1 * nx + xx; }
+    }
+    for (yy = y0; yy <= y1; yy++) {
+      if (!cur[yy * nx + x0] && !mark[yy * nx + x0]) { mark[yy * nx + x0] = 1; stack[sp++] = yy * nx + x0; }
+      if (!cur[yy * nx + x1] && !mark[yy * nx + x1]) { mark[yy * nx + x1] = 1; stack[sp++] = yy * nx + x1; }
+    }
+    while (sp) {
+      var p = stack[--sp];
+      var px = p % nx, py = (p - px) / nx;
+      if (px > x0 && !cur[p - 1] && !mark[p - 1]) { mark[p - 1] = 1; stack[sp++] = p - 1; }
+      if (px < x1 && !cur[p + 1] && !mark[p + 1]) { mark[p + 1] = 1; stack[sp++] = p + 1; }
+      if (py > y0 && !cur[p - nx] && !mark[p - nx]) { mark[p - nx] = 1; stack[sp++] = p - nx; }
+      if (py < y1 && !cur[p + nx] && !mark[p + nx]) { mark[p + nx] = 1; stack[sp++] = p + nx; }
+    }
+
+    // Empty cells the flood never reached are enclosed.
+    var cell = this.cell, cellArea = cell * cell;
+    var maxCells = this.maxVoidCells;
+    var total = 0, comps = 0, wallComps = 0, widest = 0, widestWall = 0, skipped = 0;
+    var hist = new Array(GAP_BINS).fill(0);
+    for (yy = y0 + 1; yy <= y1 - 1; yy++) {
+      for (xx = x0 + 1; xx <= x1 - 1; xx++) {
+        i = yy * nx + xx;
+        if (cur[i] || mark[i]) continue;
+
+        var nc = 0, boundedByWall = false;
+        var mnx = 1e9, mxx = -1e9, mny = 1e9, mxy = -1e9;
+        stack[sp++] = i; mark[i] = 2;
+        while (sp) {
+          var q = stack[--sp];
+          comp[nc++] = q;
+          var qx = q % nx, qy = (q - qx) / nx;
+          if (qx < mnx) mnx = qx;
+          if (qx > mxx) mxx = qx;
+          if (qy < mny) mny = qy;
+          if (qy > mxy) mxy = qy;
+          var nbs0 = q - 1, nbs1 = q + 1, nbs2 = q - nx, nbs3 = q + nx;
+          var nbs = [nbs0, nbs1, nbs2, nbs3];
+          for (var k = 0; k < 4; k++) {
+            var r = nbs[k];
+            if (cur[r]) { if (wall[r]) boundedByWall = true; continue; }
+            if (!mark[r]) { mark[r] = 2; stack[sp++] = r; }
+          }
+        }
+        if (nc > maxCells) { skipped++; continue; }   // designed opening, not a gap
+
+        /*
+         * Inscribed width, measured as the shorter of the component's longest
+         * horizontal and longest vertical run of empty cells. A hairline split
+         * between two walls has a long run one way and a run of 1 the other, so
+         * it measures one cell; a round hole measures its diameter. A distance
+         * transform would report the same for round holes but over-report thin
+         * splits, and run length is what "gap a bead could not close" means.
+         */
+        var runH = 1, runV = 1;
+        for (var ry = mny; ry <= mxy; ry++) {
+          var run = 0, rowBase = ry * nx;
+          for (var rx = mnx; rx <= mxx; rx++) {
+            if (mark[rowBase + rx] === 2) { run++; if (run > runH) runH = run; }
+            else run = 0;
+          }
+        }
+        for (var cx2 = mnx; cx2 <= mxx; cx2++) {
+          var run2 = 0;
+          for (var cy2 = mny; cy2 <= mxy; cy2++) {
+            if (mark[cy2 * nx + cx2] === 2) { run2++; if (run2 > runV) runV = run2; }
+            else run2 = 0;
+          }
+        }
+        var width = Math.min(runH, runV) * cell;
+        if (width > MAX_GAP_MM) { skipped++; continue; }
+        if (width < thr) continue;
+
+        comps++;
+        total += nc;
+        hist[Math.min(GAP_BINS - 1, Math.floor(width / GAP_BIN))]++;
+        if (width > widest) widest = width;
+        if (boundedByWall) {
+          wallComps++;
+          if (width > widestWall) widestWall = width;
+        }
+      }
+    }
+    return {
+      total: total, comps: comps, wallComps: wallComps,
+      area: total * cellArea, widest: widest, widestWall: widestWall,
+      skipped: skipped, hist: hist
+    };
+  };
+
+  Raster.prototype._emptyVoids = function () {
+    return {
+      total: 0, comps: 0, wallComps: 0, area: 0, widest: 0, widestWall: 0,
+      skipped: 0, hist: new Array(GAP_BINS).fill(0)
+    };
+  };
+
+  /*
+   * Advance the layer state. `below` accumulates and is never cleared; `last`
+   * needs no clearing at all because the layer index it stores is what encodes
+   * age. `cur`/`wall` are cleared over the extent of the layer just completed —
+   * on a 0.2 mm grid a full fill would touch 2.3M cells per layer.
+   */
+  Raster.prototype.nextLayer = function () {
+    var nx = this.nx, below = this.below, cur = this.cur, wall = this.wall;
+    var bb = this.bb;
+    if (bb) {
+      // One pass: promote the finished layer into `below`, then clear the
+      // working grids over the same extent.
+      for (var y = bb.y0; y <= bb.y1; y++) {
+        var row = y * nx;
+        for (var x = bb.x0; x <= bb.x1; x++) {
+          var i = row + x;
+          if (cur[i]) below[i] = 1;
+          cur[i] = 0;
+          wall[i] = 0;
+        }
+      }
+    }
+    this.bb = null;
+    this.layerIndex++;
+  };
+
+  /*
+   * Issue #6: is there material *beneath* this point?
+   *
+   * Support is a function of *age*, not of a single layer. A point is supported
+   * when plastic was deposited in that column within the last `depth` layers,
+   * which is the physical condition for bridging: fresh material underneath is
+   * a substrate, while a column that has been open for many layers is a void.
+   *
+   * This single rule kills both false-positive classes that a naive probe
+   * produces:
+   *
+   *   - Rotating infill phase. A bead landing in the previous layer's row gap
+   *     is one layer old, so it is supported regardless of phase.
+   *   - Top skin over sparse infill. Infill a few layers down is still within
+   *     the window, so ordinary top/bottom skin is not reported as bridging.
+   *
+   * A genuine bridge — a long run over a through-void — has nothing within the
+   * window and still fires. `depth` is a layer count, `radius` a bead-width
+   * disc in mm that absorbs quantisation.
+   */
+  Raster.prototype.supported = function (x, y, radius, depth) {
+    this._cell(x, y);
+    var cx = this._cx, cy = this._cy, nx = this.nx, last = this.last, cell = this.cell;
+    var li = this.layerIndex;
+    var minAge = li - (depth || 1);
+    var rr = radius || cell;
+    var r = Math.max(1, Math.ceil(rr / cell));
+    var r2 = rr * rr;
+    for (var oy = -r; oy <= r; oy++) {
+      var yy = cy + oy;
+      if (yy < 0 || yy >= this.ny) continue;
+      var wy = oy * cell;
+      var base = yy * nx + cx;
+      for (var ox = -r; ox <= r; ox++) {
+        var xx = cx + ox;
+        if (xx < 0 || xx >= this.nx) continue;
+        var wx = ox * cell;
+        if (wx * wx + wy * wy > r2) continue;
+        var a = last[base + ox];
+        // `a < li` is essential: material deposited on the layer now being
+        // printed is not support for itself, or a bridge would support itself
+        // from its own first bead onward.
+        if (a && a >= minAge && a < li) return true;
+      }
+    }
+    return false;
+  };
+
+  root.FS3 = root.FS3 || {};
+  root.FS3.MAX_GAP_MM = MAX_GAP_MM;
+  root.FS3.GAP_BIN = GAP_BIN;
+  root.FS3.GAP_BINS = GAP_BINS;
+  root.FS3.Raster = Raster;
+})(typeof self !== 'undefined' ? self : globalThis);
+
+/* ===== src/inspector.js ===== */
+/*
+ * FibreSeeker 3 G-code Inspector — analysis engine
+ *
+ * One streaming pass over a Rocket Slicer .gcode file. Rebuilds tool / extruder /
+ * fan state, the layer structure, feature sections and a layer-coverage raster,
+ * then runs the checks that map onto the repository issue tracker.
+ *
+ * Check ids (see REPORT.md for the issue mapping):
+ *   C01 stringing          -> issue #1
+ *   C02 seam-alignment     -> issue #2
+ *   C03 perimeter-gap      -> issue #3
+ *   C04 volumetric-flow    -> issue #4
+ *   C05 layer-time         -> issue #5
+ *   C06 unsupported-run    -> issue #6
+ *   C07 motion-contract    -> issue #8
+ *   C08 fiber-window       -> issue #9
+ *   C09 firmware-contract  -> issues #10 / #11
+ *   C10 zhop-vs-setting    -> issue #29
+ *   C11 geometry-sanity    -> general
+ *   C12 first-layer-fiber  -> owner rule: no carbon on layer 1 unless fortified
+ *   C13 tool-configuration -> dual-tool (FFF + CFC) vs single-tool FFF
+ *   C14 fiber-consumption  -> total fibre length fed and number of cuts
+ *   C15 machine-flags      -> presence/absence of machine-assist commands
+ */
+(function (root) {
+  'use strict';
+
+  var D = root.FS3.Dialect;
+  var Raster = root.FS3.Raster;
+
+  // Generic melt-rate ceilings (mm^3/s) used when the profile does not export one.
+  var GENERIC_CEILING = { PLA: 15, PETG: 12, ABS: 14, ASA: 14, TPU: 8, CFC: 8 };
+
+  var CHECKS = {
+    C01: { issue: 1, title: 'Un-retracted plastic travel across voids / open air (stringing)' },
+    C02: { issue: 2, title: 'Aligned seams \u2014 perimeter start points stacked in Z' },
+    C03: { issue: 3, title: 'Enclosed gaps wider than the deposited bead' },
+    C04: { issue: 4, title: 'Volumetric flow demand above the material ceiling' },
+    C05: { issue: 5, title: 'Layer time below the slicer\u2019s own minimum' },
+    C06: { issue: 6, title: 'Long unsupported (bridging) printed runs' },
+    C07: { issue: 8, title: 'Implicit motion contract \u2014 accel/jerk/max-feedrate not declared' },
+    C08: { issue: 9, title: 'Fiber-feed window commands M1001/M1002 unimplemented in firmware' },
+    C09: { issue: 11, title: 'Slicer/firmware command contract \u2014 undefined verbs' },
+    C10: { issue: 29, title: 'Plastic travel Z-hop emitted against the exported DoZHop setting' },
+    C11: { issue: null, title: 'Geometry / parse sanity' },
+    C12: { issue: null, title: 'Carbon fibre deposited on the first layer of a non-fortified print' },
+    C13: { issue: null, title: 'Tool configuration — dual-tool (FFF + CFC) vs single-tool FFF' },
+    C14: { issue: null, title: 'Fibre consumption and cut count' },
+    C15: { issue: null, title: 'Machine-assist flags (AI detection, bed mesh, runout) present or absent' }
+  };
+
+  function Inspector(opts) {
+    opts = opts || {};
+    this.cell = opts.cell || 0.2;
+    this.maxFindings = opts.maxFindings || 500;
+    this.coverage = opts.coverage !== false;
+    this.gapRatio = opts.gapRatio || 1.5;        // void diameter > ratio * bead width
+    this.gapCriticalRatio = opts.gapCriticalRatio || 2.5;
+    this.minUnsupported = opts.minUnsupported || 16; // mm, the floor issue #6 reports at
+    this.minSeamRun = opts.minSeamRun || 10;         // consecutive layers, issue #2
+    this.minLayerTimeFloor = opts.minLayerTimeFloor || 5;
+    this.flowCritical = opts.flowCritical || 1.25;   // x ceiling -> critical
+    this.sustainedWindow = opts.sustainedWindow || 1.0; // s of continuous over-ceiling flow
+    this.minTravel = opts.minTravel === undefined ? 2 : opts.minTravel; // mm, below this a travel is not a string risk
+    this.flowMinDist = opts.flowMinDist || 15;       // mm, "physically sustained" = long moves only
+    // C06 support probe radius. A bead-width disc distinguishes *bridging* from
+    // *infill phase*: rotated infill leaves a sub-bead row gap on the layer below
+    // but has material one bead-width away, whereas a real bridge has nothing
+    // within any radius. Internal calibration constant, not a user knob.
+    // C06 support-probe disc radius in mm. One bead width absorbs raster
+    // quantisation without swallowing a real void: sweeping 0.2-1.0 mm on the
+    // corpus peaks in agreement with the slicer's own BRIDGE labels at 0.4 mm
+    // (76.7 %) and degrades at both ends. Internal calibration constant.
+    this.supportRadius = opts.supportRadius || 0.4;
+    // C06 support window in layers. Support is age-based: plastic deposited in
+    // this column within the last N layers is a substrate. Calibrated against
+    // the corpus by measuring agreement with the slicer's own BRIDGE/OVERHANG
+    // feature labels (independent ground truth): N=1 gives 3025 findings at 4.5%
+    // agreement — the naive "layer directly below" probe drowns in infill-phase
+    // and top-skin-over-infill artefacts — while N=2 gives 114 findings at 76.3%
+    // agreement. N>=3 loses recall (29 findings, 6.9%) because it starts
+    // ignoring genuinely shallow voids. N=2 also matches Rocket Slicer's own
+    // bridging clearance rule. Internal calibration constant.
+    this.supportDepth = opts.supportDepth || 2;
+    this.reset();
+  }
+
+  Inspector.prototype.reset = function () {
+    this.findings = [];
+    this.counts = {};
+    this.worst = {};
+    this.critByCheck = {};
+    this.layers = [];
+    this.seams = [];
+    this.customVerbs = {};
+    this.unknownTypes = {};
+    this.headerWidths = {};
+    this.klipperAccelLine = 0;
+    this.fanEvents = 0;
+    this.fan = { P0: 0, P1: 0, P2: 0, P3: 0, P4: 0, P5: 0 };
+    this.m1001 = 0; this.m1002 = 0; this.m1001NoL = 0; this.m1001Open = 0;
+    this.m204 = null; this.m205 = 0; this.m203 = 0;
+    this.klipperMotionLines = 0;
+    this.header = { slicer: null, processor: null, mode: null, layerCount: null };
+    this.session = null;
+    this.materialData = null;
+    // C12/C13/C14/C15 bookkeeping.
+    this.t0 = 0; this.t1 = 0;
+    this.fiberFed = 0;        // every positive U word: what actually left the spool
+    this.fiberRestart = 0;    // the U55 air-prime feed that never reaches the part
+    this.fiberDeposited = 0;  // positive U on a move with XY motion: what was laid down
+    this.fiberOnLayer1 = {};  // feature name -> mm of fibre deposited on layer 1
+    this.fiberLayer1First = null;
+    this.firstFiberLayer = null;
+    this.cuts = 0;            // M2800 blade fires
+    this.cutDistMm = 0;       // sum of ;CUT DISTANCE values tied to a real cut
+    this.cutDistOrphan = 0;   // ;CUT DISTANCE comments with no preceding M2800
+    this.cutDistCounted = 0;  // how many cuts a ;CUT DISTANCE has been consumed by
+    this.cutDistLast = null;
+    this.flagHits = {};       // machine-flag key -> {count, line}
+    this.c12 = null; this.c13Verdict = null; this.c14 = null; this.c15 = null;
+    this.stats = {
+      lines: 0, bytes: 0, moves: 0, extrudeMoves: 0, travelMoves: 0, fiberMoves: 0,
+      plasticMm: 0, fiberMm: 0, matrixMm: 0, plasticVolMm3: 0, printTimeSec: 0,
+      toolChanges: 0, sections: {}, retractEvents: 0,
+      bbox: { minx: 1e9, miny: 1e9, maxx: -1e9, maxy: -1e9 },
+      maxFlow: 0, maxFlowLine: 0, minLayerTime: 1e9, minLayerTimeLayer: null,
+      voidCells: 0, voidComps: 0, voidWallComps: 0, voidSkipped: 0, voidLayers: 0,
+      voidWidest: 0, voidWidestWall: 0, voidArea: 0, voidHist: new Array(20).fill(0)
+    };
+    this.pos = { x: 0, y: 0, z: 0, f: 0 };
+    this.absE = false;
+    this.lastE = 0;
+    this.tool = null;
+    this.inToolChange = false;
+    this.feature = null;
+    this.featureName = null;
+    this.layer = -1;
+    this.layerZ = 0;
+    this.layerLine = 0;
+    this.layerTime = 0;
+    this.layerExtrude = 0;
+    this.layerMoves = 0;
+    this.layerStart = null;
+    this.retracted = true;
+    this.lastAxis = null;
+    this.prevWasExtrusion = false;
+    this.unretractedImmediate = 0;
+    this.hopArmed = false;
+    this.pendingHop = null;
+    this.hopCount = 0;
+    this.hopCountDisabled = 0;
+    this.hopDisabledFirst = null;
+    this.hopNoRetract = 0;
+    this.unretractedTravels = 0;
+    this.unretractedImmediate = 0;
+    this.travelClass = { solid: 0, void: 0, air: 0 };
+    this.riskTravels = [];
+    this.riskClass = { solid: 0, void: 0, air: 0 };
+    this.riskZhop = { solid: 0, void: 0, air: 0 };
+    this.riskZhopTotal = 0;
+    this.riskDefects = 0;
+    this.riskWorst = 0;
+    this.riskWorstLine = 0;
+    this.unmitigated = 0;
+    this.orderDefects = 0;
+    this.zMoveLines = [];
+    this.retractLines = [];
+    this.unsupRun = 0;
+    this.unsupStartLine = 0;
+    this.unsupStartLayer = 0;
+    this.unsupFeature = '';
+    this.unsupFanAtStart = false;
+    this.unsupFeed = 0;
+    this.unsupFanOff = 0;
+    this.unsupMax = 0;
+    this.unsupRuns = 0;
+    this.sustained = { t: 0, v: 0 };
+    this.raster = null;
+    this.inThumbnail = false;
+    this.lastTravel = null;
+    this.seamClusterCount = 0;
+  };
+
+  Inspector.prototype.add = function (check, severity, lineNo, layer, message, evidence) {
+    this.counts[check] = (this.counts[check] || 0) + 1;
+    if (severity === 'critical') this.critByCheck[check] = (this.critByCheck[check] || 0) + 1;
+    if (this.findings.length < this.maxFindings) {
+      this.findings.push({
+        check: check, issue: CHECKS[check].issue, severity: severity,
+        line: lineNo, layer: layer, message: message, evidence: evidence || ''
+      });
+    }
+  };
+
+  Inspector.prototype.worstSet = function (check, value) {
+    var w = this.worst[check];
+    if (w === undefined || value > w) this.worst[check] = value;
+  };
+
+  // ---- main pass ---------------------------------------------------------
+  Inspector.prototype.run = function (text, name) {
+    this.reset();
+    var lines = text.split(/\r\n|\n|\r/);
+    this.stats.lines = lines.length;
+    this.stats.bytes = text.length;
+
+    // Pull the SESSION echo first so profile settings are known before motion.
+    for (var i = 0; i < lines.length; i++) {
+      if (lines[i].length > 400 && D.RE_SESSION.test(lines[i])) {
+        this.session = D.parseSession(lines[i]);
+        break;
+      }
+    }
+    this.settings = D.sessionSettings(this.session);
+    /*
+     * No `; SESSION:` blob means this is not Rocket output. OrcaSlicer and
+     * PrusaSlicer export the same profile information as a flat
+     * `; <key> = <value>` config dump, so read that instead and let C05/C06/C10
+     * argue from the file's own declared settings rather than from nulls.
+     */
+    if (!this.session) this.settings = D.flatSettings(D.parseConfigDump(lines));
+    if (this.coverage) {
+      this.raster = new Raster(this.settings.areaX, this.settings.areaY, this.cell);
+    }
+
+    for (var n = 0; n < lines.length; n++) {
+      this.lineNo = n + 1;
+      this.feed(lines[n]);
+    }
+    this.finish();
+    return this.report(name);
+  };
+
+  Inspector.prototype.feed = function (raw) {
+    var line = raw.trim();
+    if (!line) return;
+
+    var m;
+    if ((m = D.RE_GEN.exec(line))) { this.header.slicer = m[1]; return; }
+    if ((m = D.RE_GEN_ORCA.exec(line))) { this.header.slicer = m[1]; return; }
+    if ((m = D.RE_PROC.exec(line))) { this.header.processor = m[1].trim(); return; }
+    if ((m = D.RE_MODE.exec(line))) { this.header.mode = m[1].trim(); return; }
+    if ((m = D.RE_LAYERCOUNT.exec(line))) { this.header.layerCount = +m[1]; return; }
+    if ((m = D.RE_LAYERCOUNT_ORCA.exec(line))) { this.header.layerCount = +m[1]; return; }
+    if ((m = D.RE_EW_LINE.exec(line))) {
+      // Header-declared bead width, e.g. `; external perimeters extrusion width
+      // = 0.42mm`. Applied in beadWidthFor(); these lines trail the thumbnail,
+      // so they cannot be folded into the settings object up front.
+      var role = m[1].toLowerCase();
+      if (D.TYPE_WIDTH_LINES[role]) this.headerWidths[D.TYPE_WIDTH_LINES[role]] = D.num(m[2]);
+      return;
+    }
+    if (D.RE_THUMB_START.test(line)) { this.inThumbnail = true; return; }
+    if (/^;\s*thumbnail end/.test(line)) { this.inThumbnail = false; return; }
+    if (this.inThumbnail) return;
+    if (D.RE_MATERIAL.test(line)) {
+      if (!this.materialData) this.materialData = D.parseMaterialPrintData(line);
+      return;
+    }
+    if (D.RE_ENTITY.test(line) || D.RE_SESSION.test(line)) return;
+    if (D.RE_MACROLAYER.test(line)) return;
+
+    if ((m = D.RE_LAYER.exec(line))) { this.onLayer(+m[1], D.num(m[2])); return; }
+    if ((m = D.RE_TYPE.exec(line))) { this.onType(m[1]); return; }
+    if ((m = D.RE_SEAM.exec(line))) {
+      this.seams.push({ kind: m[1], x: D.num(m[2]), y: D.num(m[3]), z: D.num(m[4]), layer: this.layer, line: this.lineNo });
+      return;
+    }
+    if (/^;\s*Start change extruder/.test(line)) { this.inToolChange = true; return; }
+    if (/^;\s*End change extruder/.test(line)) { this.inToolChange = false; return; }
+    // The slicer's own record of the trimmed length left between blade and nozzle.
+    // It is a comment, so it must be read before the generic comment bail-out.
+    if ((m = /^;\s*CUT DISTANCE\s+([-\d.,]+)/.exec(line))) {
+      if (this.cuts > this.cutDistCounted) {
+        this.cutDistMm += D.num(m[1]);
+        this.cutDistCounted++;
+        this.cutDistLast = D.num(m[1]);
+      } else {
+        this.cutDistOrphan++;
+      }
+      return;
+    }
+
+    if ((m = D.RE_SECTION.exec(line))) {
+      var key = m[1], kind = m[2];
+      if (D.FEATURES[key]) {
+        if (kind === 'start') {
+          this.feature = D.FEATURES[key];
+          this.featureName = key;
+          this.stats.sections[key] = (this.stats.sections[key] || 0) + 1;
+        } else {
+          this.feature = null; this.featureName = null;
+        }
+      }
+      return;
+    }
+    if (/^;/.test(line)) return;
+
+    var p = D.parseLine(raw);
+    if (!p.verb) return;
+    // Machine-assist flags: the only way a print can declare them is as an
+    // executable command, so scan the command text (not the comment) for them.
+    for (var fi = 0; fi < D.MACHINE_FLAGS.length; fi++) {
+      var flag = D.MACHINE_FLAGS[fi];
+      if (flag.re.test(p.code)) {
+        var hit = this.flagHits[flag.key] || (this.flagHits[flag.key] = { count: 0, line: this.lineNo });
+        hit.count++;
+      }
+    }
+    if (/^SET_(VELOCITY_LIMIT|PRESSURE_ADVANCE|TOOL_CORNER_VELOCITY)/.test(p.code)) this.klipperMotionLines++;
+    // A Klipper motion contract is only a contract if it declares the limits.
+    // `SET_VELOCITY_LIMIT … ACCEL=…` is the direct analogue of M204; Rocket's own
+    // `SET_VELOCITY_LIMIT MINIMUM_CRUISE_RATIO=0.8` declares no acceleration at
+    // all, so it must not count here.
+    if (/^SET_VELOCITY_LIMIT\b/.test(p.code) && /\bACCEL\s*=/i.test(p.code) && this.klipperAccelLine === 0) {
+      this.klipperAccelLine = this.lineNo;
+    }
+    if (D.isCustomVerb(p.verb, null)) {
+      this.customVerbs[p.verb] = (this.customVerbs[p.verb] || 0) + 1;
+      return;
+    }
+
+    switch (p.verb) {
+      case 'G0': case 'G1': return this.onMotion(p);
+      case 'G4': this.layerTime += (p.args.P || 0) / 1000; return;
+      case 'G91':
+        this.add('C11', 'warning', this.lineNo, this.layer,
+          'Relative XYZ (G91) \u2014 this dialect is absolute XYZ', line);
+        return;
+      case 'G92': this.lastE = p.args.E || 0; return;
+      case 'M82': this.absE = true; return;
+      case 'M83': this.absE = false; return;
+      case 'M106': case 'M107': return this.onFan(p);
+      case 'M204':
+        if (this.m204 === null) this.m204 = { line: this.lineNo, value: p.args.S };
+        return;
+      case 'M205': this.m205++; return;
+      case 'M203': this.m203++; return;
+      case 'M1001':
+        this.m1001++;
+        if (p.args.L === undefined) this.m1001NoL++;
+        this.m1001Open++;
+        return;
+      case 'M1002':
+        this.m1002++;
+        if (this.m1001Open > 0) this.m1001Open--;
+        else this.add('C08', 'warning', this.lineNo, this.layer,
+          'M1002 without a matching M1001', line);
+        return;
+      case 'M2800':
+        this.cuts++;
+        return;
+      case 'T0': case 'T1':
+        this.tool = p.verb;
+        this.stats.toolChanges++;
+        if (p.verb === 'T0') this.t0++; else this.t1++;
+        this.retracted = true;
+        this.hopArmed = false;
+        return;
+      default: return;
+    }
+  };
+
+  Inspector.prototype.onFan = function (p) {
+    this.fanEvents++;
+    if (p.verb === 'M107') { this.fan.P0 = 0; this.fan.P1 = 0; this.fan.P2 = 0; return; }
+    var port = p.args.P === undefined ? 'P0' : 'P' + p.args.P;
+    this.fan[port] = p.args.S === undefined ? 0 : p.args.S;
+  };
+
+  /*
+   * Resolved part-fan speed — the one number C06 needs.
+   *
+   * `M106 S<n>` with no `P` word addresses the part fan directly; that is what
+   * Marlin, Klipper and OrcaSlicer emit. Rocket Slicer instead uses `M106 P<n>`
+   * as a multi-port selector with the part fans on P1/P2. Testing only P1/P2
+   * therefore reads "fan off" on every non-Rocket file: on the OrcaSlicer sample
+   * 13 of 15 C06 findings claimed the fan was off while it was at S51 (20 %).
+   * Maxing the three part-fan ports is right for both dialects and
+   * behaviour-identical on the Rocket corpus, which emits no bare `M106` at all
+   * (measured: 0 bare vs 2,470 ported across the 11 fixtures).
+   */
+  Inspector.prototype.partFan = function () {
+    return Math.max(this.fan.P0, this.fan.P1, this.fan.P2);
+  };
+
+  /*
+   * OrcaSlicer / PrusaSlicer feature role. `;TYPE:<role>` is a single line that
+   * stays in force until the next one, so it opens a feature and needs no
+   * matching end line. An unrecognised role clears the feature rather than
+   * letting the following geometry inherit the previous label — the same stale-
+   * feature bug that produced 451 bogus C06 findings on the Tinmorry fixture —
+   * and is reported at C11 so a dialect gap surfaces as a finding.
+   */
+  Inspector.prototype.onType = function (role) {
+    var f = D.TYPE_FEATURES[role];
+    if (!f) {
+      if (role !== 'Custom') this.unknownTypes[role] = (this.unknownTypes[role] || 0) + 1;
+      this.feature = null; this.featureName = null;
+      return;
+    }
+    this.feature = f;
+    this.featureName = role;
+    this.stats.sections[role] = (this.stats.sections[role] || 0) + 1;
+  };
+
+  /*
+   * Bead width for a feature entity. A width the slicer declared in its own
+   * header outranks the tool's fallback table, because it is the file's own
+   * statement of what it laid down. Rocket files emit no such lines, so this is
+   * a no-op there and the Rocket corpus is unaffected.
+   */
+  Inspector.prototype.beadWidthFor = function (entityKey) {
+    var w = this.headerWidths[entityKey];
+    if (w > 0) return w;
+    return D.beadWidth(this.settings, entityKey);
+  };
+
+  Inspector.prototype.onLayer = function (num, z) {
+    if (this.layer >= 0 && this.layerStart) this.closeLayer();
+    this.flushUnsupRun();
+    this.layer = num;
+    this.layerZ = z;
+    this.layerLine = this.lineNo;
+    this.layerTime = 0;
+    this.layerExtrude = 0;
+    this.layerMoves = 0;
+    this.layerStart = { num: num, z: z, line: this.lineNo };
+    if (this.raster) { this.raster.nextLayer(); this.raster.setZ(z); }
+  };
+
+  Inspector.prototype.closeLayer = function () {
+    var t = this.layerTime;
+    /*
+     * Issue #5: the layer floor. The profile's own `MinLayerTimeForSlowing` is
+     * the authority, but `Benchy_fortified.gcode` exports 0 — which does not
+     * license a 0.13 s layer, it just means the slowdown pass was disabled. When
+     * the profile is silent we fall back to the profile's cooling window
+     * (`LayerTimeForMaxCooling`), and failing that to the tool floor, and say so
+     * in the evidence so the reader knows which rule fired.
+     */
+    var prof = this.settings.minLayerTime;
+    var min = prof, source = this.settings.minLayerTimeSource;
+    if (!(min > 0)) {
+      min = this.settings.coolingWindow > 0 ? this.settings.coolingWindow : this.minLayerTimeFloor;
+      source = this.settings.coolingWindow > 0
+        ? this.settings.coolingWindowSource + ' (' + this.settings.minLayerTimeKey + '=' + prof + ')'
+        : 'tool floor (profile declares no minimum)';
+    }
+    this.layers.push({
+      num: this.layerStart.num, z: this.layerStart.z, line: this.layerStart.line,
+      time: t, moves: this.layerMoves, extrude: this.layerExtrude
+    });
+    this.stats.printTimeSec += t;
+    if (t < this.stats.minLayerTime) {
+      this.stats.minLayerTime = t;
+      this.stats.minLayerTimeLayer = this.layerStart.num;
+    }
+    if (min > 0 && t < min) {
+      var sev = t < min * 0.25 ? 'critical' : 'warning';
+      this.add('C05', sev, this.layerStart.line, this.layer,
+        'Layer ' + this.layerStart.num + ' time ' + t.toFixed(2) + 's is below the ' +
+        min + 's floor (' + (prof > 0 ? 'profile minimum' : 'profile declares no minimum') + ')',
+        source + '=' + min + ' measured=' + t.toFixed(2) + 's');
+      this.worstSet('C05', min - t);
+    }
+
+    // Issue #3: voids enclosed by this layer's deposited material. A gap only
+    // matters once it is wider than the bead that was supposed to close it.
+    if (this.raster) {
+      var width = this.beadWidthFor('INSET0');
+      var v = this.raster.enclosedVoids(width * this.gapRatio);
+      if (v.comps > 0) {
+        this.stats.voidCells += v.total;
+        this.stats.voidComps += v.comps;
+        this.stats.voidWallComps += v.wallComps;
+        this.stats.voidArea += v.area;
+        if (v.widest > this.stats.voidWidest) this.stats.voidWidest = v.widest;
+        if (v.widestWall > this.stats.voidWidestWall) this.stats.voidWidestWall = v.widestWall;
+        for (var hb = 0; hb < v.hist.length; hb++) this.stats.voidHist[hb] += v.hist[hb];
+        if (v.widestWall > 0) {
+          this.stats.voidLayers++;
+          var sev = v.widestWall >= width * this.gapCriticalRatio ? 'critical' : 'warning';
+          this.add('C03', sev, this.layerStart.line, this.layer,
+            'Layer ' + this.layerStart.num + ' encloses ' + v.wallComps + ' perimeter-bounded gap(s); ' +
+            'widest \u2248 ' + v.widestWall.toFixed(2) + ' mm across (' + v.area.toFixed(1) +
+            ' mm\u00b2 total) \u2014 wider than the ' + width.toFixed(2) + ' mm bead',
+            'enclosed empty area inside the layer footprint bounded by a perimeter bead');
+          this.worstSet('C03', v.widestWall);
+        }
+      }
+      this.stats.voidSkipped += v.skipped;
+    }
+  };
+
+  Inspector.prototype.onMotion = function (p) {
+    var a = p.args;
+    var x = a.X === undefined ? this.pos.x : a.X;
+    var y = a.Y === undefined ? this.pos.y : a.Y;
+    var z = a.Z === undefined ? this.pos.z : a.Z;
+    var f = a.F === undefined ? this.pos.f : a.F;
+    if (!(f > 0)) f = 6000;
+    var d = D.extrusionDeltas(a, this.absE, this.lastE);
+    var extruding = d.dE > 1e-9 || d.dU > 1e-9 || d.dV > 1e-9;
+    var retracting = d.dE < -1e-9 || d.dV < -1e-9;
+    var dx = x - this.pos.x, dy = y - this.pos.y;
+    var dist = Math.sqrt(dx * dx + dy * dy);
+    var dz = z - this.pos.z;
+    var axis = (a.E !== undefined) ? 'E' : ((a.U !== undefined || a.V !== undefined) ? 'UV' : null);
+    var speed = f / 60;
+
+    this.stats.moves++;
+    this.layerMoves++;
+    if (dist > 0) this.layerTime += dist / speed;
+    else if (Math.abs(dz) > 0) this.layerTime += Math.abs(dz) / (this.settings.travelSpeedZ * 60);
+    else if (retracting) this.layerTime += Math.abs(d.dE || d.dV) / (this.settings.retractSpeed || 20);
+    else if (extruding) this.layerTime += (Math.max(0, d.dE) + Math.max(0, d.dV)) / speed;
+
+    var feature = this.feature || { type: 'UNKNOWN', entity: 'UNKNOWN' };
+    var width = this.beadWidthFor(feature.entity);
+    var height = this.layerHeight();
+
+    // ---- Z-hop bookkeeping (issue #29) ----
+    if (!extruding && !retracting && Math.abs(dz) > 0.05) {
+      this.zMoveLines.push(this.lineNo);
+      if (dz > 0.05 && this.hopArmed) {
+        this.pendingHop = { line: this.lineNo, dz: dz, z0: this.pos.z, z1: z, noRetract: !this.retracted };
+      } else if (dz < -0.05 && this.pendingHop) {
+        this.completeHop(z);
+      }
+    }
+
+    if (extruding) {
+      var b = this.stats.bbox;
+      if (x < b.minx) b.minx = x;
+      if (x > b.maxx) b.maxx = x;
+      if (y < b.miny) b.miny = y;
+      if (y > b.maxy) b.maxy = y;
+
+      this.stats.extrudeMoves++;
+      this.hopArmed = true;
+      this.retracted = false;
+      this.lastAxis = axis;
+      this.prevWasExtrusion = true;
+      if (axis === 'E') {
+        this.stats.plasticMm += d.dE;
+        this.stats.plasticVolMm3 += d.dE * Math.PI * Math.pow(this.settings.filamentDiameter / 2, 2);
+      } else {
+        if (a.U !== undefined) {
+          var du = Math.max(0, d.dU);
+          this.stats.fiberMoves++;
+          if (du > 0) {
+            this.stats.fiberMm += du;
+            // Every positive U word is fibre that left the spool, whether or not
+            // it reached the part. A U feed with no XY motion is the air prime
+            // (`G1 F1200 U55 ; Extrude restart`) that pushes the 54.8 mm tail
+            // through the path: real consumption, zero deposition.
+            this.fiberFed += du;
+            if (dist > 0) {
+              this.fiberDeposited += du;
+              if (this.firstFiberLayer === null) this.firstFiberLayer = this.layer;
+              if (this.layer === 1) {
+                var fn = this.featureName || '(unsectioned)';
+                this.fiberOnLayer1[fn] = (this.fiberOnLayer1[fn] || 0) + du;
+                if (!this.fiberLayer1First) {
+                  this.fiberLayer1First = { line: this.lineNo, feature: fn, mm: du };
+                }
+              }
+            } else {
+              this.fiberRestart += du;
+            }
+          }
+        }
+        if (a.V !== undefined) this.stats.matrixMm += Math.max(0, d.dV);
+      }
+      this.layerExtrude += Math.max(0, d.dE) + Math.max(0, d.dV);
+      this.pendingHop = null;
+
+      // Checks that need the pre-move coverage state run *before* stamping.
+      if (dist > 0) {
+        this.onExtrusionMove(p, feature, width, height, dist, speed, d);
+      }
+      if (this.raster && dist > 0) this.raster.stamp(this.pos.x, this.pos.y, x, y, width, !!feature.wall);
+    } else if (retracting) {
+      this.retracted = true;
+      this.stats.retractEvents++;
+      this.retractLines.push(this.lineNo);
+      this.prevWasExtrusion = false;
+    } else if (dist > 0) {
+      this.onTravel(p, dist, x, y);
+      this.prevWasExtrusion = false;
+      // A travel ends the printed path, so it ends any unsupported run.
+      this.flushUnsupRun();
+    }
+
+    if (a.E !== undefined) this.lastE = this.absE ? a.E : this.lastE + a.E;
+    this.pos.x = x; this.pos.y = y; this.pos.z = z; this.pos.f = f;
+  };
+
+  Inspector.prototype.layerHeight = function () {
+    if (this.layers.length && this.layerZ > this.layers[this.layers.length - 1].z) {
+      var h = this.layerZ - this.layers[this.layers.length - 1].z;
+      if (h > 0.02 && h < 2) return h;
+    }
+    return this.settings.macroLayerHeight || 0.2;
+  };
+
+  /*
+   * Issue #1 post-pass: resolve the tiered classification over the collected
+   * population, then emit the individually reportable defects.
+   *
+   * Z-hop mitigation is a ±3-line window (the report's rule), which is why this
+   * cannot run inline. The same pass finds the emission-ordering defect: a
+   * retraction written 1–3 lines *after* an unprotected risk travel means the
+   * nozzle already crossed the gap loaded.
+   */
+  Inspector.prototype.c01Pass = function () {
+    var zs = this.zMoveLines, rl = this.retractLines;
+    var nz = zs.length, nr = rl.length;
+    function inWindow(arr, n, line, lo, hi) {
+      // binary search for the first entry >= lo, then scan while <= hi
+      var a = 0, b = n;
+      while (a < b) { var m = (a + b) >> 1; if (arr[m] < lo) a = m + 1; else b = m; }
+      for (var i = a; i < n && arr[i] <= hi; i++) if (arr[i] >= lo) return true;
+      return false;
+    }
+    var worst = 0, worstLine = 0;
+    for (var i = 0; i < this.riskTravels.length; i++) {
+      var t = this.riskTravels[i];
+      var hop = inWindow(zs, nz, t.line, t.line - 3, t.line + 3);
+      t.hop = hop;
+      this.riskClass[t.cls]++;
+      if (hop) this.riskZhop[t.cls]++;
+      if (t.cls === 'solid') continue;
+      this.riskDefects++;
+      if (!hop) {
+        this.unmitigated++;
+        if (t.dist > worst) { worst = t.dist; worstLine = t.line; }
+        if (t.dist >= this.minTravel) {
+          var sev = t.dist >= 20 ? 'critical' : (t.dist >= 8 ? 'warning' : 'info');
+          this.add('C01', sev, t.line, t.layer,
+            'Un-retracted plastic travel ' + (t.cls === 'air' ? 'over open air' : 'across void') +
+            ' of ' + t.dist.toFixed(1) + ' mm (stringing risk)',
+            t.code + ' at line ' + t.line + ' \u2014 no retraction, no Z-hop' +
+            (t.feat ? ', ' + t.feat : ''));
+          this.worstSet('C01', t.dist);
+        }
+        // Retraction written *after* the move: emitter ordering defect.
+        if (inWindow(rl, nr, t.line, t.line + 1, t.line + 3)) {
+          this.orderDefects++;
+          if (this.orderDefects <= 40) {
+            this.add('C01', 'warning', t.line, t.layer,
+              'Retraction emitted AFTER the travel move (emitter ordering defect)',
+              'travel at line ' + t.line + ' (' + t.dist.toFixed(1) + ' mm, ' + t.cls +
+              ') is followed by a retraction within 3 lines');
+          }
+        }
+      }
+    }
+    this.riskZhopTotal = this.riskZhop.solid + this.riskZhop.void + this.riskZhop.air;
+    this.riskWorst = worst;
+    this.riskWorstLine = worstLine;
+  };
+
+  Inspector.prototype.completeHop = function (zBack) {
+    var h = this.pendingHop;
+    this.pendingHop = null;
+    if (!h) return;
+    if (Math.abs(zBack - h.z0) > 0.05) return;   // not a return-to-height hop
+    if (h.dz > 2) return;                        // tool-change / clearance lift
+    if (this.inToolChange) return;
+    if (this.lastAxis !== 'E') return;           // plastic travel hops only
+    this.hopCount++;
+    if (h.noRetract) this.hopNoRetract++;
+    if (this.settings.doZHop === false) {
+      this.hopCountDisabled++;
+      if (!this.hopDisabledFirst) {
+        this.hopDisabledFirst = {
+          line: h.line, layer: this.layer, dz: h.dz,
+          z0: h.z0, z1: h.z1, z2: zBack, noRetract: h.noRetract
+        };
+      }
+    }
+  };
+
+  /*
+   * Issue #1 — the stringing-risk population.
+   *
+   * The report defines the population as plastic travels that *immediately*
+   * follow a plastic extrusion with no retraction between them, then tiers the
+   * result by what each path crosses. We use that definition with two
+   * documented refinements:
+   *
+   *   - Support sections are excluded. Support is broken away and its travel is
+   *     wiped by design; counting it inflates the total with moves nobody would
+   *     call a stringing defect (20% of L1's travels).
+   *   - Travels shorter than `minTravel` are tiered but not reported
+   *     individually: a 0.3 mm hop between collinear wall segments cannot
+   *     strand a visible thread.
+   *
+   * Z-hop mitigation uses the report's own window: a Z move greater than 0.05 mm
+   * within three G-code lines before or after the travel. Because that window
+   * extends forwards, classification is resolved in `c01Pass()` after the scan.
+   */
+  Inspector.prototype.onTravel = function (p, dist, x, y) {
+    this.stats.travelMoves++;
+    var cls = this.raster ? this.raster.classifyTravel(this.pos.x, this.pos.y, x, y) : 'solid';
+    this.travelClass[cls]++;
+    if (!this.retracted && this.lastAxis === 'E') this.unretractedTravels++;
+
+    var immediate = this.prevWasExtrusion && this.lastAxis === 'E';
+    var inSupport = this.feature && this.feature.type === 'SUPPORT';
+
+    if (immediate) {
+      this.unretractedImmediate++;
+      if (!inSupport) {
+        this.riskTravels.push({
+          line: this.lineNo, layer: this.layer, dist: dist, cls: cls,
+          code: p.code, feat: this.featureName
+        });
+      }
+    }
+    this.lastTravel = { line: this.lineNo, dist: dist, cls: cls };
+  };
+
+  Inspector.prototype.onExtrusionMove = function (p, feature, width, height, dist, speed, d) {
+    // --- volumetric flow (issue #4) ---
+    var ceiling = GENERIC_CEILING[this.settings.material] || 12;
+    var feedMm3 = 0;
+    if (feature.type === 'FIBER' || d.dU > 0) {
+      // Fiber moves carry no E word; the melt demand is the matrix (V) feed.
+      var dV = Math.max(0, d.dV);
+      if (dV > 0) feedMm3 = (dV / dist) * Math.PI * Math.pow(this.settings.filamentDiameter / 2, 2) * speed;
+    } else {
+      feedMm3 = (d.dE / dist) * width * height * speed;
+    }
+    if (feedMm3 > this.stats.maxFlow) { this.stats.maxFlow = feedMm3; this.stats.maxFlowLine = this.lineNo; }
+
+    if (feedMm3 > ceiling) {
+      var dt = dist / speed;
+      this.sustained.t += dt;
+      this.sustained.v += feedMm3 * dt;
+      if (this.sustained.t >= this.sustainedWindow) {
+        var avg = this.sustained.v / this.sustained.t;
+        this.sustained.t = 0; this.sustained.v = 0;
+        if (avg > ceiling) {
+          var sev = avg >= ceiling * this.flowCritical ? 'critical' : 'warning';
+          this.add('C04', sev, this.lineNo, this.layer,
+            'Sustained volumetric demand ' + avg.toFixed(1) + ' mm\u00b3/s against a ' +
+            ceiling + ' mm\u00b3/s ' + (this.settings.material || 'generic') + ' ceiling',
+            p.code + ' F' + (p.args.F || Math.round(this.pos.f)) + ' \u2014 ' + feature.type +
+            ', ' + width + 'x' + height.toFixed(2) + ' mm bead');
+          this.worstSet('C04', avg);
+        }
+      }
+    } else {
+      this.sustained.t = 0; this.sustained.v = 0;
+    }
+
+    // --- unsupported runs (issue #6) ---
+    //
+    // A run is one *contiguous printed path*: it accumulates while the nozzle
+    // keeps extruding without support and ends at the first supported segment,
+    // travel, feature change or layer change. Reporting the *completed* length
+    // (not the length at the moment the threshold is crossed) is what makes the
+    // magnitudes comparable to issue #6, which quotes whole-run lengths.
+    //
+    // A closed loop laid over open space counts its whole perimeter — the
+    // report's own convention, "16 mm unsupported runs" for a 17.5 x 13 mm
+    // rectangle — while two separate bridges do not add up. Plastic only: fiber
+    // deposition has its own mechanics.
+    var skip = feature.type === 'SUPPORT' || feature.type === 'SKIRT' ||
+               feature.type === 'BRIM' || feature.type === 'PRIMING' ||
+               feature.type === 'WIPE';
+    if (this.raster && this.layer > 1 && !skip && d.dE > 0 &&
+        p.args.X !== undefined && p.args.Y !== undefined) {
+      if (this.segmentUnsupported(this.pos.x, this.pos.y, p.args.X, p.args.Y,
+                                  this.supportRadius, this.supportDepth)) {
+        if (this.unsupRun === 0) {
+          this.unsupStartLine = this.lineNo;
+          this.unsupStartLayer = this.layer;
+          this.unsupFeature = feature.type;
+          this.unsupFanAtStart = this.partFan() > 0;
+          this.unsupFeed = this.pos.f;
+        }
+        this.unsupRun += dist;
+        if (this.unsupRun > this.unsupMax) this.unsupMax = this.unsupRun;
+        if (!this.unsupFanAtStart) this.unsupFanOff += dist;
+      } else {
+        this.flushUnsupRun();
+      }
+    } else if (skip) {
+      // Switching into support/skirt/brim/priming/wipe plastic interrupts the
+      // printed path being measured, so it ends the run.
+      this.flushUnsupRun();
+    }
+  };
+
+  /*
+   * Close the current unsupported run and raise the finding if it reached the
+   * issue #6 floor. Called when the run is broken by supported plastic, a
+   * travel, a feature change or a layer change.
+   */
+  Inspector.prototype.flushUnsupRun = function () {
+    var len = this.unsupRun;
+    if (len >= this.minUnsupported) {
+      this.unsupRuns++;
+      this.add('C06', len >= 40 ? 'critical' : 'warning', this.unsupStartLine, this.unsupStartLayer,
+        'Unsupported printed run of ' + len.toFixed(1) + ' mm' +
+        (this.unsupFanAtStart ? '' : ' with the part fan off'),
+        this.unsupFeature + ' section at F' + Math.round(this.unsupFeed) +
+        (this.unsupFanAtStart ? ', fan on' : ', part fan off'));
+      this.worstSet('C06', len);
+    }
+    this.unsupRun = 0;
+    this.unsupReported = false;
+  };
+
+  Inspector.prototype.segmentUnsupported = function (x0, y0, x1, y1, radius, depth) {
+    var dx = x1 - x0, dy = y1 - y0;
+    var len = Math.sqrt(dx * dx + dy * dy);
+    if (len === 0) return false;
+    var n = Math.max(1, Math.ceil(len / 0.5)), bad = 0;
+    for (var i = 0; i <= n; i++) {
+      var t = i / n;
+      if (!this.raster.supported(x0 + dx * t, y0 + dy * t, radius, depth)) bad++;
+    }
+    return bad / (n + 1) > 0.9;
+  };
+
+  Inspector.prototype.finish = function () {
+    if (this.layerStart) this.closeLayer();
+    if (this.m1001Open > 0) {
+      this.add('C08', 'warning', 0, null,
+        this.m1001Open + ' M1001 fiber window(s) never closed by M1002', '');
+    }
+    if (this.m1001 > 0) {
+      this.add('C08', 'critical', 0, null,
+        this.m1001 + ' \u00d7 M1001 / ' + this.m1002 + ' \u00d7 M1002 emitted \u2014 no firmware handler exists (issue #9)',
+        'fiber-feed windows bracketed by unimplemented commands' +
+        (this.m1001NoL ? '; ' + this.m1001NoL + ' M1001 without an L parameter' : ''));
+    }
+  };
+
+  // ---- derived checks, after the pass ------------------------------------
+  Inspector.prototype.postChecks = function () {
+    var s = this.settings;
+
+    // C01 tiered travel classification (issue #1)
+    this.c01Pass();
+
+    // C10 Z-hop against the exported setting (issue #29). One finding per file:
+    // the defect is the disagreement itself, and the count is the magnitude.
+    if (this.hopCountDisabled > 0) {
+      var f10 = this.hopDisabledFirst;
+      // Rocket keeps its original wording; a flat-config file names the key it
+      // actually read, since `Profile.DoZHop` does not exist in that dialect.
+      var hopSetting = s.settingsSource === 'session'
+        ? 'Profile.DoZHop=false' : s.doZHopKey + '=off';
+      var hopHeightLabel = s.settingsSource === 'session' ? 'ZhopP=' : 'hop height ';
+      this.add('C10', 'critical', f10.line, f10.layer,
+        this.hopCountDisabled + ' plastic travel Z-hops of ' + f10.dz.toFixed(2) +
+        ' mm emitted while ' + hopSetting,
+        'first at line ' + f10.line + ': Z' + f10.z0.toFixed(3) + ' \u2192 Z' + f10.z1.toFixed(3) +
+        ' \u2192 Z' + f10.z2.toFixed(3) + ' (' + hopHeightLabel + this.settings.zhopP +
+        (f10.noRetract ? ', no preceding retraction' : '') + ')');
+      this.worstSet('C10', this.hopCountDisabled);
+    }
+
+    // C07 motion contract (issue #8)
+    /*
+     * Issue #8 is about Rocket Slicer leaning on firmware defaults. On a Klipper
+     * target the contract is declared with `SET_VELOCITY_LIMIT`, not with Marlin
+     * verbs, so demanding M204/M205/M203 there is a dialect assumption rather
+     * than a finding. Suppression is keyed on a line that actually declares the
+     * acceleration limit (`ACCEL=`), the M204 analogue: Rocket's own
+     * `SET_VELOCITY_LIMIT MINIMUM_CRUISE_RATIO=0.8` declares no acceleration, so
+     * Rocket files keep the findings they have always raised.
+     */
+    var klipperContract = this.klipperAccelLine > 0;
+    if (klipperContract) {
+      this.add('C07', 'info', this.klipperAccelLine, null,
+        'Motion contract declared in Klipper form (SET_VELOCITY_LIMIT with ACCEL) \u2014 ' +
+        'M204/M205/M203 are not the mechanism on this target',
+        'SET_VELOCITY_LIMIT at line ' + this.klipperAccelLine + ' replaces the Marlin verbs');
+    }
+    if (this.m204 === null && !klipperContract) {
+      this.add('C07', 'warning', 0, null, 'No M204 acceleration command anywhere in the file', '');
+    } else if (this.m204 !== null && this.m204.line > 200) {
+      this.add('C07', 'warning', this.m204.line, null,
+        'First M204 (acceleration regime) appears at line ' + this.m204.line +
+        ' \u2014 past the header/preamble, so generic tools parse default values',
+        'M204 S' + this.m204.value);
+    }
+    if (this.m205 === 0 && !klipperContract) {
+      this.add('C07', 'warning', 0, null, 'No M205 (jerk) command in the file', '');
+    }
+    if (this.m203 === 0 && !klipperContract) {
+      this.add('C07', 'warning', 0, null, 'No M203 (max feedrate) command in the file', '');
+    }
+    if (/SET_VELOCITY_LIMIT|SET_PRESSURE_ADVANCE/.test(s.startGCode) && this.klipperMotionLines === 0) {
+      this.add('C07', 'warning', 0, null,
+        'Klipper motion limits (SET_VELOCITY_LIMIT / SET_PRESSURE_ADVANCE) exist only as a header echo, not as executable lines',
+        'profile StartGCode contains them but no such command was emitted');
+    }
+
+    // C04 header-derived nominal wall flow (issue #4 corroboration)
+    if (s.inset0Speed && s.inset0EWMM) {
+      var ceiling = GENERIC_CEILING[s.material] || 12;
+      var nominal = s.inset0EWMM * (s.macroLayerHeight || 0.2) * s.inset0Speed;
+      if (nominal > ceiling) {
+        this.add('C04', 'warning', 0, null,
+          'Header Inset0Speed=' + s.inset0Speed + ' mm/s on a ' + s.inset0EWMM + ' \u00d7 ' +
+          (s.macroLayerHeight || 0.2) + ' mm bead = ' + nominal.toFixed(1) +
+          ' mm\u00b3/s constant wall demand vs a ' + ceiling + ' mm\u00b3/s ' +
+          (s.material || 'generic') + ' ceiling',
+          'Inset0Speed / Inset0EWMM / MacroLayerHeight from the SESSION echo');
+        this.worstSet('C04', nominal);
+      }
+    }
+
+    // C02 seam clustering (issue #2)
+    var sc = this.seamClusters();
+    this.seamClusterCount = sc.clusters;
+    if (sc.run >= this.minSeamRun) {
+      this.add('C02', sc.run >= 40 ? 'critical' : 'warning', sc.line, sc.layer,
+        'Seam repeated at the same XY for ' + sc.run + ' consecutive layers at X' +
+        sc.x.toFixed(3) + ' Y' + sc.y.toFixed(3),
+        'EnableAdjustSeamDistributionPositionPlastic=' + s.seamDistributionPlastic);
+      this.worstSet('C02', sc.run);
+    }
+
+    // C09 firmware contract (issues #10 / #11)
+    Object.keys(this.customVerbs).forEach(function (v) {
+      if (v === 'CASE_FAN') {
+        this.add('C09', 'critical', 0, null,
+          'CASE_FAN used ' + this.customVerbs[v] + ' time(s) but is not defined in the firmware contract (issue #11)', '');
+      } else {
+        this.add('C09', 'warning', 0, null,
+          'Undefined command ' + v + ' used ' + this.customVerbs[v] +
+          ' time(s) \u2014 not part of the documented dialect', '');
+      }
+    }, this);
+    if (/CASE_FAN/.test(s.startGCode) || /CASE_FAN/.test(s.endGCode)) {
+      this.add('C09', 'critical', 0, null,
+        'CASE_FAN referenced by the exported start/end gcode but not defined (issue #11)', '');
+    }
+    if (/toolhead_temp/.test(s.startGCode)) {
+      this.add('C09', 'warning', 0, null,
+        'Start gcode references toolhead_temp where a chamber reading is expected (issue #10)', '');
+    }
+
+    // C11 geometry sanity
+    var b = this.stats.bbox;
+    if (b.minx <= b.maxx) {
+      if (b.minx < 0 || b.miny < 0 || b.maxx > s.areaX || b.maxy > s.areaY) {
+        this.add('C11', 'critical', 0, null,
+          'Deposited geometry leaves the declared build area ' + s.areaX + '\u00d7' + s.areaY,
+          'bbox X ' + b.minx.toFixed(1) + '\u2013' + b.maxx.toFixed(1) +
+          ' Y ' + b.miny.toFixed(1) + '\u2013' + b.maxy.toFixed(1));
+      }
+    } else {
+      this.add('C11', 'critical', 0, null, 'No extrusion moves found \u2014 file did not parse as G-code', '');
+    }
+    if (this.header.layerCount && this.layers.length && this.header.layerCount !== this.layers.length) {
+      this.add('C11', 'warning', 0, null,
+        'Header LAYER_COUNT=' + this.header.layerCount + ' but ' + this.layers.length +
+        ' ; LAYER: markers parsed', 'layer markers are the authority (GCODE_REFERENCE \u00a74)');
+    }
+    if (this.layers.length === 0) {
+      this.add('C11', 'critical', 0, null,
+        'No ; LAYER: markers parsed \u2014 layer detection must tolerate the space after ";"', '');
+    }
+    // An Orca/Prusa role the map does not know must be reported, not silently
+    // attributed to no feature: every geometry-dependent rule reads the label.
+    var unknownTypes = Object.keys(this.unknownTypes);
+    if (unknownTypes.length) {
+      unknownTypes.sort(function (a, b) { return this.unknownTypes[b] - this.unknownTypes[a]; }.bind(this));
+      this.add('C11', 'warning', 0, null,
+        'Unrecognised ;TYPE: role(s) \u2014 geometry in them is attributed to no feature: ' +
+        unknownTypes.slice(0, 5).map(function (k) {
+          return k + ' (' + this.unknownTypes[k] + ')';
+        }, this).join(', '),
+        'extend Dialect.TYPE_FEATURES');
+    }
+
+    // C12 / C13 / C14 / C15 — the owner-requested print-contract report rules.
+    this.c12Check();
+    this.c13Check();
+    this.c14Check();
+    this.c15Check();
+  };
+
+  /*
+   * C12 — carbon on the first layer.
+   *
+   * Owner rule (2026-10-03): "unless it's a fortified print, carbon should not
+   * be the first layer". Fortified means the fibre *is* the part's own skin, so
+   * it has to start at layer 1; everywhere else a first-layer fibre deposit is
+   * a process defect — carbon at the bed interface gives poor adhesion and a
+   * rough bottom face.
+   *
+   * The distinction that matters is structural vs sacrificial. A `Priming line`
+   * or `Skirt`/`Brim`/`Wipe tower` fibre pass on layer 1 is the documented
+   * head-loading dance: it is on the bed, but it is not the part's first layer.
+   * Those are reported as info, not as violations. Fibre inside a wall or
+   * infill feature on layer 1 of a non-fortified print is the violation.
+   */
+  Inspector.prototype.c12Check = function () {
+    var feats = Object.keys(this.fiberOnLayer1);
+    this.c12 = {
+      fortified: !!this.settings.fortified,
+      structuralMm: 0, sacrificialMm: 0, structural: [], sacrificial: [],
+      firstLine: null, violation: false, verdict: 'none'
+    };
+    if (!feats.length) {
+      this.add('C12', 'info', 0, 1, 'No fibre on layer 1 \u2014 first layer is plastic-only',
+        'first fibre layer ' + (this.firstFiberLayer === null ? 'none' : this.firstFiberLayer));
+      return;
+    }
+    var SACRIFICIAL = { SKIRT: 1, BRIM: 1, PRIMING: 1, WIPE: 1 };
+    var structural = [], sacrificial = [];
+    var sMm = 0, xMm = 0;
+    feats.forEach(function (f) {
+      var type = D.FEATURES[f] ? D.FEATURES[f].type : 'UNKNOWN';
+      var mm = this.fiberOnLayer1[f];
+      if (SACRIFICIAL[type]) { sacrificial.push(f + ' ' + mm.toFixed(1)); sMm += mm; }
+      else { structural.push(f + ' ' + mm.toFixed(1)); xMm += mm; }
+    }, this);
+    function names(arr) { return arr.map(function (s) { return s.replace(/ [\d.]+$/, ''); }); }
+    var violation = !this.settings.fortified && xMm > 0;
+    this.c12 = {
+      fortified: !!this.settings.fortified,
+      structuralMm: xMm, sacrificialMm: sMm,
+      structural: names(structural), sacrificial: names(sacrificial),
+      firstLine: this.fiberLayer1First ? this.fiberLayer1First.line : null,
+      violation: violation,
+      // One verdict string shared by CLI, browser and report so the three can
+      // never disagree. Precedence matters: a fortified *configuration* with no
+      // structural fibre on layer 1 (Benchy_renforced_level5-pla) is not
+      // "fortified fibre on L1" — it is simply a plastic first layer.
+      verdict: violation ? 'violation'
+        : (this.settings.fortified && xMm > 0) ? 'permitted-fortified'
+        : 'sacrificial-only'
+    };
+
+    if (this.settings.fortified) {
+      this.add('C12', 'info', this.fiberLayer1First.line, 1,
+        'Fibre on layer 1 (' + xMm.toFixed(1) + ' mm deposited) \u2014 permitted: this is a fortified print',
+        'CurrentSliceType=' + this.settings.currentSliceType +
+        ' MustGenerateFiberPerimeters=' + this.settings.mustGenerateFiberPerimeters +
+        '; ' + (structural.concat(sacrificial).join(', ') || 'none'));
+      return;
+    }
+    if (structural.length) {
+      this.add('C12', 'critical', this.fiberLayer1First.line, 1,
+        xMm.toFixed(1) + ' mm of fibre deposited in part geometry on layer 1 of a non-fortified print',
+        'features: ' + structural.join(', ') + '; first fibre move at line ' +
+        this.fiberLayer1First.line + ' (' + this.fiberLayer1First.feature + ')' +
+        (sacrificial.length ? '; also sacrificial: ' + sacrificial.join(', ') : '') +
+        '; CurrentSliceType=' + this.settings.currentSliceType +
+        ' MustGenerateFiberPerimeters=' + this.settings.mustGenerateFiberPerimeters);
+      this.worstSet('C12', xMm);
+    } else {
+      this.add('C12', 'info', this.fiberLayer1First.line, 1,
+        'Fibre on layer 1 is confined to the sacrificial priming/skirt pass (' +
+        sMm.toFixed(1) + ' mm) \u2014 the part\u2019s first layer is plastic',
+        sacrificial.join(', ') + '; first fibre move at line ' + this.fiberLayer1First.line);
+    }
+  };
+
+  /*
+   * C13 — dual-tool or single-tool?
+   *
+   * Three independent signals, reported together because they do not always
+   * agree: the `; PRINTING_MODE:` header, the `T0`/`T1` commands actually
+   * issued, and which extrusion axis (E vs U) actually deposited material.
+   * `Benchy_fortified.gcode` is the instructive case: the header says
+   * "Composite Only" yet the file issues 136 `T1` changes and deposits 2.87 m
+   * of plastic, because the tool-change dance and the plastic wet-out matrix
+   * still run. A header-only answer would be wrong in both directions, so the
+   * verdict is derived from observed deposition and the header is reported as
+   * corroboration or contradiction.
+   */
+  Inspector.prototype.c13Check = function () {
+    var mode = this.header.mode || null;
+    var usesPlastic = this.stats.plasticMm > 0;
+    var usesFiber = this.fiberFed > 0;
+    var observed = usesPlastic && usesFiber ? 'dual' : usesFiber ? 'fiber-only' : usesPlastic ? 'plastic-only' : 'none';
+    var declared = !mode ? null
+      : /and\s*Composite/i.test(mode) ? 'dual'
+      : /Composite\s*Only/i.test(mode) ? 'fiber-only'
+      : /Plastic\s*Only/i.test(mode) ? 'plastic-only' : null;
+
+    this.c13Verdict = {
+      mode: mode, declared: declared, observed: observed,
+      t0: this.t0, t1: this.t1,
+      plasticMm: this.stats.plasticMm, fiberFedMm: this.fiberFed
+    };
+
+    var label = observed === 'dual' ? 'dual-tool (FFF + CFC fibre)'
+      : observed === 'fiber-only' ? 'fibre-only (CFC tool; plastic tool idle)'
+      : observed === 'plastic-only' ? 'single-tool FFF (no fibre deposited)'
+      : 'no deposition parsed';
+    this.add('C13', 'info', 0, null,
+      'Tool configuration: ' + label + ' \u2014 T0\u00d7' + this.t0 + ' / T1\u00d7' + this.t1 +
+      ', plastic ' + (this.stats.plasticMm / 1000).toFixed(2) + ' m, fibre ' +
+      (this.fiberFed / 1000).toFixed(2) + ' m fed',
+      '; PRINTING_MODE: ' + (mode || 'absent') + ' (declares ' + (declared || 'unknown') + ')');
+
+    if (declared && declared !== observed && !(declared === 'fiber-only' && observed === 'dual')) {
+      this.add('C13', 'warning', 0, null,
+        'Header ; PRINTING_MODE: "' + mode + '" declares ' + declared +
+        ' but the file deposits ' + observed,
+        'T0\u00d7' + this.t0 + ' T1\u00d7' + this.t1 + ' \u00b7 plastic ' +
+        (this.stats.plasticMm / 1000).toFixed(2) + ' m \u00b7 fibre ' +
+        (this.fiberFed / 1000).toFixed(2) + ' m');
+    }
+    // "Composite Only" that still drives the plastic tool is a documented
+    // dialect quirk, not a defect: report it as info so the reader is not
+    // misled by the header alone.
+    if (declared === 'fiber-only' && observed === 'dual') {
+      this.add('C13', 'info', 0, null,
+        'Header says "Composite Only" but the plastic tool is used \u2014 the fibre wet-out matrix and tool-change dance still drive T1',
+        'plastic ' + (this.stats.plasticMm / 1000).toFixed(2) + ' m deposited across ' + this.t1 + ' T1 changes');
+    }
+  };
+
+  /*
+   * C14 — fibre consumption and cut count.
+   *
+   * Three numbers, deliberately kept apart because they answer different
+   * questions:
+   *
+   *   fed        every positive `U` word. What left the spool.
+   *   deposited  positive `U` on a move with XY motion. What went into the part.
+   *   restart    positive `U` with no XY motion (`G1 F1200 U55 ; Extrude
+   *              restart`). Air prime that pushes the 54.8 mm post-cut tail
+   *              through the path before deposition resumes.
+   *
+   * The slicer's own `MATERIAL_PRINT_DATA` tow `Length` reconciles with
+   * `deposited` exactly (verified to 6 significant digits on every fibre file
+   * in the corpus), which is what makes `fed - deposited` trustworthy as the
+   * restart overhead rather than a parse error.
+   *
+   * Cuts are `M2800` blade fires. One per fibre segment, so the count is
+   * cross-checked against the `M1001` windows that opened those segments.
+   */
+  Inspector.prototype.c14Check = function () {
+    var fed = this.fiberFed, dep = this.fiberDeposited, rst = this.fiberRestart;
+    var mat = D.materialSummary(this.materialData);
+    var declaredM = mat.tow ? mat.tow.lengthM : null;
+    this.c14 = {
+      fedMm: fed, depositedMm: dep, restartMm: rst, restartShare: fed > 0 ? rst / fed : 0,
+      cuts: this.cuts, tailMm: this.cutDistLast, tailTotalMm: this.cutDistMm,
+      tailOrphans: this.cutDistOrphan, declaredTowM: declaredM,
+      declaredPlasticM: mat.plastic ? mat.plastic.lengthM : null,
+      towName: mat.tow ? mat.tow.name : null
+    };
+
+    if (fed <= 0) {
+      this.add('C14', 'info', 0, null,
+        'No fibre consumed \u2014 0 mm fed, 0 cuts' +
+        (declaredM !== null ? ' (slicer declares ' + declaredM.toFixed(2) + ' m tow)' : ''),
+        'single-tool FFF print; the CFC tool never fed');
+      if (this.cuts > 0) {
+        this.add('C14', 'warning', 0, null,
+          this.cuts + ' M2800 cut(s) issued on a print that never fed fibre', '');
+      }
+      return;
+    }
+
+    this.add('C14', 'info', 0, null,
+      'Fibre: ' + (fed / 1000).toFixed(2) + ' m fed \u2014 ' + (dep / 1000).toFixed(2) +
+      ' m deposited in the part, ' + (rst / 1000).toFixed(2) + ' m (' +
+      (100 * rst / fed).toFixed(0) + ' %) air-primed through the head' +
+      (declaredM !== null ? '; slicer declares ' + declaredM.toFixed(2) + ' m' : ''),
+      'fed=\u03a3U, deposited=\u03a3U on moves with XY motion, restart=\u03a3U with no XY motion' +
+      (declaredM !== null ? '; MATERIAL_PRINT_DATA tow Length=' + declaredM.toFixed(6) + ' m' : ''));
+    this.add('C14', 'info', 0, null,
+      this.cuts + ' fibre cut(s) (M2800)' +
+      (this.cutDistLast !== null ? ', tail constant ' + this.cutDistLast.toFixed(1) + ' mm' : '') +
+      (this.cuts ? ' \u2014 ' + (this.cutDistMm / 1000).toFixed(2) + ' m of trimmed tail' : ''),
+      'M2800 count; ;CUT DISTANCE sum ' + this.cutDistMm.toFixed(0) + ' mm' +
+      (this.cutDistOrphan ? '; ' + this.cutDistOrphan + ' ;CUT DISTANCE comment(s) with no preceding M2800 (end-gcode echo)' : ''));
+    this.worstSet('C14', fed / 1000);
+
+    // Cross-checks: the slicer's declared consumption and the segment/cut parity.
+    if (declaredM !== null) {
+      var diff = Math.abs(dep / 1000 - declaredM);
+      if (diff > 0.01) {
+        this.add('C14', 'warning', 0, null,
+          'Measured fibre deposition ' + (dep / 1000).toFixed(2) + ' m disagrees with the slicer\u2019s declared ' +
+          declaredM.toFixed(2) + ' m by ' + diff.toFixed(2) + ' m',
+          'expected \u03a3U(XY) == MATERIAL_PRINT_DATA tow Length');
+      }
+    }
+    if (this.m1001 > 0 && this.cuts < this.m1001) {
+      this.add('C14', 'warning', 0, null,
+        this.m1001 + ' fibre segment(s) opened (M1001) but only ' + this.cuts +
+        ' cut(s) issued \u2014 a segment ended uncut',
+        'every fibre segment must close with M2800 (Exploration/FibreUsage.md \u00a75.7)');
+      this.worstSet('C14', this.m1001 - this.cuts);
+    }
+  };
+
+  /*
+   * C15 — machine-assist flags.
+   *
+   * The machine has AI/spaghetti detection, a piezo bed-mesh front end,
+   * resonance testing and filament runout sensors (Exploration/HardwareInfo.md;
+   * ERROR_CODES.md 10072\u201310074 and the 30000-series). None of them are exported
+   * in the SESSION echo \u2014 the exported profile vocabulary is slicing geometry
+   * and motion only \u2014 so the only evidence a print can carry is an executable
+   * command. Absence therefore means "not requested by this file", not "not
+   * configured on the machine": homing and meshing normally happen before the
+   * file starts. The finding says exactly that.
+   */
+  Inspector.prototype.c15Check = function () {
+    var present = [], absent = [];
+    D.MACHINE_FLAGS.forEach(function (f) {
+      var h = this.flagHits[f.key];
+      if (h) present.push(f.label + ' \u00d7' + h.count + ' @line ' + h.line);
+      else absent.push(f.label);
+    }, this);
+    this.c15 = {
+      present: D.MACHINE_FLAGS.filter(function (f) { return this.flagHits[f.key]; }, this)
+        .map(function (f) { return { key: f.key, label: f.label, count: this.flagHits[f.key].count, line: this.flagHits[f.key].line }; }, this),
+      absent: absent
+    };
+    if (present.length) {
+      this.add('C15', 'info', 0, null,
+        present.length + ' of ' + D.MACHINE_FLAGS.length + ' machine-assist flags present: ' +
+        present.join('; '),
+        'detected as executable commands, not header echoes');
+    } else {
+      this.add('C15', 'info', 0, null,
+        'No machine-assist flag present \u2014 none of the ' + D.MACHINE_FLAGS.length +
+        ' recognised commands appear as executable lines',
+        'absent: ' + absent.join(', ') +
+        '; absence means not requested by this file, not unconfigured on the machine' +
+        ' (homing/meshing normally run before the print)');
+    }
+  };
+
+  Inspector.prototype.seamClusters = function () {
+    if (!this.seams.length) return { run: 0, clusters: 0, x: 0, y: 0, layer: 0, line: 0 };
+    var byXY = {};
+    for (var i = 0; i < this.seams.length; i++) {
+      var s = this.seams[i];
+      var k = s.kind + '|' + (Math.round(s.x * 2) / 2).toFixed(2) + '|' + (Math.round(s.y * 2) / 2).toFixed(2);
+      (byXY[k] || (byXY[k] = [])).push(s);
+    }
+    var best = null, clusters = 0;
+    Object.keys(byXY).forEach(function (k) {
+      var arr = byXY[k].slice().sort(function (a, b) { return a.layer - b.layer; });
+      var run = 1, runStart = 0;
+      for (var j = 1; j <= arr.length; j++) {
+        if (j < arr.length && arr[j].layer === arr[j - 1].layer + 1) {
+          run++;
+        } else {
+          if (run >= 3) clusters++;
+          if (!best || run > best.run) {
+            best = { run: run, x: arr[runStart].x, y: arr[runStart].y,
+                     layer: arr[runStart].layer, line: arr[runStart].line };
+          }
+          run = 1; runStart = j;
+        }
+      }
+    });
+    if (!best) best = { run: 0, x: 0, y: 0, layer: 0, line: 0 };
+    best.clusters = clusters;
+    return best;
+  };
+
+  Inspector.prototype.report = function (name) {
+    this.postChecks();
+    var b = this.stats.bbox;
+    if (b.minx > b.maxx) b = { minx: 0, miny: 0, maxx: 0, maxy: 0 };
+    var byCheck = {};
+    Object.keys(CHECKS).forEach(function (c) {
+      byCheck[c] = {
+        id: c, title: CHECKS[c].title, issue: CHECKS[c].issue,
+        count: this.counts[c] || 0,
+        critical: this.critByCheck[c] || 0,
+        worst: this.worst[c] === undefined ? null : this.worst[c]
+      };
+    }, this);
+    var s = this.settings;
+    return {
+      file: name,
+      header: this.header,
+      settings: {
+        source: s.settingsSource,
+        material: s.material, doZHop: s.doZHop, zhopP: s.zhopP, minLayerTime: s.minLayerTime,
+        doZHopKey: s.doZHopKey, minLayerTimeKey: s.minLayerTimeKey,
+        inset0Speed: s.inset0Speed, inset0EWMM: s.inset0EWMM, macroLayerHeight: s.macroLayerHeight,
+        seamDistributionPlastic: s.seamDistributionPlastic,
+        retractOnLayerChange: s.retractOnLayerChange,
+        retractOnlyWhenCrossing: s.retractOnlyWhenCrossing,
+        travelSpeedXY: s.travelSpeedXY, buildArea: [s.areaX, s.areaY], fanSchedule: s.fanSchedule,
+        currentSliceType: s.currentSliceType,
+        mustGenerateFiberPerimeters: s.mustGenerateFiberPerimeters,
+        fortified: !!s.fortified
+      },
+      stats: {
+        lines: this.stats.lines, bytes: this.stats.bytes,
+        layers: this.layers.length, moves: this.stats.moves,
+        extrudeMoves: this.stats.extrudeMoves, travelMoves: this.stats.travelMoves,
+        fiberMoves: this.stats.fiberMoves, toolChanges: this.stats.toolChanges,
+        plasticMm: this.stats.plasticMm, fiberMm: this.stats.fiberMm,
+        plasticVolMm3: this.stats.plasticVolMm3,
+        estPrintTimeSec: this.stats.printTimeSec,
+        minLayerTime: this.stats.minLayerTime > 1e8 ? null : this.stats.minLayerTime,
+        minLayerTimeLayer: this.stats.minLayerTimeLayer,
+        maxFlow: this.stats.maxFlow, maxFlowLine: this.stats.maxFlowLine,
+        bbox: b, sections: this.stats.sections,
+        unretractedTravels: this.unretractedTravels,
+        unretractedAfterExtrusion: this.unretractedImmediate,
+        travelClass: this.travelClass,
+        riskTravels: this.riskTravels.length,
+        riskClass: this.riskClass,
+        riskZhop: this.riskZhop,
+        riskZhopTotal: this.riskZhopTotal,
+        riskDefects: this.riskDefects,
+        riskWorst: this.riskWorst,
+        riskWorstLine: this.riskWorstLine,
+        unmitigatedTravels: this.unmitigated, retractOrderDefects: this.orderDefects,
+        zhopHops: this.hopCount, zhopHopsAgainstSetting: this.hopCountDisabled,
+        zhopWithoutRetract: this.hopNoRetract,
+        voidCells: this.stats.voidCells, voidComps: this.stats.voidComps,
+        voidWallComps: this.stats.voidWallComps, voidSkipped: this.stats.voidSkipped,
+        voidLayers: this.stats.voidLayers, voidWidest: this.stats.voidWidest,
+        voidWidestWall: this.stats.voidWidestWall, voidArea: this.stats.voidArea,
+        voidHist: this.stats.voidHist,
+        unsupportedMax: this.unsupMax, unsupportedRuns: this.unsupRuns, unsupportedNoFanMm: this.unsupFanOff,
+        m1001: this.m1001, m1002: this.m1002,
+        m204FirstLine: this.m204 ? this.m204.line : null, m205: this.m205, m203: this.m203,
+        fanEvents: this.fanEvents, seamMarkers: this.seams.length,
+        seamClusters: this.seamClusterCount, customVerbs: this.customVerbs,
+        // C12 \u2014 first-layer fibre, split by feature so the report can name it.
+        fiberOnLayer1: this.fiberOnLayer1,
+        firstFiberLayer: this.firstFiberLayer,
+        fortified: !!this.settings.fortified,
+        firstLayerFiber: this.c12,
+        // C13 \u2014 tool configuration, header vs observed.
+        tools: this.c13Verdict,
+        // C14 \u2014 fibre accounting and cuts.
+        fiber: this.c14,
+        // C15 \u2014 machine-assist flags.
+        machineFlags: this.c15
+      },
+      byCheck: byCheck,
+      findings: this.findings,
+      layers: this.layers
+    };
+  };
+
+  root.FS3 = root.FS3 || {};
+  root.FS3.CHECKS = CHECKS;
+  root.FS3.GENERIC_CEILING = GENERIC_CEILING;
+  root.FS3.Inspector = Inspector;
+})(typeof self !== 'undefined' ? self : globalThis);
+</script>
+<script>
+(function () {
+  'use strict';
+  var ORDER = ['C01','C02','C03','C04','C05','C06','C07','C08','C09','C10','C11','C12','C13','C14','C15'];
+  var files = [];
+  var reports = [];
+  var $ = function (id) { return document.getElementById(id); };
+  var out = $('out');
+
+  function fmt(n, d) {
+    if (n === null || n === undefined || isNaN(n)) return '\u2014';
+    return Number(n).toLocaleString('en-US', { minimumFractionDigits: d || 0, maximumFractionDigits: d || 0 });
+  }
+  function esc(s) {
+    return String(s).replace(/[&<>"]/g, function (c) {
+      return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c];
+    });
+  }
+  function issueLink(n) {
+    return n ? '<a href="https://github.com/3ricj/FibreSeeker3/issues/' + n + '" target="_blank" rel="noopener">#' + n + '</a>' : '\u2014';
+  }
+
+  $('files').addEventListener('change', function (e) { addFiles(e.target.files); });
+  var drop = $('drop');
+  ['dragenter', 'dragover'].forEach(function (t) {
+    drop.addEventListener(t, function (e) { e.preventDefault(); drop.classList.add('over'); });
+  });
+  ['dragleave', 'drop'].forEach(function (t) {
+    drop.addEventListener(t, function (e) { e.preventDefault(); drop.classList.remove('over'); });
+  });
+  drop.addEventListener('drop', function (e) { addFiles(e.dataTransfer.files); });
+
+  function addFiles(list) {
+    for (var i = 0; i < list.length; i++) {
+      if (/\.gcode|\.gco|\.g$|\.txt$/i.test(list[i].name)) files.push(list[i]);
+    }
+    if (!files.length) return;
+    $('run').disabled = false;
+    $('status').textContent = files.length + ' file(s) staged';
+    run();
+  }
+
+  $('run').addEventListener('click', run);
+
+  function opts() {
+    return {
+      cell: parseFloat($('cell').value) || 0.2,
+      coverage: $('coverage').checked,
+      maxFindings: 4000,
+      gapRatio: parseFloat($('gapRatio').value) || 1.5,
+      minUnsupported: parseFloat($('minUnsup').value) || 16,
+      minSeamRun: parseInt($('minSeam').value, 10) || 10
+    };
+  }
+
+  function run() {
+    if (!files.length) return;
+    $('status').textContent = 'inspecting\u2026';
+    // Yield once so the status line paints before the (synchronous) scan.
+    setTimeout(function () {
+      var o = opts();
+      reports = [];
+      var t0 = performance.now();
+      var done = 0;
+      function step() {
+        var f = files[done];
+        var fr = new FileReader();
+        fr.onload = function () {
+          var ins = new FS3.Inspector(o);
+          try { reports.push(ins.run(String(fr.result), f.name)); }
+          catch (e) { console.error(f.name, e); }
+          done++;
+          if (done < files.length) { step(); }
+          else {
+            $('status').textContent = reports.length + ' file(s) in ' +
+              ((performance.now() - t0) / 1000).toFixed(1) + ' s';
+            render();
+          }
+        };
+        fr.onerror = function () { done++; if (done < files.length) step(); else render(); };
+        fr.readAsText(f);
+      }
+      step();
+    }, 20);
+  }
+
+  function totals(key) {
+    var t = { count: 0, critical: 0, worst: null };
+    reports.forEach(function (r) {
+      var b = r.byCheck[key];
+      t.count += b.count; t.critical += b.critical;
+      if (b.worst !== null && (t.worst === null || b.worst > t.worst)) t.worst = b.worst;
+    });
+    return t;
+  }
+
+  function render() {
+    var h = '';
+    // ---- headline cards ----
+    var risk = reports.reduce(function (a, r) { return a + r.stats.riskDefects; }, 0);
+    var unmit = reports.reduce(function (a, r) { return a + r.stats.unmitigatedTravels; }, 0);
+    var gaps = reports.reduce(function (a, r) { return a + r.stats.voidWallComps; }, 0);
+    var unsup = reports.reduce(function (a, r) { return a + r.stats.unsupportedRuns; }, 0);
+    var hops = reports.reduce(function (a, r) { return a + r.stats.zhopHopsAgainstSetting; }, 0);
+    var crit = reports.reduce(function (a, r) {
+      return a + ORDER.reduce(function (k, c) { return k + r.byCheck[c].critical; }, 0);
+    }, 0);
+    h += '<div class="grid">' +
+      card('Critical findings', crit) +
+      card('Stringing-risk travels', risk) +
+      card('\u2026with no mitigation', unmit) +
+      card('Perimeter gaps', gaps) +
+      card('Unsupported runs', unsup) +
+      card('Z-hops vs DoZHop=false', hops) +
+      '</div>';
+
+    // ---- the print contract: the four questions asked of every file ----
+    h += '<h2>Print contract</h2>';
+    h += '<div style="overflow:auto"><table><thead><tr><th>File</th>' +
+      '<th>Carbon on layer 1</th><th>Tool configuration</th>' +
+      '<th class="n">Fibre fed / in part</th><th class="n">Cuts</th><th>Machine flags</th></tr></thead><tbody>';
+    reports.forEach(function (r) {
+      var s = r.stats, c12 = s.firstLayerFiber || {}, t = s.tools || {}, fb = s.fiber || {}, mf = s.machineFlags || {};
+      var l1 = !Object.keys(s.fiberOnLayer1 || {}).length
+        ? '<span class="muted">none \u2014 plastic first layer</span>'
+        : c12.verdict === 'violation'
+          ? '<span class="sev critical">VIOLATION</span> <span class="mono">' + fmt(c12.structuralMm, 1) + ' mm in ' + esc(c12.structural.join(', ')) + '</span>'
+          : c12.verdict === 'permitted-fortified'
+            ? '<span class="sev info">OK \u2014 fortified</span> <span class="mono">' + fmt(c12.structuralMm, 1) + ' mm</span>'
+            : '<span class="sev info">OK</span> <span class="muted">priming/skirt only, ' + fmt(c12.sacrificialMm, 1) + ' mm</span>';
+      var tool = t.observed === 'dual' ? '<b>dual-tool</b> <span class="muted">FFF + CFC</span>'
+        : t.observed === 'fiber-only' ? '<b>fibre-only</b> <span class="muted">CFC tool</span>'
+        : t.observed === 'plastic-only' ? '<b>single-tool FFF</b>'
+        : '<span class="muted">\u2014</span>';
+      var contra = t.declared && t.declared !== t.observed
+        ? '<br><span class="muted mono">header "' + esc(t.mode || '') + '" says ' + esc(t.declared) + '</span>' : '';
+      var flags = mf.present && mf.present.length
+        ? '<span class="sev info">' + mf.present.length + ' present</span> <span class="mono">' +
+          esc(mf.present.map(function (p) { return p.label; }).join(', ')) + '</span>'
+        : '<span class="muted">none of ' + ((mf.absent || []).length) + ' \u2014 all absent</span>';
+      h += '<tr><td><b>' + esc(r.file) + '</b></td><td>' + l1 + '</td><td>' + tool + contra + '</td>' +
+        '<td class="n mono">' + fmt((fb.fedMm || 0) / 1000, 2) + ' m / ' + fmt((fb.depositedMm || 0) / 1000, 2) + ' m</td>' +
+        '<td class="n">' + fmt(fb.cuts) + '</td><td>' + flags + '</td></tr>';
+    });
+    h += '</tbody></table></div>';
+
+    // ---- per-file matrix ----
+    h += '<h2>Per-file results</h2><div style="overflow:auto"><table><thead><tr>' +
+      '<th>File</th><th class="n">Layers</th><th class="n">Moves</th>';
+    ORDER.forEach(function (c) { h += '<th class="n">' + c + '</th>'; });
+    h += '<th class="n">Total</th></tr></thead><tbody>';
+    reports.forEach(function (r, ix) {
+      var s = r.stats, tot = ORDER.reduce(function (a, c) { return a + r.byCheck[c].count; }, 0);
+      h += '<tr class="row" data-f="' + ix + '"><td><b>' + esc(r.file) + '</b><br><span class="muted mono">' +
+        esc(s.material || '?') + ' \u00b7 DoZHop=' + s.doZHop + ' \u00b7 ' + fmt(s.lines) + ' lines</span></td>' +
+        '<td class="n">' + fmt(s.layers) + '</td><td class="n">' + fmt(s.moves) + '</td>';
+      ORDER.forEach(function (c) {
+        var b = r.byCheck[c];
+        h += '<td class="n">' + (b.count ? '<span class="sev ' + (b.critical ? 'critical' : 'warning') + '">' + fmt(b.count) + '</span>' : '<span class="muted">0</span>') + '</td>';
+      });
+      h += '<td class="n"><b>' + fmt(tot) + '</b></td></tr>';
+    });
+    h += '</tbody></table></div>';
+
+    // ---- aggregate by check ----
+    h += '<h2>Checks and what they found</h2><div style="overflow:auto"><table><thead><tr>' +
+      '<th>Check</th><th>Issue</th><th>What it looks for</th><th class="n">Findings</th><th class="n">Critical</th><th>Worst measured</th></tr></thead><tbody>';
+    ORDER.forEach(function (c) {
+      var t = totals(c), ck = FS3.CHECKS[c];
+      h += '<tr><td><b>' + c + '</b></td><td>' + issueLink(ck.issue) + '</td><td>' + esc(ck.title) + '</td>' +
+        '<td class="n">' + fmt(t.count) + '</td><td class="n">' + fmt(t.critical) + '</td>' +
+        '<td class="mono">' + (t.worst === null ? '\u2014' : fmt(t.worst, 2)) + '</td></tr>';
+    });
+    h += '</tbody></table></div>';
+
+    // ---- per-file detail ----
+    reports.forEach(function (r, ix) {
+      h += '<details data-d="' + ix + '"><summary>' + esc(r.file) +
+        ' <span class="muted">\u2014 ' + fmt(r.stats.layers) + ' layers, ' +
+        fmt(ORDER.reduce(function (a, c) { return a + r.byCheck[c].count; }, 0)) + ' findings</span></summary>';
+      h += '<div class="split"><div>';
+      ORDER.forEach(function (c) {
+        var list = r.findings.filter(function (f) { return f.check === c; });
+        if (!list.length) return;
+        list.sort(function (a, b) {
+          var d = sevOrder(a.severity) - sevOrder(b.severity);
+          return d ? d : a.line - b.line;
+        });
+        h += '<h4>' + c + ' \u2014 ' + esc(FS3.CHECKS[c].title) + ' (' + list.length + ')</h4>';
+        h += '<div class="findings"><table><tbody>';
+        list.slice(0, 400).forEach(function (f) {
+          h += '<tr><td class="mono">' + fmt(f.line) + (f.layer === null || f.layer === undefined ? '' : ':' + f.layer) +
+            '</td><td class="sev ' + f.severity + '">' + f.severity + '</td><td>' + esc(f.message) +
+            (f.evidence ? ' <span class="muted mono">' + esc(f.evidence) + '</span>' : '') + '</td></tr>';
+        });
+        h += '</tbody></table></div>';
+        if (list.length > 400) h += '<div class="muted">\u2026 ' + fmt(list.length - 400) + ' more (see Export JSON)</div>';
+      });
+      h += '</div><div>';
+      h += '<h4>Print contract</h4><div class="kv">' + contract(r) + '</div>';
+      h += '<h4>File facts</h4><div class="kv">' + kv(r) + '</div>';
+      if (r.stats.voidComps) {
+        h += '<h4>Gap width histogram (count per 0.25 mm)</h4><div class="hist">';
+        var mx = Math.max.apply(null, r.stats.voidHist) || 1;
+        r.stats.voidHist.forEach(function (v, i) {
+          h += '<div title="' + ((i * 0.25).toFixed(2)) + ' mm: ' + v + '" style="height:' +
+            Math.max(2, Math.round(v / mx * 70)) + 'px"></div>';
+        });
+        h += '</div>';
+      }
+      h += '<h4>Layer times</h4><div class="muted">min ' + fmt(r.stats.minLayerTime, 2) +
+        ' s at layer ' + (r.stats.minLayerTimeLayer === null ? '\u2014' : r.stats.minLayerTimeLayer) +
+        ' \u00b7 estimated print ' + fmt(r.stats.estPrintTimeSec / 60, 1) + ' min</div>';
+      h += '</div></div></details>';
+    });
+    out.innerHTML = h;
+  }
+
+  function sevOrder(s) { return s === 'critical' ? 0 : s === 'warning' ? 1 : 2; }
+
+  function card(lbl, n) {
+    return '<div class="card"><div class="num">' + fmt(n) + '</div><div class="lbl">' + lbl + '</div></div>';
+  }
+
+  /*
+   * The four print-contract answers, rendered from the C12-C15 stats rather than
+   * from the findings list so the block is always present even when a rule only
+   * produced an info line.
+   */
+  function contract(r) {
+    var s = r.stats, o = [];
+    function add(k, v) { o.push('<div>' + k + '</div><div class="mono">' + v + '</div>'); }
+    var c12 = s.firstLayerFiber || {}, t = s.tools || {}, fb = s.fiber || {}, mf = s.machineFlags || {};
+    var l1 = c12.verdict === 'none' ? 'no fibre on layer 1 \u2014 first layer is plastic'
+      : c12.verdict === 'violation' ? '<span class="sev critical">VIOLATION</span> \u2014 ' + fmt(c12.structuralMm, 1) +
+          ' mm of fibre in part geometry (' + esc(c12.structural.join(', ')) + ') on layer 1 of a non-fortified print'
+      : c12.verdict === 'permitted-fortified' ? '<span class="sev info">permitted</span> \u2014 fortified print, ' +
+          fmt(c12.structuralMm, 1) + ' mm of fibre in layer-1 geometry'
+      : '<span class="sev info">ok</span> \u2014 layer-1 fibre is sacrificial priming/skirt only (' +
+          fmt(c12.sacrificialMm, 1) + ' mm)';
+    add('carbon on layer 1', l1);
+    add('fortified by', 'CurrentSliceType=' + esc(r.settings.currentSliceType) +
+      ' MustGenerateFiberPerimeters=' + esc(r.settings.mustGenerateFiberPerimeters));
+    add('tool configuration',
+      (t.observed === 'dual' ? 'dual-tool (FFF + CFC fibre)'
+        : t.observed === 'fiber-only' ? 'fibre-only (CFC tool; plastic idle)'
+        : t.observed === 'plastic-only' ? 'single-tool FFF (no fibre)' : '\u2014') +
+      ' \u00b7 T0\u00d7' + fmt(t.t0) + ' / T1\u00d7' + fmt(t.t1));
+    add('header PRINTING_MODE', esc(t.mode || 'absent') + ' \u2192 declares ' + esc(t.declared || 'unknown') +
+      (t.declared && t.declared !== t.observed ? ' <span class="sev warning">contradicted</span>' : ''));
+    add('fibre fed', fmt((fb.fedMm || 0) / 1000, 2) + ' m');
+    add('fibre in the part', fmt((fb.depositedMm || 0) / 1000, 2) + ' m' +
+      (fb.declaredTowM !== null && fb.declaredTowM !== undefined
+        ? ' \u00b7 slicer declares ' + fmt(fb.declaredTowM, 2) + ' m' +
+          (Math.abs((fb.depositedMm || 0) / 1000 - fb.declaredTowM) < 0.01 ? ' \u2713' : ' <span class="sev warning">\u2260</span>')
+        : ''));
+    add('fibre air-primed', fmt((fb.restartMm || 0) / 1000, 2) + ' m (' +
+      fmt((fb.restartShare || 0) * 100) + ' %) \u2014 the U55 restart feed');
+    add('cuts (M2800)', fmt(fb.cuts) + (fb.tailMm ? ' \u00b7 ' + fmt(fb.tailMm, 1) +
+      ' mm tail = ' + fmt((fb.tailTotalMm || 0) / 1000, 2) + ' m trimmed' : ''));
+    add('machine flags', mf.present && mf.present.length
+      ? '<span class="sev info">' + mf.present.length + ' present</span>: ' +
+        esc(mf.present.map(function (p) { return p.label + ' \u00d7' + p.count + '@' + p.line; }).join(', '))
+      : '<span class="muted">none present \u2014 all ' + ((mf.absent || []).length) + ' absent</span>');
+    if (!(mf.present && mf.present.length) && (mf.absent || []).length) {
+      add('flags absent', esc(mf.absent.join(', ')));
+    }
+    return o.join('');
+  }
+
+  function kv(r) {
+    var s = r.stats, se = r.settings, o = [];
+    function add(k, v) { o.push('<div>' + k + '</div><div class="mono">' + esc(v === null || v === undefined ? '\u2014' : v) + '</div>'); }
+    add('slicer', r.header.slicer);
+    add('processor', r.header.processor);
+    add('printing mode', r.header.mode);
+    add('material', se.material);
+    add('layers (header / parsed)', (r.header.layerCount || '?') + ' / ' + fmt(s.layers));
+    add('moves (extrude / travel)', fmt(s.moves) + ' (' + fmt(s.extrudeMoves) + ' / ' + fmt(s.travelMoves) + ')');
+    add('tool changes', fmt(s.toolChanges));
+    add('plastic / fiber', fmt(s.plasticMm / 1000, 2) + ' m / ' + fmt(s.fiberMm / 1000, 2) + ' m');
+    add('deposited volume', fmt(s.plasticVolMm3, 1) + ' mm\u00b3');
+    add('bounding box', fmt(s.bbox.minx, 1) + '\u2013' + fmt(s.bbox.maxx, 1) + ' \u00d7 ' + fmt(s.bbox.miny, 1) + '\u2013' + fmt(s.bbox.maxy, 1) + ' mm');
+    add('build area', (se.buildArea || []).join(' \u00d7 '));
+    // Rocket names these Profile.DoZHop / MinLayerTimeForSlowing; Orca and Prusa
+    // have no SESSION blob, so the label is the config key actually read.
+    add(se.doZHopKey + ' / hop height', se.doZHop + ' / ' + se.zhopP);
+    add(se.minLayerTimeKey, se.minLayerTime);
+    add('Inset0Speed \u00d7 EWMM', se.inset0Speed + ' \u00d7 ' + se.inset0EWMM);
+    add('seam distribution', se.seamDistributionPlastic);
+    add('retract on layer change', se.retractOnLayerChange);
+    add('retract only when crossing', se.retractOnlyWhenCrossing);
+    add('first M204 / M205 / M203', (s.m204FirstLine === null ? 'none' : s.m204FirstLine) + ' / ' + s.m205 + ' / ' + s.m203);
+    add('M1001 / M1002', s.m1001 + ' / ' + s.m1002);
+    add('fan commands', fmt(s.fanEvents));
+    add('seam markers / clusters', fmt(s.seamMarkers) + ' / ' + s.seamClusters + ' \u22653 layers');
+    add('risk travels (void / air)', fmt(s.riskTravels) + ' (' + s.riskClass.void + ' / ' + s.riskClass.air + ')');
+    add('worst unmitigated travel', (s.riskWorst ? fmt(s.riskWorst, 1) + ' mm @ line ' + s.riskWorstLine : 'none'));
+    add('retract-after-travel', fmt(s.retractOrderDefects));
+    add('Z-hops / against setting', fmt(s.zhopHops) + ' / ' + fmt(s.zhopHopsAgainstSetting));
+    add('gap components', fmt(s.voidComps) + ' (' + fmt(s.voidWallComps) + ' bounded by a wall)');
+    add('widest gap', fmt(s.voidWidestWall, 2) + ' mm');
+    add('unsupported runs / max', fmt(s.unsupportedRuns) + ' / ' + fmt(s.unsupportedMax, 1) + ' mm');
+    add('unsupported, fan off', fmt(s.unsupportedNoFanMm, 0) + ' mm');
+    add('max volumetric flow', fmt(s.maxFlow, 1) + ' mm\u00b3/s @ line ' + s.maxFlowLine);
+    var cv = Object.keys(s.customVerbs || {});
+    add('undefined verbs', cv.length ? cv.join(', ') : 'none');
+    return o.join('');
+  }
+
+  $('export').addEventListener('click', function () {
+    if (!reports.length) return;
+    var blob = new Blob([JSON.stringify({
+      generated: new Date().toISOString(), engine: 'g-code-inspector.html',
+      checks: FS3.CHECKS, reports: reports
+    }, null, 2)], { type: 'application/json' });
+    var a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = 'gcode-inspector-report.json';
+    a.click();
+    setTimeout(function () { URL.revokeObjectURL(a.href); }, 2000);
+  });
+})();
+</script>
+</body>
+</html>

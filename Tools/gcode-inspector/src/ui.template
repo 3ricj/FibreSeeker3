@@ -1,0 +1,424 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>G-code Inspector — FibreSeeker 3</title>
+<style>
+  :root {
+    --bg: #0f1115; --panel: #171b22; --panel2: #1e242e; --line: #2a323f;
+    --fg: #dfe6ef; --dim: #8b98a9; --acc: #4aa8ff;
+    --critical: #ff5b5b; --warning: #ffb443; --info: #57c98b;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; background: var(--bg); color: var(--fg);
+    font: 14px/1.5 -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  }
+  header {
+    padding: 14px 20px; border-bottom: 1px solid var(--line);
+    display: flex; align-items: baseline; gap: 14px; flex-wrap: wrap;
+  }
+  header h1 { font-size: 17px; margin: 0; letter-spacing: .3px; }
+  header .sub { color: var(--dim); font-size: 12px; }
+  main { padding: 18px 20px 60px; max-width: 1500px; margin: 0 auto; }
+  .bar {
+    display: flex; gap: 10px; align-items: center; flex-wrap: wrap;
+    background: var(--panel); border: 1px solid var(--line); border-radius: 8px;
+    padding: 12px 14px; margin-bottom: 16px;
+  }
+  .bar label { color: var(--dim); font-size: 12px; display: flex; gap: 5px; align-items: center; }
+  .bar input[type=number] { width: 68px; background: var(--panel2); color: var(--fg); border: 1px solid var(--line); border-radius: 5px; padding: 4px 6px; }
+  button, .filebtn {
+    background: var(--acc); color: #04121f; border: 0; border-radius: 6px;
+    padding: 8px 14px; font-weight: 600; cursor: pointer; font-size: 13px;
+  }
+  button.ghost { background: var(--panel2); color: var(--fg); border: 1px solid var(--line); font-weight: 500; }
+  button:disabled { opacity: .45; cursor: default; }
+  input[type=file] { display: none; }
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 10px; margin-bottom: 16px; }
+  .card { background: var(--panel); border: 1px solid var(--line); border-radius: 8px; padding: 10px 12px; }
+  .card h3 { margin: 0 0 6px; font-size: 13px; }
+  .card .num { font-size: 22px; font-weight: 700; }
+  .card .lbl { color: var(--dim); font-size: 11px; text-transform: uppercase; letter-spacing: .5px; }
+  table { border-collapse: collapse; width: 100%; font-size: 12.5px; }
+  th, td { border-bottom: 1px solid var(--line); padding: 6px 8px; text-align: left; vertical-align: top; }
+  th { color: var(--dim); font-weight: 600; font-size: 11px; text-transform: uppercase; letter-spacing: .4px; position: sticky; top: 0; background: var(--panel); }
+  td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+  tr.row { cursor: pointer; }
+  tr.row:hover td { background: var(--panel2); }
+  tr.sel td { background: #1b2b3d; }
+  .sev { font-weight: 700; text-transform: uppercase; font-size: 10.5px; letter-spacing: .5px; }
+  .sev.critical { color: var(--critical); }
+  .sev.warning { color: var(--warning); }
+  .sev.info { color: var(--info); }
+  .pill { display: inline-block; padding: 1px 7px; border-radius: 9px; background: var(--panel2); border: 1px solid var(--line); font-size: 11px; }
+  .pill.hit { border-color: var(--acc); color: var(--acc); }
+  details { background: var(--panel); border: 1px solid var(--line); border-radius: 8px; padding: 10px 14px; margin-bottom: 14px; }
+  summary { cursor: pointer; font-weight: 600; }
+  .findings { max-height: 460px; overflow: auto; border: 1px solid var(--line); border-radius: 6px; margin-top: 8px; }
+  .muted { color: var(--dim); }
+  .mono { font-family: ui-monospace, "SF Mono", Consolas, monospace; font-size: 12px; }
+  .drop { border: 1px dashed var(--line); border-radius: 8px; padding: 26px; text-align: center; color: var(--dim); margin-bottom: 16px; }
+  .drop.over { border-color: var(--acc); color: var(--acc); }
+  .split { display: grid; grid-template-columns: 1fr 380px; gap: 14px; align-items: start; }
+  @media (max-width: 1100px) { .split { grid-template-columns: 1fr; } }
+  .kv { display: grid; grid-template-columns: auto 1fr; gap: 3px 12px; font-size: 12.5px; }
+  .kv div:nth-child(odd) { color: var(--dim); }
+  .hist { display: flex; align-items: flex-end; gap: 2px; height: 70px; }
+  .hist div { flex: 1; background: var(--acc); min-height: 1px; border-radius: 2px 2px 0 0; }
+  a { color: var(--acc); }
+</style>
+</head>
+<body>
+<header>
+  <h1>FibreSeeker 3 G-code Inspector</h1>
+  <span class="sub">static analyser for Rocket Slicer output &mdash; files are read locally and never leave this tab</span>
+</header>
+
+<main>
+  <div class="bar">
+    <label class="filebtn" for="files">Choose .gcode files</label>
+    <input type="file" id="files" multiple accept=".gcode,.gco,.g,.txt">
+    <button id="run" disabled>Inspect</button>
+    <label>cell <input type="number" id="cell" value="0.2" step="0.05" min="0.1" max="1"> mm</label>
+    <label>gap &times;bead <input type="number" id="gapRatio" value="1.5" step="0.1" min="1" max="4"></label>
+    <label>unsupported floor <input type="number" id="minUnsup" value="16" step="1" min="2"> mm</label>
+    <label>seam run <input type="number" id="minSeam" value="10" step="1" min="2"> layers</label>
+    <label><input type="checkbox" id="coverage" checked> coverage raster</label>
+    <button class="ghost" id="export">Export JSON</button>
+    <span class="muted" id="status"></span>
+  </div>
+
+  <div class="drop" id="drop">Drop <span class="mono">.gcode</span> files here, or use “Choose .gcode files”. Files never leave the browser.</div>
+
+  <div id="out"></div>
+</main>
+
+<!--LIBS-->
+<script>
+(function () {
+  'use strict';
+  var ORDER = ['C01','C02','C03','C04','C05','C06','C07','C08','C09','C10','C11','C12','C13','C14','C15'];
+  var files = [];
+  var reports = [];
+  var $ = function (id) { return document.getElementById(id); };
+  var out = $('out');
+
+  function fmt(n, d) {
+    if (n === null || n === undefined || isNaN(n)) return '\u2014';
+    return Number(n).toLocaleString('en-US', { minimumFractionDigits: d || 0, maximumFractionDigits: d || 0 });
+  }
+  function esc(s) {
+    return String(s).replace(/[&<>"]/g, function (c) {
+      return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c];
+    });
+  }
+  function issueLink(n) {
+    return n ? '<a href="https://github.com/3ricj/FibreSeeker3/issues/' + n + '" target="_blank" rel="noopener">#' + n + '</a>' : '\u2014';
+  }
+
+  $('files').addEventListener('change', function (e) { addFiles(e.target.files); });
+  var drop = $('drop');
+  ['dragenter', 'dragover'].forEach(function (t) {
+    drop.addEventListener(t, function (e) { e.preventDefault(); drop.classList.add('over'); });
+  });
+  ['dragleave', 'drop'].forEach(function (t) {
+    drop.addEventListener(t, function (e) { e.preventDefault(); drop.classList.remove('over'); });
+  });
+  drop.addEventListener('drop', function (e) { addFiles(e.dataTransfer.files); });
+
+  function addFiles(list) {
+    for (var i = 0; i < list.length; i++) {
+      if (/\.gcode|\.gco|\.g$|\.txt$/i.test(list[i].name)) files.push(list[i]);
+    }
+    if (!files.length) return;
+    $('run').disabled = false;
+    $('status').textContent = files.length + ' file(s) staged';
+    run();
+  }
+
+  $('run').addEventListener('click', run);
+
+  function opts() {
+    return {
+      cell: parseFloat($('cell').value) || 0.2,
+      coverage: $('coverage').checked,
+      maxFindings: 4000,
+      gapRatio: parseFloat($('gapRatio').value) || 1.5,
+      minUnsupported: parseFloat($('minUnsup').value) || 16,
+      minSeamRun: parseInt($('minSeam').value, 10) || 10
+    };
+  }
+
+  function run() {
+    if (!files.length) return;
+    $('status').textContent = 'inspecting\u2026';
+    // Yield once so the status line paints before the (synchronous) scan.
+    setTimeout(function () {
+      var o = opts();
+      reports = [];
+      var t0 = performance.now();
+      var done = 0;
+      function step() {
+        var f = files[done];
+        var fr = new FileReader();
+        fr.onload = function () {
+          var ins = new FS3.Inspector(o);
+          try { reports.push(ins.run(String(fr.result), f.name)); }
+          catch (e) { console.error(f.name, e); }
+          done++;
+          if (done < files.length) { step(); }
+          else {
+            $('status').textContent = reports.length + ' file(s) in ' +
+              ((performance.now() - t0) / 1000).toFixed(1) + ' s';
+            render();
+          }
+        };
+        fr.onerror = function () { done++; if (done < files.length) step(); else render(); };
+        fr.readAsText(f);
+      }
+      step();
+    }, 20);
+  }
+
+  function totals(key) {
+    var t = { count: 0, critical: 0, worst: null };
+    reports.forEach(function (r) {
+      var b = r.byCheck[key];
+      t.count += b.count; t.critical += b.critical;
+      if (b.worst !== null && (t.worst === null || b.worst > t.worst)) t.worst = b.worst;
+    });
+    return t;
+  }
+
+  function render() {
+    var h = '';
+    // ---- headline cards ----
+    var risk = reports.reduce(function (a, r) { return a + r.stats.riskDefects; }, 0);
+    var unmit = reports.reduce(function (a, r) { return a + r.stats.unmitigatedTravels; }, 0);
+    var gaps = reports.reduce(function (a, r) { return a + r.stats.voidWallComps; }, 0);
+    var unsup = reports.reduce(function (a, r) { return a + r.stats.unsupportedRuns; }, 0);
+    var hops = reports.reduce(function (a, r) { return a + r.stats.zhopHopsAgainstSetting; }, 0);
+    var crit = reports.reduce(function (a, r) {
+      return a + ORDER.reduce(function (k, c) { return k + r.byCheck[c].critical; }, 0);
+    }, 0);
+    h += '<div class="grid">' +
+      card('Critical findings', crit) +
+      card('Stringing-risk travels', risk) +
+      card('\u2026with no mitigation', unmit) +
+      card('Perimeter gaps', gaps) +
+      card('Unsupported runs', unsup) +
+      card('Z-hops vs DoZHop=false', hops) +
+      '</div>';
+
+    // ---- the print contract: the four questions asked of every file ----
+    h += '<h2>Print contract</h2>';
+    h += '<div style="overflow:auto"><table><thead><tr><th>File</th>' +
+      '<th>Carbon on layer 1</th><th>Tool configuration</th>' +
+      '<th class="n">Fibre fed / in part</th><th class="n">Cuts</th><th>Machine flags</th></tr></thead><tbody>';
+    reports.forEach(function (r) {
+      var s = r.stats, c12 = s.firstLayerFiber || {}, t = s.tools || {}, fb = s.fiber || {}, mf = s.machineFlags || {};
+      var l1 = !Object.keys(s.fiberOnLayer1 || {}).length
+        ? '<span class="muted">none \u2014 plastic first layer</span>'
+        : c12.verdict === 'violation'
+          ? '<span class="sev critical">VIOLATION</span> <span class="mono">' + fmt(c12.structuralMm, 1) + ' mm in ' + esc(c12.structural.join(', ')) + '</span>'
+          : c12.verdict === 'permitted-fortified'
+            ? '<span class="sev info">OK \u2014 fortified</span> <span class="mono">' + fmt(c12.structuralMm, 1) + ' mm</span>'
+            : '<span class="sev info">OK</span> <span class="muted">priming/skirt only, ' + fmt(c12.sacrificialMm, 1) + ' mm</span>';
+      var tool = t.observed === 'dual' ? '<b>dual-tool</b> <span class="muted">FFF + CFC</span>'
+        : t.observed === 'fiber-only' ? '<b>fibre-only</b> <span class="muted">CFC tool</span>'
+        : t.observed === 'plastic-only' ? '<b>single-tool FFF</b>'
+        : '<span class="muted">\u2014</span>';
+      var contra = t.declared && t.declared !== t.observed
+        ? '<br><span class="muted mono">header "' + esc(t.mode || '') + '" says ' + esc(t.declared) + '</span>' : '';
+      var flags = mf.present && mf.present.length
+        ? '<span class="sev info">' + mf.present.length + ' present</span> <span class="mono">' +
+          esc(mf.present.map(function (p) { return p.label; }).join(', ')) + '</span>'
+        : '<span class="muted">none of ' + ((mf.absent || []).length) + ' \u2014 all absent</span>';
+      h += '<tr><td><b>' + esc(r.file) + '</b></td><td>' + l1 + '</td><td>' + tool + contra + '</td>' +
+        '<td class="n mono">' + fmt((fb.fedMm || 0) / 1000, 2) + ' m / ' + fmt((fb.depositedMm || 0) / 1000, 2) + ' m</td>' +
+        '<td class="n">' + fmt(fb.cuts) + '</td><td>' + flags + '</td></tr>';
+    });
+    h += '</tbody></table></div>';
+
+    // ---- per-file matrix ----
+    h += '<h2>Per-file results</h2><div style="overflow:auto"><table><thead><tr>' +
+      '<th>File</th><th class="n">Layers</th><th class="n">Moves</th>';
+    ORDER.forEach(function (c) { h += '<th class="n">' + c + '</th>'; });
+    h += '<th class="n">Total</th></tr></thead><tbody>';
+    reports.forEach(function (r, ix) {
+      var s = r.stats, tot = ORDER.reduce(function (a, c) { return a + r.byCheck[c].count; }, 0);
+      h += '<tr class="row" data-f="' + ix + '"><td><b>' + esc(r.file) + '</b><br><span class="muted mono">' +
+        esc(s.material || '?') + ' \u00b7 DoZHop=' + s.doZHop + ' \u00b7 ' + fmt(s.lines) + ' lines</span></td>' +
+        '<td class="n">' + fmt(s.layers) + '</td><td class="n">' + fmt(s.moves) + '</td>';
+      ORDER.forEach(function (c) {
+        var b = r.byCheck[c];
+        h += '<td class="n">' + (b.count ? '<span class="sev ' + (b.critical ? 'critical' : 'warning') + '">' + fmt(b.count) + '</span>' : '<span class="muted">0</span>') + '</td>';
+      });
+      h += '<td class="n"><b>' + fmt(tot) + '</b></td></tr>';
+    });
+    h += '</tbody></table></div>';
+
+    // ---- aggregate by check ----
+    h += '<h2>Checks and what they found</h2><div style="overflow:auto"><table><thead><tr>' +
+      '<th>Check</th><th>Issue</th><th>What it looks for</th><th class="n">Findings</th><th class="n">Critical</th><th>Worst measured</th></tr></thead><tbody>';
+    ORDER.forEach(function (c) {
+      var t = totals(c), ck = FS3.CHECKS[c];
+      h += '<tr><td><b>' + c + '</b></td><td>' + issueLink(ck.issue) + '</td><td>' + esc(ck.title) + '</td>' +
+        '<td class="n">' + fmt(t.count) + '</td><td class="n">' + fmt(t.critical) + '</td>' +
+        '<td class="mono">' + (t.worst === null ? '\u2014' : fmt(t.worst, 2)) + '</td></tr>';
+    });
+    h += '</tbody></table></div>';
+
+    // ---- per-file detail ----
+    reports.forEach(function (r, ix) {
+      h += '<details data-d="' + ix + '"><summary>' + esc(r.file) +
+        ' <span class="muted">\u2014 ' + fmt(r.stats.layers) + ' layers, ' +
+        fmt(ORDER.reduce(function (a, c) { return a + r.byCheck[c].count; }, 0)) + ' findings</span></summary>';
+      h += '<div class="split"><div>';
+      ORDER.forEach(function (c) {
+        var list = r.findings.filter(function (f) { return f.check === c; });
+        if (!list.length) return;
+        list.sort(function (a, b) {
+          var d = sevOrder(a.severity) - sevOrder(b.severity);
+          return d ? d : a.line - b.line;
+        });
+        h += '<h4>' + c + ' \u2014 ' + esc(FS3.CHECKS[c].title) + ' (' + list.length + ')</h4>';
+        h += '<div class="findings"><table><tbody>';
+        list.slice(0, 400).forEach(function (f) {
+          h += '<tr><td class="mono">' + fmt(f.line) + (f.layer === null || f.layer === undefined ? '' : ':' + f.layer) +
+            '</td><td class="sev ' + f.severity + '">' + f.severity + '</td><td>' + esc(f.message) +
+            (f.evidence ? ' <span class="muted mono">' + esc(f.evidence) + '</span>' : '') + '</td></tr>';
+        });
+        h += '</tbody></table></div>';
+        if (list.length > 400) h += '<div class="muted">\u2026 ' + fmt(list.length - 400) + ' more (see Export JSON)</div>';
+      });
+      h += '</div><div>';
+      h += '<h4>Print contract</h4><div class="kv">' + contract(r) + '</div>';
+      h += '<h4>File facts</h4><div class="kv">' + kv(r) + '</div>';
+      if (r.stats.voidComps) {
+        h += '<h4>Gap width histogram (count per 0.25 mm)</h4><div class="hist">';
+        var mx = Math.max.apply(null, r.stats.voidHist) || 1;
+        r.stats.voidHist.forEach(function (v, i) {
+          h += '<div title="' + ((i * 0.25).toFixed(2)) + ' mm: ' + v + '" style="height:' +
+            Math.max(2, Math.round(v / mx * 70)) + 'px"></div>';
+        });
+        h += '</div>';
+      }
+      h += '<h4>Layer times</h4><div class="muted">min ' + fmt(r.stats.minLayerTime, 2) +
+        ' s at layer ' + (r.stats.minLayerTimeLayer === null ? '\u2014' : r.stats.minLayerTimeLayer) +
+        ' \u00b7 estimated print ' + fmt(r.stats.estPrintTimeSec / 60, 1) + ' min</div>';
+      h += '</div></div></details>';
+    });
+    out.innerHTML = h;
+  }
+
+  function sevOrder(s) { return s === 'critical' ? 0 : s === 'warning' ? 1 : 2; }
+
+  function card(lbl, n) {
+    return '<div class="card"><div class="num">' + fmt(n) + '</div><div class="lbl">' + lbl + '</div></div>';
+  }
+
+  /*
+   * The four print-contract answers, rendered from the C12-C15 stats rather than
+   * from the findings list so the block is always present even when a rule only
+   * produced an info line.
+   */
+  function contract(r) {
+    var s = r.stats, o = [];
+    function add(k, v) { o.push('<div>' + k + '</div><div class="mono">' + v + '</div>'); }
+    var c12 = s.firstLayerFiber || {}, t = s.tools || {}, fb = s.fiber || {}, mf = s.machineFlags || {};
+    var l1 = c12.verdict === 'none' ? 'no fibre on layer 1 \u2014 first layer is plastic'
+      : c12.verdict === 'violation' ? '<span class="sev critical">VIOLATION</span> \u2014 ' + fmt(c12.structuralMm, 1) +
+          ' mm of fibre in part geometry (' + esc(c12.structural.join(', ')) + ') on layer 1 of a non-fortified print'
+      : c12.verdict === 'permitted-fortified' ? '<span class="sev info">permitted</span> \u2014 fortified print, ' +
+          fmt(c12.structuralMm, 1) + ' mm of fibre in layer-1 geometry'
+      : '<span class="sev info">ok</span> \u2014 layer-1 fibre is sacrificial priming/skirt only (' +
+          fmt(c12.sacrificialMm, 1) + ' mm)';
+    add('carbon on layer 1', l1);
+    add('fortified by', 'CurrentSliceType=' + esc(r.settings.currentSliceType) +
+      ' MustGenerateFiberPerimeters=' + esc(r.settings.mustGenerateFiberPerimeters));
+    add('tool configuration',
+      (t.observed === 'dual' ? 'dual-tool (FFF + CFC fibre)'
+        : t.observed === 'fiber-only' ? 'fibre-only (CFC tool; plastic idle)'
+        : t.observed === 'plastic-only' ? 'single-tool FFF (no fibre)' : '\u2014') +
+      ' \u00b7 T0\u00d7' + fmt(t.t0) + ' / T1\u00d7' + fmt(t.t1));
+    add('header PRINTING_MODE', esc(t.mode || 'absent') + ' \u2192 declares ' + esc(t.declared || 'unknown') +
+      (t.declared && t.declared !== t.observed ? ' <span class="sev warning">contradicted</span>' : ''));
+    add('fibre fed', fmt((fb.fedMm || 0) / 1000, 2) + ' m');
+    add('fibre in the part', fmt((fb.depositedMm || 0) / 1000, 2) + ' m' +
+      (fb.declaredTowM !== null && fb.declaredTowM !== undefined
+        ? ' \u00b7 slicer declares ' + fmt(fb.declaredTowM, 2) + ' m' +
+          (Math.abs((fb.depositedMm || 0) / 1000 - fb.declaredTowM) < 0.01 ? ' \u2713' : ' <span class="sev warning">\u2260</span>')
+        : ''));
+    add('fibre air-primed', fmt((fb.restartMm || 0) / 1000, 2) + ' m (' +
+      fmt((fb.restartShare || 0) * 100) + ' %) \u2014 the U55 restart feed');
+    add('cuts (M2800)', fmt(fb.cuts) + (fb.tailMm ? ' \u00b7 ' + fmt(fb.tailMm, 1) +
+      ' mm tail = ' + fmt((fb.tailTotalMm || 0) / 1000, 2) + ' m trimmed' : ''));
+    add('machine flags', mf.present && mf.present.length
+      ? '<span class="sev info">' + mf.present.length + ' present</span>: ' +
+        esc(mf.present.map(function (p) { return p.label + ' \u00d7' + p.count + '@' + p.line; }).join(', '))
+      : '<span class="muted">none present \u2014 all ' + ((mf.absent || []).length) + ' absent</span>');
+    if (!(mf.present && mf.present.length) && (mf.absent || []).length) {
+      add('flags absent', esc(mf.absent.join(', ')));
+    }
+    return o.join('');
+  }
+
+  function kv(r) {
+    var s = r.stats, se = r.settings, o = [];
+    function add(k, v) { o.push('<div>' + k + '</div><div class="mono">' + esc(v === null || v === undefined ? '\u2014' : v) + '</div>'); }
+    add('slicer', r.header.slicer);
+    add('processor', r.header.processor);
+    add('printing mode', r.header.mode);
+    add('material', se.material);
+    add('layers (header / parsed)', (r.header.layerCount || '?') + ' / ' + fmt(s.layers));
+    add('moves (extrude / travel)', fmt(s.moves) + ' (' + fmt(s.extrudeMoves) + ' / ' + fmt(s.travelMoves) + ')');
+    add('tool changes', fmt(s.toolChanges));
+    add('plastic / fiber', fmt(s.plasticMm / 1000, 2) + ' m / ' + fmt(s.fiberMm / 1000, 2) + ' m');
+    add('deposited volume', fmt(s.plasticVolMm3, 1) + ' mm\u00b3');
+    add('bounding box', fmt(s.bbox.minx, 1) + '\u2013' + fmt(s.bbox.maxx, 1) + ' \u00d7 ' + fmt(s.bbox.miny, 1) + '\u2013' + fmt(s.bbox.maxy, 1) + ' mm');
+    add('build area', (se.buildArea || []).join(' \u00d7 '));
+    // Rocket names these Profile.DoZHop / MinLayerTimeForSlowing; Orca and Prusa
+    // have no SESSION blob, so the label is the config key actually read.
+    add(se.doZHopKey + ' / hop height', se.doZHop + ' / ' + se.zhopP);
+    add(se.minLayerTimeKey, se.minLayerTime);
+    add('Inset0Speed \u00d7 EWMM', se.inset0Speed + ' \u00d7 ' + se.inset0EWMM);
+    add('seam distribution', se.seamDistributionPlastic);
+    add('retract on layer change', se.retractOnLayerChange);
+    add('retract only when crossing', se.retractOnlyWhenCrossing);
+    add('first M204 / M205 / M203', (s.m204FirstLine === null ? 'none' : s.m204FirstLine) + ' / ' + s.m205 + ' / ' + s.m203);
+    add('M1001 / M1002', s.m1001 + ' / ' + s.m1002);
+    add('fan commands', fmt(s.fanEvents));
+    add('seam markers / clusters', fmt(s.seamMarkers) + ' / ' + s.seamClusters + ' \u22653 layers');
+    add('risk travels (void / air)', fmt(s.riskTravels) + ' (' + s.riskClass.void + ' / ' + s.riskClass.air + ')');
+    add('worst unmitigated travel', (s.riskWorst ? fmt(s.riskWorst, 1) + ' mm @ line ' + s.riskWorstLine : 'none'));
+    add('retract-after-travel', fmt(s.retractOrderDefects));
+    add('Z-hops / against setting', fmt(s.zhopHops) + ' / ' + fmt(s.zhopHopsAgainstSetting));
+    add('gap components', fmt(s.voidComps) + ' (' + fmt(s.voidWallComps) + ' bounded by a wall)');
+    add('widest gap', fmt(s.voidWidestWall, 2) + ' mm');
+    add('unsupported runs / max', fmt(s.unsupportedRuns) + ' / ' + fmt(s.unsupportedMax, 1) + ' mm');
+    add('unsupported, fan off', fmt(s.unsupportedNoFanMm, 0) + ' mm');
+    add('max volumetric flow', fmt(s.maxFlow, 1) + ' mm\u00b3/s @ line ' + s.maxFlowLine);
+    var cv = Object.keys(s.customVerbs || {});
+    add('undefined verbs', cv.length ? cv.join(', ') : 'none');
+    return o.join('');
+  }
+
+  $('export').addEventListener('click', function () {
+    if (!reports.length) return;
+    var blob = new Blob([JSON.stringify({
+      generated: new Date().toISOString(), engine: 'g-code-inspector.html',
+      checks: FS3.CHECKS, reports: reports
+    }, null, 2)], { type: 'application/json' });
+    var a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = 'gcode-inspector-report.json';
+    a.click();
+    setTimeout(function () { URL.revokeObjectURL(a.href); }, 2000);
+  });
+})();
+</script>
+</body>
+</html>

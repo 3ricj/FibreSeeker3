@@ -1,0 +1,165 @@
+{
+  "_comment": "Single source of truth for the inspector's rule set and its mapping to the 3ricj/FibreSeeker3 issue tracker. Both the engine (src/inspector.js CHECKS) and the report generator (gen_report.js) key off these ids. Keep in sync with CHECKS in src/inspector.js.",
+  "repo": "https://github.com/3ricj/FibreSeeker3",
+  "rules": [
+    {
+      "id": "C01",
+      "title": "Un-retracted plastic travel across voids / open air (stringing)",
+      "issue": 1,
+      "severity": "warning",
+      "status": "implemented",
+      "predicate": "A plastic (E) travel that immediately follows a plastic extrusion, classified against the coverage raster as crossing a void or open air, with neither a retraction nor a Z-hop within a 3-line window. Also flags the emitter-ordering quirk where the retraction is written after the travel.",
+      "fixtures": ["Benchy_renforced_level1.gcode", "Benchy_renforced_level2.gcode", "Benchy_fortified-pla.gcode"]
+    },
+    {
+      "id": "C02",
+      "title": "Aligned seams — perimeter start points stacked in Z",
+      "issue": 2,
+      "severity": "warning",
+      "status": "implemented",
+      "predicate": "The `; SEAM Plastic/Fiber at X.. Y..` marker repeats within a 0.5 mm XY cell for >= minSeamRun consecutive layers.",
+      "fixtures": ["Benchy_speedy_default_settings.gcode", "Benchy_renforced_level5-pla.gcode"]
+    },
+    {
+      "id": "C03",
+      "title": "Enclosed gaps wider than the deposited bead",
+      "issue": 3,
+      "severity": "critical",
+      "status": "implemented",
+      "predicate": "A layer leaves an enclosed empty region (flood-fill from outside never reaches it) whose inscribed width exceeds gapRatio x the Inset0 bead width and is bounded by a perimeter bead, capped at MAX_GAP_MM so designed openings are excluded.",
+      "fixtures": ["Benchy_fortified.gcode", "Benchy_renforced_level5-pla.gcode"]
+    },
+    {
+      "id": "C04",
+      "title": "Volumetric flow demand above the material ceiling",
+      "issue": 4,
+      "severity": "warning",
+      "status": "implemented",
+      "predicate": "Sustained (>= 1 s continuous) melt demand E/dist*width*height*speed above the material ceiling, plus a header-derived corroboration from Inset0Speed x Inset0EWMM x MacroLayerHeight.",
+      "fixtures": ["all 10 files (header-derived)"]
+    },
+    {
+      "id": "C05",
+      "title": "Layer time below the slicer's own minimum",
+      "issue": 5,
+      "severity": "warning",
+      "status": "implemented",
+      "predicate": "A layer's summed move time is below Profile.MinLayerTimeForSlowing (falling back to LayerTimeForMaxCooling, then a tool floor, when the profile declares 0).",
+      "fixtures": ["Benchy_fortified.gcode", "Benchy_renforced_level5.gcode"]
+    },
+    {
+      "id": "C06",
+      "title": "Long unsupported (bridging) printed runs",
+      "issue": 6,
+      "severity": "warning",
+      "status": "implemented",
+      "predicate": "A contiguous printed path whose sampled points are >90% unsupported, reported at its completed length once it reaches minUnsupported mm. The run ends at supported plastic, a travel, a feature change or a layer change. Support is age-based: material deposited in that column within the last supportDepth (2) layers, probed over a supportRadius (0.4 mm) disc, excluding the layer being printed. Support/skirt/brim/priming/wipe excluded; plastic only.",
+      "fixtures": ["Benchy_renforced_level3.gcode", "Benchy_fortified-pla.gcode"]
+    },
+    {
+      "id": "C07",
+      "title": "Implicit motion contract — accel/jerk/max-feedrate not declared",
+      "issue": 8,
+      "severity": "warning",
+      "status": "implemented",
+      "predicate": "No M204 (accel), or first M204 past line 200, or no M205 (jerk), or no M203 (max feedrate); Klipper motion limits present only as a header echo, not executable lines.",
+      "fixtures": ["all 10 files"]
+    },
+    {
+      "id": "C08",
+      "title": "Fiber-feed window commands M1001/M1002 unimplemented in firmware",
+      "issue": 9,
+      "severity": "critical",
+      "status": "implemented",
+      "predicate": "Any M1001/M1002 emitted (no firmware handler exists); M1002 without a matching M1001; M1001 with no L parameter; unclosed M1001 windows.",
+      "fixtures": ["Benchy_fortified.gcode", "Benchy_renforced_level5.gcode"]
+    },
+    {
+      "id": "C09",
+      "title": "Slicer/firmware command contract — undefined verbs",
+      "issue": 11,
+      "severity": "critical",
+      "status": "implemented",
+      "predicate": "A verb outside the documented dialect is emitted (e.g. CASE_FAN, SET_FAN_AT_LAYER); CASE_FAN referenced by exported start/end gcode; start gcode reads toolhead_temp where a chamber reading is expected (issue #10).",
+      "fixtures": ["Benchy_fortified-pla.gcode", "Benchy_speedy_default_settings-pla.gcode"]
+    },
+    {
+      "id": "C10",
+      "title": "Plastic travel Z-hop emitted against the exported DoZHop setting",
+      "issue": 29,
+      "severity": "critical",
+      "status": "implemented",
+      "predicate": "A plastic travel Z-hop (up ZhopP then back to the same Z within a travel, last extrusion axis E) is emitted while the SESSION echo reports Profile.DoZHop=false.",
+      "fixtures": ["Benchy_fortified.gcode"]
+    },
+    {
+      "id": "C11",
+      "title": "Geometry / parse sanity",
+      "issue": null,
+      "severity": "critical",
+      "status": "implemented",
+      "predicate": "Deposited geometry leaves the declared build area; no extrusion moves parsed; no ; LAYER: markers parsed; header LAYER_COUNT disagrees with parsed layer markers; relative-XYZ (G91) in an absolute-XYZ dialect.",
+      "fixtures": ["general guard, no dedicated fixture"]
+    },
+    {
+      "id": "C12",
+      "title": "Carbon fibre on the first layer of a non-fortified print",
+      "issue": null,
+      "severity": "critical",
+      "status": "implemented",
+      "owner_rule": "Owner request 2026-10-03: \"Unless it's a fortified print - carbon should not be the first layer.\"",
+      "predicate": "Positive `U` deposition on layer 1 inside a part-geometry feature (anything other than Skirt/Brim/Priming line/Wipe tower) while the SESSION echo shows the print is not fortified. Fortified = `CurrentSliceType == 2` (Composite Only) or `Profile.MustGenerateFiberPerimeters == true`, i.e. the fibre is the part's own skin and must start at the bed. A first-layer fibre pass confined to the sacrificial priming/skirt is reported as info, not a violation.",
+      "fixtures": ["Benchy_fortified.gcode (permitted, fortified)", "Benchy_renforced_level1..5.gcode (sacrificial priming only)", "Benchy_speedy_default_settings.gcode (no fibre at all)"]
+    },
+    {
+      "id": "C13",
+      "title": "Tool configuration — dual-tool (FFF + CFC) vs single-tool FFF",
+      "issue": null,
+      "severity": "info",
+      "status": "implemented",
+      "owner_rule": "Owner request 2026-10-03: \"Report on if it's a dual tool or single tool (FFF) print.\"",
+      "predicate": "Verdict derived from observed deposition (plastic `E` > 0 and/or fibre `U` > 0) plus the `T0`/`T1` counts, then cross-checked against the `; PRINTING_MODE:` header. A header that contradicts observed deposition is a warning, except `Composite Only` with plastic present, which is the documented wet-out/tool-change quirk and is reported as info.",
+      "fixtures": ["dual: Benchy_renforced_level1..5.gcode", "fiber-only header + dual reality: Benchy_fortified.gcode", "single-tool FFF: Benchy_speedy_default_settings*.gcode, the Tinmorry sample"]
+    },
+    {
+      "id": "C14",
+      "title": "Total fibre consumed and number of cuts",
+      "issue": null,
+      "severity": "info",
+      "status": "implemented",
+      "owner_rule": "Owner request 2026-10-03: \"Report on total length of fibre used, number of cuts\". (Cuts were previously only visible as the raw M1001/M1002 count; the M2800 blade count and the trimmed tail are now reported directly.)",
+      "predicate": "Fibre is reported in three separated quantities: fed = every positive `U` word; deposited = positive `U` on a move with XY motion; restart = positive `U` with no XY motion (the `G1 F1200 U55 ; Extrude restart` air prime). Cuts = `M2800` count, with the `;CUT DISTANCE` sum and the constant tail length. Deposited is cross-checked against the `MATERIAL_PRINT_DATA` tow `Length` (agrees to 6 significant digits corpus-wide) and the cut count against the `M1001` segment count.",
+      "fixtures": ["Benchy_fortified.gcode (78.91 m fed / 63.51 m deposited / 280 cuts)", "Benchy_renforced_level5.gcode (15.94 m fed / 10.16 m deposited / 105 cuts)", "Benchy_speedy_default_settings.gcode (0 m, 0 cuts)"]
+    },
+    {
+      "id": "C15",
+      "title": "Machine-assist flags — presence or absence",
+      "issue": null,
+      "severity": "info",
+      "status": "implemented",
+      "owner_rule": "Owner request 2026-10-03: \"check for the presence of the machine flags (AI detection, bed leveling, etc settings), or the absence of them.\"",
+      "predicate": "Each flag in `Dialect.MACHINE_FLAGS` (homing G28, bed mesh/auto-leveling, Z probe & Z-offset, AI/spaghetti detection, filament runout/motion sensor, resonance/input shaper, power-loss recovery, crash detection, pause/cancel-on-failure) is searched for in the *command* text of every non-comment line, never in a comment, so a header echo can never count as presence. Absence is reported explicitly with the list of what was not found.",
+      "fixtures": ["all 11 files — every flag absent; no fixture exercises the present branch"]
+    }
+  ],
+  "punts": [
+    {
+      "issue": 25,
+      "title": "Documentation improvement",
+      "verdict": "out-of-scope: not file-related",
+      "reason": "Asks for clearer bed-leveling / first-layer-troubleshooting documentation and companion videos. No G-code artifact to inspect."
+    },
+    {
+      "issue": 26,
+      "title": "No cleaning of the left head during prints",
+      "verdict": "out-of-scope: firmware/config, not sliced output",
+      "reason": "Closed. The defect and its fix live in Klipper tool_switch.cfg / cleaning-station macros, not in the emitted G-code. The tool inspects sliced files, not printer firmware config."
+    },
+    {
+      "issue": 7,
+      "title": "Fan schedule not machine-readable",
+      "verdict": "closed; partially observed by C09",
+      "reason": "Closed. The per-layer fan plan living only in the header echo is observable (SET_FAN_AT_LAYER is flagged as an undefined verb by C09), but the issue is a slicer feature request, not a defect the tool adjudicates."
+    }
+  ]
+}
