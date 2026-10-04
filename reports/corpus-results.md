@@ -1,7 +1,7 @@
 # G-code Inspector — test results
 
 Produced by `Tools/gcode-inspector` (standalone HTML/JS/Node).
-Generated: 2026-10-03T19:33:11Z
+Generated: 2026-10-04T18:06:49Z
 
 Engine settings: coverage raster cell **0.2 mm**, travel sampled at 0.25 mm, gap search radius 6 mm, unsupported-run floor 16 mm, seam-run floor 10 layers, sustained-flow window 1 s, coverage checks **ON**.
 
@@ -67,7 +67,7 @@ Column notes:
 - Slicer `FibreSeek Rocket Slicer v1.3.1.480 on 9/15/2026 at 8:51 AM` · processor SK3 · mode Plastic Only · 88,953 lines
 - Layers 240 (header `LAYER_COUNT` 240) · moves 84,639 (69,848 extruding, 12,017 travel) · tool changes 1
 - Estimated print time 35.3 min · plastic 5.01 m · fiber 0.00 m · bbox 122.2–182.3 × 137.2–167.8 mm
-- Material PLA · `DoZHop`=true `ZhopP`=0 · `MinLayerTimeForSlowing`=10 · `Inset0Speed`=200 · `Inset0EWMM`=0.4 · `MacroLayerHeight`=0.2 · `EnableAdjustSeamDistributionPositionPlastic`=false
+- Material PLA · `DoZHop`=true hop height=0 · `MinLayerTimeForSlowing`=10 · `Inset0Speed`=200 · `Inset0EWMM`=0.4 · `MacroLayerHeight`=0.2 · `EnableAdjustSeamDistributionPositionPlastic`=false
 - First `M204` at line 237 · `M205` 0 · `M203` 0 · `M1001`/`M1002` 0/0 · fan commands 9 · seam markers 748 (71 clusters ≥3 layers)
 
 ### Print contract
@@ -169,7 +169,7 @@ Column notes:
 - Slicer `FibreSeek Rocket Slicer v1.3.1.480 on 9/15/2026 at 8:50 AM` · processor SK3 · mode Composite Only · 114,926 lines
 - Layers 240 (header `LAYER_COUNT` 240) · moves 104,359 (42,438 extruding, 40,693 travel) · tool changes 272
 - Estimated print time 272.1 min · plastic 2.87 m · fiber 78.91 m · bbox 121.8–182.5 × 136.0–169.2 mm
-- Material PETG · `DoZHop`=false `ZhopP`=0.4 · `MinLayerTimeForSlowing`=0 · `Inset0Speed`=200 · `Inset0EWMM`=0.4 · `MacroLayerHeight`=0.2 · `EnableAdjustSeamDistributionPositionPlastic`=false
+- Material PETG · `DoZHop`=false hop height=0.4 · `MinLayerTimeForSlowing`=0 · `Inset0Speed`=200 · `Inset0EWMM`=0.4 · `MacroLayerHeight`=0.2 · `EnableAdjustSeamDistributionPositionPlastic`=false
 - First `M204` at line 54 · `M205` 0 · `M203` 0 · `M1001`/`M1002` 280/280 · fan commands 922 · seam markers 264 (0 clusters ≥3 layers)
 
 ### Print contract
@@ -262,7 +262,7 @@ Column notes:
 - Slicer `FibreSeek Rocket Slicer v1.3.1.480 on 9/15/2026 at 8:46 AM` · processor SK3 · mode Plastic and Composite · 184,893 lines
 - Layers 399 (header `LAYER_COUNT` 399) · moves 177,080 (144,812 extruding, 27,816 travel) · tool changes 74
 - Estimated print time 67.1 min · plastic 6.69 m · fiber 6.73 m · bbox 106.5–188.7 × 130.9–172.1 mm
-- Material PETG · `DoZHop`=true `ZhopP`=0.4 · `MinLayerTimeForSlowing`=5 · `Inset0Speed`=200 · `Inset0EWMM`=0.4 · `MacroLayerHeight`=0.24 · `EnableAdjustSeamDistributionPositionPlastic`=false
+- Material PETG · `DoZHop`=true hop height=0.4 · `MinLayerTimeForSlowing`=5 · `Inset0Speed`=200 · `Inset0EWMM`=0.4 · `MacroLayerHeight`=0.24 · `EnableAdjustSeamDistributionPositionPlastic`=false
 - First `M204` at line 1279 · `M205` 0 · `M203` 0 · `M1001`/`M1002` 37/37 · fan commands 422 · seam markers 1310 (93 clusters ≥3 layers)
 
 ### Print contract
@@ -375,7 +375,7 @@ Column notes:
 - Slicer `FibreSeek Rocket Slicer v1.3.1.480 on 9/15/2026 at 8:47 AM` · processor SK3 · mode Plastic and Composite · 184,766 lines
 - Layers 399 (header `LAYER_COUNT` 399) · moves 176,952 (144,676 extruding, 27,784 travel) · tool changes 74
 - Estimated print time 67.2 min · plastic 6.54 m · fiber 6.72 m · bbox 106.5–188.7 × 130.9–172.0 mm
-- Material PETG · `DoZHop`=true `ZhopP`=0.4 · `MinLayerTimeForSlowing`=5 · `Inset0Speed`=200 · `Inset0EWMM`=0.4 · `MacroLayerHeight`=0.24 · `EnableAdjustSeamDistributionPositionPlastic`=false
+- Material PETG · `DoZHop`=true hop height=0.4 · `MinLayerTimeForSlowing`=5 · `Inset0Speed`=200 · `Inset0EWMM`=0.4 · `MacroLayerHeight`=0.24 · `EnableAdjustSeamDistributionPositionPlastic`=false
 - First `M204` at line 1277 · `M205` 0 · `M203` 0 · `M1001`/`M1002` 37/37 · fan commands 422 · seam markers 1310 (86 clusters ≥3 layers)
 
 ### Print contract
@@ -488,7 +488,7 @@ Column notes:
 - Slicer `FibreSeek Rocket Slicer v1.3.1.480 on 9/15/2026 at 8:48 AM` · processor SK3 · mode Plastic and Composite · 186,150 lines
 - Layers 399 (header `LAYER_COUNT` 399) · moves 178,267 (145,338 extruding, 28,441 travel) · tool changes 74
 - Estimated print time 68.7 min · plastic 6.81 m · fiber 7.17 m · bbox 106.5–188.7 × 130.9–172.0 mm
-- Material PETG · `DoZHop`=true `ZhopP`=0.4 · `MinLayerTimeForSlowing`=5 · `Inset0Speed`=200 · `Inset0EWMM`=0.4 · `MacroLayerHeight`=0.24 · `EnableAdjustSeamDistributionPositionPlastic`=false
+- Material PETG · `DoZHop`=true hop height=0.4 · `MinLayerTimeForSlowing`=5 · `Inset0Speed`=200 · `Inset0EWMM`=0.4 · `MacroLayerHeight`=0.24 · `EnableAdjustSeamDistributionPositionPlastic`=false
 - First `M204` at line 1274 · `M205` 0 · `M203` 0 · `M1001`/`M1002` 42/42 · fan commands 418 · seam markers 1310 (89 clusters ≥3 layers)
 
 ### Print contract
@@ -601,7 +601,7 @@ Column notes:
 - Slicer `FibreSeek Rocket Slicer v1.3.1.480 on 9/15/2026 at 8:49 AM` · processor SK3 · mode Plastic and Composite · 191,874 lines
 - Layers 399 (header `LAYER_COUNT` 399) · moves 183,143 (147,522 extruding, 31,023 travel) · tool changes 74
 - Estimated print time 92.0 min · plastic 6.84 m · fiber 13.59 m · bbox 106.5–188.7 × 130.9–172.1 mm
-- Material PETG · `DoZHop`=true `ZhopP`=0.4 · `MinLayerTimeForSlowing`=5 · `Inset0Speed`=200 · `Inset0EWMM`=0.4 · `MacroLayerHeight`=0.24 · `EnableAdjustSeamDistributionPositionPlastic`=false
+- Material PETG · `DoZHop`=true hop height=0.4 · `MinLayerTimeForSlowing`=5 · `Inset0Speed`=200 · `Inset0EWMM`=0.4 · `MacroLayerHeight`=0.24 · `EnableAdjustSeamDistributionPositionPlastic`=false
 - First `M204` at line 1294 · `M205` 0 · `M203` 0 · `M1001`/`M1002` 100/100 · fan commands 420 · seam markers 1310 (85 clusters ≥3 layers)
 
 ### Print contract
@@ -714,7 +714,7 @@ Column notes:
 - Slicer `FibreSeek Rocket Slicer v1.3.1.480 on 9/15/2026 at 8:52 AM` · processor SK3 · mode Plastic and Composite · 124,544 lines
 - Layers 200 (header `LAYER_COUNT` 200) · moves 118,929 (93,813 extruding, 21,731 travel) · tool changes 74
 - Estimated print time 52.8 min · plastic 7.10 m · fiber 4.11 m · bbox 106.5–188.7 × 130.5–172.5 mm
-- Material PLA · `DoZHop`=false `ZhopP`=0 · `MinLayerTimeForSlowing`=10 · `Inset0Speed`=200 · `Inset0EWMM`=0.4 · `MacroLayerHeight`=0.24 · `EnableAdjustSeamDistributionPositionPlastic`=false
+- Material PLA · `DoZHop`=false hop height=0 · `MinLayerTimeForSlowing`=10 · `Inset0Speed`=200 · `Inset0EWMM`=0.4 · `MacroLayerHeight`=0.24 · `EnableAdjustSeamDistributionPositionPlastic`=false
 - First `M204` at line 1203 · `M205` 0 · `M203` 0 · `M1001`/`M1002` 37/37 · fan commands 233 · seam markers 694 (54 clusters ≥3 layers)
 
 ### Print contract
@@ -817,7 +817,7 @@ Column notes:
 - Slicer `FibreSeek Rocket Slicer v1.3.1.480 on 9/15/2026 at 8:50 AM` · processor SK3 · mode Plastic and Composite · 194,272 lines
 - Layers 399 (header `LAYER_COUNT` 399) · moves 185,469 (148,962 extruding, 31,897 travel) · tool changes 74
 - Estimated print time 103.2 min · plastic 6.94 m · fiber 15.94 m · bbox 106.5–188.7 × 130.9–172.1 mm
-- Material PETG · `DoZHop`=true `ZhopP`=0.4 · `MinLayerTimeForSlowing`=5 · `Inset0Speed`=200 · `Inset0EWMM`=0.4 · `MacroLayerHeight`=0.24 · `EnableAdjustSeamDistributionPositionPlastic`=false
+- Material PETG · `DoZHop`=true hop height=0.4 · `MinLayerTimeForSlowing`=5 · `Inset0Speed`=200 · `Inset0EWMM`=0.4 · `MacroLayerHeight`=0.24 · `EnableAdjustSeamDistributionPositionPlastic`=false
 - First `M204` at line 1291 · `M205` 0 · `M203` 0 · `M1001`/`M1002` 105/105 · fan commands 422 · seam markers 1310 (85 clusters ≥3 layers)
 
 ### Print contract
@@ -930,7 +930,7 @@ Column notes:
 - Slicer `FibreSeek Rocket Slicer v1.3.1.480 on 9/15/2026 at 8:54 AM` · processor SK3 · mode Plastic Only · 88,840 lines
 - Layers 240 (header `LAYER_COUNT` 240) · moves 84,520 (69,795 extruding, 11,946 travel) · tool changes 1
 - Estimated print time 35.2 min · plastic 5.01 m · fiber 0.00 m · bbox 122.2–182.3 × 137.2–167.8 mm
-- Material PLA · `DoZHop`=true `ZhopP`=0 · `MinLayerTimeForSlowing`=10 · `Inset0Speed`=200 · `Inset0EWMM`=0.4 · `MacroLayerHeight`=0.2 · `EnableAdjustSeamDistributionPositionPlastic`=false
+- Material PLA · `DoZHop`=true hop height=0 · `MinLayerTimeForSlowing`=10 · `Inset0Speed`=200 · `Inset0EWMM`=0.4 · `MacroLayerHeight`=0.2 · `EnableAdjustSeamDistributionPositionPlastic`=false
 - First `M204` at line 228 · `M205` 0 · `M203` 0 · `M1001`/`M1002` 0/0 · fan commands 9 · seam markers 748 (72 clusters ≥3 layers)
 
 ### Print contract
@@ -1032,7 +1032,7 @@ Column notes:
 - Slicer `FibreSeek Rocket Slicer v1.3.1.480 on 9/15/2026 at 8:44 AM` · processor SK3 · mode Plastic Only · 94,997 lines
 - Layers 240 (header `LAYER_COUNT` 240) · moves 90,695 (74,833 extruding, 10,898 travel) · tool changes 1
 - Estimated print time 25.0 min · plastic 5.53 m · fiber 0.00 m · bbox 122.2–182.3 × 137.2–167.8 mm
-- Material PETG · `DoZHop`=true `ZhopP`=0.4 · `MinLayerTimeForSlowing`=5 · `Inset0Speed`=200 · `Inset0EWMM`=0.4 · `MacroLayerHeight`=0.2 · `EnableAdjustSeamDistributionPositionPlastic`=false
+- Material PETG · `DoZHop`=true hop height=0.4 · `MinLayerTimeForSlowing`=5 · `Inset0Speed`=200 · `Inset0EWMM`=0.4 · `MacroLayerHeight`=0.2 · `EnableAdjustSeamDistributionPositionPlastic`=false
 - First `M204` at line 224 · `M205` 0 · `M203` 0 · `M1001`/`M1002` 0/0 · fan commands 12 · seam markers 748 (71 clusters ≥3 layers)
 
 ### Print contract
@@ -1133,7 +1133,7 @@ Column notes:
 - Slicer `FibreSeek Rocket Slicer v1.4.0.857 on 03.10.2026 at 18:50` · processor SK3 · mode Plastic Only · 2,109,305 lines
 - Layers 155 (header `LAYER_COUNT` 303) · moves 2,061,888 (1,886,954 extruding, 139,982 travel) · tool changes 1
 - Estimated print time 259.3 min · plastic 81.47 m · fiber 0.00 m · bbox 16.7–290.7 × 13.9–291.2 mm
-- Material PETG · `DoZHop`=true `ZhopP`=0.4 · `MinLayerTimeForSlowing`=10 · `Inset0Speed`=100 · `Inset0EWMM`=0.4 · `MacroLayerHeight`=0.2 · `EnableAdjustSeamDistributionPositionPlastic`=false
+- Material PETG · `DoZHop`=true hop height=0.4 · `MinLayerTimeForSlowing`=10 · `Inset0Speed`=100 · `Inset0EWMM`=0.4 · `MacroLayerHeight`=0.2 · `EnableAdjustSeamDistributionPositionPlastic`=false
 - First `M204` at line 2331 · `M205` 0 · `M203` 0 · `M1001`/`M1002` 0/0 · fan commands 12 · seam markers 1200 (77 clusters ≥3 layers)
 
 ### Print contract

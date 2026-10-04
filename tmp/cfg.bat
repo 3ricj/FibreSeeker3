@@ -1,3 +1,0 @@
-@echo off
-"C:\Program Files (x86)\Microsoft Visual Studio\18\BuildTools\Common7\IDE\CommonExtensions\Microsoft\CMake\CMake\bin\cmake.exe" -S "C:\Users\3ricj\.openvibely\repos\288e09695603e28b9fc187875ade9fdf" -B "C:\Users\3ricj\.openvibely\repos\288e09695603e28b9fc187875ade9fdf\buildfs" -G "Visual Studio 18 2026" -A x64 -DCMAKE_BUILD_TYPE=Release -DCMAKE_PREFIX_PATH="C:/Users/3ricj/Documents/GitHub/OrcaSlicer/deps/build/OrcaSlicer_dep/usr/local" -DSLIC3R_GUI=ON -DSLIC3R_CAD=ON -DBUILD_TESTS=ON -DORCA_TOOLS=OFF -DSLIC3R_PCH=ON -DSLIC3R_ENC_CHECK=OFF -DSLIC3R_WARNINGS=OFF -DSLIC3R_BUNDLED_WARNINGS=OFF
-echo CFG_RC=%errorlevel%

@@ -1,5 +1,5 @@
 {
-  "generated": "2026-10-03T19:33:11.762Z",
+  "generated": "2026-10-04T18:06:49.189Z",
   "engine": "Tools/gcode-inspector",
   "opts": {
     "cell": 0.2,
@@ -70,7 +70,7 @@
   },
   "reports": [
     {
-      "file": "Test_files/Benchy_fortified-pla.gcode",
+      "file": "../../Test_files/Benchy_fortified-pla.gcode",
       "header": {
         "slicer": "FibreSeek Rocket Slicer v1.3.1.480 on 9/15/2026 at 8:51 AM",
         "processor": "SK3",
@@ -78,10 +78,13 @@
         "layerCount": 240
       },
       "settings": {
+        "source": "session",
         "material": "PLA",
         "doZHop": true,
         "zhopP": 0,
         "minLayerTime": 10,
+        "doZHopKey": "DoZHop",
+        "minLayerTimeKey": "MinLayerTimeForSlowing",
         "inset0Speed": 200,
         "inset0EWMM": 0.4,
         "macroLayerHeight": 0.2,
@@ -5033,7 +5036,7 @@
       ]
     },
     {
-      "file": "Test_files/Benchy_fortified.gcode",
+      "file": "../../Test_files/Benchy_fortified.gcode",
       "header": {
         "slicer": "FibreSeek Rocket Slicer v1.3.1.480 on 9/15/2026 at 8:50 AM",
         "processor": "SK3",
@@ -5041,10 +5044,13 @@
         "layerCount": 240
       },
       "settings": {
+        "source": "session",
         "material": "PETG",
         "doZHop": false,
         "zhopP": 0.4,
         "minLayerTime": 0,
+        "doZHopKey": "DoZHop",
+        "minLayerTimeKey": "MinLayerTimeForSlowing",
         "inset0Speed": 200,
         "inset0EWMM": 0.4,
         "macroLayerHeight": 0.2,
@@ -9398,7 +9404,7 @@
       ]
     },
     {
-      "file": "Test_files/Benchy_renforced_level1.gcode",
+      "file": "../../Test_files/Benchy_renforced_level1.gcode",
       "header": {
         "slicer": "FibreSeek Rocket Slicer v1.3.1.480 on 9/15/2026 at 8:46 AM",
         "processor": "SK3",
@@ -9406,10 +9412,13 @@
         "layerCount": 399
       },
       "settings": {
+        "source": "session",
         "material": "PETG",
         "doZHop": true,
         "zhopP": 0.4,
         "minLayerTime": 5,
+        "doZHopKey": "DoZHop",
+        "minLayerTimeKey": "MinLayerTimeForSlowing",
         "inset0Speed": 200,
         "inset0EWMM": 0.4,
         "macroLayerHeight": 0.24,
@@ -14884,7 +14893,7 @@
       ]
     },
     {
-      "file": "Test_files/Benchy_renforced_level2.gcode",
+      "file": "../../Test_files/Benchy_renforced_level2.gcode",
       "header": {
         "slicer": "FibreSeek Rocket Slicer v1.3.1.480 on 9/15/2026 at 8:47 AM",
         "processor": "SK3",
@@ -14892,10 +14901,13 @@
         "layerCount": 399
       },
       "settings": {
+        "source": "session",
         "material": "PETG",
         "doZHop": true,
         "zhopP": 0.4,
         "minLayerTime": 5,
+        "doZHopKey": "DoZHop",
+        "minLayerTimeKey": "MinLayerTimeForSlowing",
         "inset0Speed": 200,
         "inset0EWMM": 0.4,
         "macroLayerHeight": 0.24,
@@ -20316,7 +20328,7 @@
       ]
     },
     {
-      "file": "Test_files/Benchy_renforced_level3.gcode",
+      "file": "../../Test_files/Benchy_renforced_level3.gcode",
       "header": {
         "slicer": "FibreSeek Rocket Slicer v1.3.1.480 on 9/15/2026 at 8:48 AM",
         "processor": "SK3",
@@ -20324,10 +20336,13 @@
         "layerCount": 399
       },
       "settings": {
+        "source": "session",
         "material": "PETG",
         "doZHop": true,
         "zhopP": 0.4,
         "minLayerTime": 5,
+        "doZHopKey": "DoZHop",
+        "minLayerTimeKey": "MinLayerTimeForSlowing",
         "inset0Speed": 200,
         "inset0EWMM": 0.4,
         "macroLayerHeight": 0.24,
@@ -25848,7 +25863,7 @@
       ]
     },
     {
-      "file": "Test_files/Benchy_renforced_level4.gcode",
+      "file": "../../Test_files/Benchy_renforced_level4.gcode",
       "header": {
         "slicer": "FibreSeek Rocket Slicer v1.3.1.480 on 9/15/2026 at 8:49 AM",
         "processor": "SK3",
@@ -25856,10 +25871,13 @@
         "layerCount": 399
       },
       "settings": {
+        "source": "session",
         "material": "PETG",
         "doZHop": true,
         "zhopP": 0.4,
         "minLayerTime": 5,
+        "doZHopKey": "DoZHop",
+        "minLayerTimeKey": "MinLayerTimeForSlowing",
         "inset0Speed": 200,
         "inset0EWMM": 0.4,
         "macroLayerHeight": 0.24,
@@ -31344,7 +31362,7 @@
       ]
     },
     {
-      "file": "Test_files/Benchy_renforced_level5-pla.gcode",
+      "file": "../../Test_files/Benchy_renforced_level5-pla.gcode",
       "header": {
         "slicer": "FibreSeek Rocket Slicer v1.3.1.480 on 9/15/2026 at 8:52 AM",
         "processor": "SK3",
@@ -31352,10 +31370,13 @@
         "layerCount": 200
       },
       "settings": {
+        "source": "session",
         "material": "PLA",
         "doZHop": false,
         "zhopP": 0,
         "minLayerTime": 10,
+        "doZHopKey": "DoZHop",
+        "minLayerTimeKey": "MinLayerTimeForSlowing",
         "inset0Speed": 200,
         "inset0EWMM": 0.4,
         "macroLayerHeight": 0.24,
@@ -34756,7 +34777,7 @@
       ]
     },
     {
-      "file": "Test_files/Benchy_renforced_level5.gcode",
+      "file": "../../Test_files/Benchy_renforced_level5.gcode",
       "header": {
         "slicer": "FibreSeek Rocket Slicer v1.3.1.480 on 9/15/2026 at 8:50 AM",
         "processor": "SK3",
@@ -34764,10 +34785,13 @@
         "layerCount": 399
       },
       "settings": {
+        "source": "session",
         "material": "PETG",
         "doZHop": true,
         "zhopP": 0.4,
         "minLayerTime": 5,
+        "doZHopKey": "DoZHop",
+        "minLayerTimeKey": "MinLayerTimeForSlowing",
         "inset0Speed": 200,
         "inset0EWMM": 0.4,
         "macroLayerHeight": 0.24,
@@ -40324,7 +40348,7 @@
       ]
     },
     {
-      "file": "Test_files/Benchy_speedy_default_settings-pla.gcode",
+      "file": "../../Test_files/Benchy_speedy_default_settings-pla.gcode",
       "header": {
         "slicer": "FibreSeek Rocket Slicer v1.3.1.480 on 9/15/2026 at 8:54 AM",
         "processor": "SK3",
@@ -40332,10 +40356,13 @@
         "layerCount": 240
       },
       "settings": {
+        "source": "session",
         "material": "PLA",
         "doZHop": true,
         "zhopP": 0,
         "minLayerTime": 10,
+        "doZHopKey": "DoZHop",
+        "minLayerTimeKey": "MinLayerTimeForSlowing",
         "inset0Speed": 200,
         "inset0EWMM": 0.4,
         "macroLayerHeight": 0.2,
@@ -45251,7 +45278,7 @@
       ]
     },
     {
-      "file": "Test_files/Benchy_speedy_default_settings.gcode",
+      "file": "../../Test_files/Benchy_speedy_default_settings.gcode",
       "header": {
         "slicer": "FibreSeek Rocket Slicer v1.3.1.480 on 9/15/2026 at 8:44 AM",
         "processor": "SK3",
@@ -45259,10 +45286,13 @@
         "layerCount": 240
       },
       "settings": {
+        "source": "session",
         "material": "PETG",
         "doZHop": true,
         "zhopP": 0.4,
         "minLayerTime": 5,
+        "doZHopKey": "DoZHop",
+        "minLayerTimeKey": "MinLayerTimeForSlowing",
         "inset0Speed": 200,
         "inset0EWMM": 0.4,
         "macroLayerHeight": 0.2,
@@ -49112,7 +49142,7 @@
       ]
     },
     {
-      "file": "Test_files/Fabulous Borwo-Waasa (9)_TINMORRY PETG ECO schwarz+CFC PETG_10h53m.gcode",
+      "file": "../../Test_files/Fabulous Borwo-Waasa (9)_TINMORRY PETG ECO schwarz+CFC PETG_10h53m.gcode",
       "header": {
         "slicer": "FibreSeek Rocket Slicer v1.4.0.857 on 03.10.2026 at 18:50",
         "processor": "SK3",
@@ -49120,10 +49150,13 @@
         "layerCount": 303
       },
       "settings": {
+        "source": "session",
         "material": "PETG",
         "doZHop": true,
         "zhopP": 0.4,
         "minLayerTime": 10,
+        "doZHopKey": "DoZHop",
+        "minLayerTimeKey": "MinLayerTimeForSlowing",
         "inset0Speed": 100,
         "inset0EWMM": 0.4,
         "macroLayerHeight": 0.2,
