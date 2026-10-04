@@ -1,0 +1,804 @@
+{
+  "generated": "2026-10-04T17:37:39.353Z",
+  "tool": "FibreSeeker 3 G-code Inspector — roof-stack analyser",
+  "mode": "read-only",
+  "options": {
+    "json": "reports/roof-reference.json",
+    "md": "reports/roof-reference.md",
+    "quiet": true
+  },
+  "reports": [
+    {
+      "file": "Fabulous Borwo-Waasa (9)_TINMORRY PETG ECO schwarz+CFC PETG_10h53m.gcode",
+      "sha256": "c678c19266036437cb84d409b1afe3e872ed610fd9c05e93334848753460897a",
+      "header": {
+        "generator": "FibreSeek Rocket Slicer v1.4.0.857 on 03.10.2026 at 18:50",
+        "processor": "SK3",
+        "mode": "Plastic Only",
+        "layerCountHeader": 303,
+        "totalLayerStat": 155,
+        "layerMarkers": 155,
+        "macroMarkers": 150,
+        "layerChangeMarkers": 0,
+        "firstLayerLine": 33,
+        "bytes": 63147678,
+        "lines": 2109304
+      },
+      "metadata": [
+        {
+          "type": "LAYER_METADATA_MISMATCH",
+          "severity": "warning",
+          "detail": "header declares LAYER_COUNT 303 but the body carries 155 layer markers, and the file's own SET_PRINT_STATS_INFO TOTAL_LAYER=155 agrees with the markers. This is a metadata disagreement, not evidence that material is missing."
+        },
+        {
+          "type": "SUPPORT_SUBLAYER_PLANES",
+          "severity": "info",
+          "detail": "5 deposition planes carry support material only and sit at non-uniform Z steps. They are excluded from the model-layer depth budget so they cannot mask a missing model plane."
+        }
+      ],
+      "bytes": 63147678,
+      "elapsedMs": 13845,
+      "collector": {
+        "stats": {
+          "lines": 2109304,
+          "depositionMoves": 1875322,
+          "travelMoves": 139982,
+          "arcMoves": 0,
+          "arcUnsupported": 0,
+          "planeSwitches": 155,
+          "unknownMacros": 3,
+          "invalidState": 0,
+          "widthFallback": 0,
+          "heightFallback": 0,
+          "toolChanges": 1,
+          "unitRefusals": 0,
+          "zMismatchPlanes": 0
+        },
+        "warnings": [
+          {
+            "key": "moving_macro",
+            "message": "line 28: MOVE_TO_BRUSH_STATION moves the tool — position unknown until a command states X and Y",
+            "line": 28
+          }
+        ],
+        "eMode": "independent (M82/M83 present)",
+        "units": "mm",
+        "widthSource": "LINE_WIDTH",
+        "heightSource": "ENTITY_LINE_HEIGHT",
+        "zMismatchPlanes": 0,
+        "zMismatchMaxMm": null,
+        "zMismatchLine": null,
+        "positionValid": true
+      },
+      "planes": 155,
+      "modelPlanes": 150,
+      "supportPlanes": 5,
+      "candidates": 26,
+      "rejected": {
+        "narrow_voids": 0,
+        "no_foundation_runs": 0
+      },
+      "notes": [
+        {
+          "key": "moving_macro",
+          "message": "line 28: MOVE_TO_BRUSH_STATION moves the tool — position unknown until a command states X and Y"
+        }
+      ],
+      "bridges": [],
+      "controls": [
+        {
+          "roof_layer": 54,
+          "roof_z": 9.8,
+          "planes": [
+            9.6,
+            9.4,
+            9.2
+          ],
+          "min_coverage": 0.9944858009374138,
+          "foundation_z": 9.6,
+          "foundation_layer": 53,
+          "area_mm2": 145.1
+        },
+        {
+          "roof_layer": 55,
+          "roof_z": 10,
+          "planes": [
+            9.8,
+            9.6,
+            9.4,
+            9.2
+          ],
+          "min_coverage": 0.9797869434580716,
+          "foundation_z": 9.8,
+          "foundation_layer": 54,
+          "area_mm2": 146.4
+        },
+        {
+          "roof_layer": 98,
+          "roof_z": 18.6,
+          "planes": [
+            18.4,
+            18.2,
+            18
+          ],
+          "min_coverage": 0.9953888985557682,
+          "foundation_z": 18.4,
+          "foundation_layer": 97,
+          "area_mm2": 459.8
+        },
+        {
+          "roof_layer": 99,
+          "roof_z": 18.8,
+          "planes": [
+            18.6,
+            18.4,
+            18.2,
+            18
+          ],
+          "min_coverage": 0.9941918504401488,
+          "foundation_z": 18.6,
+          "foundation_layer": 98,
+          "area_mm2": 440.8
+        },
+        {
+          "roof_layer": 104,
+          "roof_z": 19.8,
+          "planes": [
+            19.6,
+            19.4,
+            19.2
+          ],
+          "min_coverage": 0.9935286103542235,
+          "foundation_z": 19.6,
+          "foundation_layer": 103,
+          "area_mm2": 117.4
+        },
+        {
+          "roof_layer": 105,
+          "roof_z": 20,
+          "planes": [
+            19.8,
+            19.6,
+            19.4,
+            19.2
+          ],
+          "min_coverage": 0.9953637660485022,
+          "foundation_z": 19.8,
+          "foundation_layer": 104,
+          "area_mm2": 112.2
+        }
+      ],
+      "findings": [
+        {
+          "finding_id": "local-top-gap-1",
+          "type": "LOCAL_TOP_STACK_GAP",
+          "severity": "error",
+          "geometry_confidence": "high",
+          "cause_confidence": "observed_omission_in_export",
+          "file": {
+            "name": "Fabulous Borwo-Waasa (9)_TINMORRY PETG ECO schwarz+CFC PETG_10h53m.gcode",
+            "sha256": "c678c19266036437cb84d409b1afe3e872ed610fd9c05e93334848753460897a",
+            "generator": "FibreSeek Rocket Slicer v1.4.0.857 on 03.10.2026 at 18:50",
+            "processor": "SK3",
+            "mode": "Plastic Only"
+          },
+          "roof": {
+            "layer_id": 53,
+            "z_mm": 9.6,
+            "bead_height_mm": 0.2,
+            "role": "TOP",
+            "label": "Top most solid infill",
+            "line": 1622878,
+            "macrolayer_id": 48
+          },
+          "region": {
+            "area_mm2": 9748.3,
+            "missing_area_mm2": 9345.7,
+            "bbox": {
+              "x0": 40.505,
+              "x1": 282.505,
+              "y0": 42.13,
+              "y1": 268.73
+            },
+            "roof_footprint_bbox": {
+              "x0": 40.505,
+              "x1": 282.505,
+              "y0": 42.13,
+              "y1": 269.33
+            },
+            "sample_xy_mm": [
+              201.805,
+              95.83
+            ],
+            "sample_inscribed_radius_mm": 10.6
+          },
+          "representative_line": 1622878,
+          "missing_planes": [
+            {
+              "layer_id": 52,
+              "z_mm": 9.4,
+              "line": 1607794,
+              "all_material_coverage": 0.02157,
+              "dense_coverage": 0,
+              "missing_area_mm2": 9538,
+              "roles_present": "FILL, WALL, GAPFILL, TOP",
+              "bead_edge_clearance_mm": 14.99
+            },
+            {
+              "layer_id": 51,
+              "z_mm": 9.2,
+              "line": 1593285,
+              "all_material_coverage": 0.02298,
+              "dense_coverage": 0,
+              "missing_area_mm2": 9524.3,
+              "roles_present": "FILL, WALL, BRIDGE, GAPFILL",
+              "bead_edge_clearance_mm": 14.71
+            },
+            {
+              "layer_id": 50,
+              "z_mm": 9,
+              "line": 1578870,
+              "all_material_coverage": 0.02668,
+              "dense_coverage": 0,
+              "missing_area_mm2": 9488.2,
+              "roles_present": "FILL, WALL, GAPFILL, SOLID",
+              "bead_edge_clearance_mm": 14.44
+            }
+          ],
+          "missing_plane_count": 3,
+          "highest_missing_z_mm": 9.4,
+          "run_count": 1,
+          "deposition_plane_separation_mm": 0.8,
+          "empty_gap_mm": 0.6,
+          "foundation": {
+            "layer_id": 49,
+            "z_mm": 8.8,
+            "line": 1528313,
+            "role": "bridge_solid",
+            "roles_present": [
+              "FILL",
+              "WALL",
+              "GAPFILL",
+              "BRIDGE"
+            ],
+            "overlap": 0.99947,
+            "dense_overlap": 0.9955
+          },
+          "stack": [
+            {
+              "depth": 1,
+              "layer_id": 52,
+              "z_mm": 9.4,
+              "line": 1607794,
+              "all_material_coverage": 0.02157,
+              "dense_coverage": 0,
+              "roles_present": "FILL, WALL, GAPFILL, TOP"
+            },
+            {
+              "depth": 2,
+              "layer_id": 51,
+              "z_mm": 9.2,
+              "line": 1593285,
+              "all_material_coverage": 0.02298,
+              "dense_coverage": 0,
+              "roles_present": "FILL, WALL, BRIDGE, GAPFILL"
+            },
+            {
+              "depth": 3,
+              "layer_id": 50,
+              "z_mm": 9,
+              "line": 1578870,
+              "all_material_coverage": 0.02668,
+              "dense_coverage": 0,
+              "roles_present": "FILL, WALL, GAPFILL, SOLID"
+            },
+            {
+              "depth": 4,
+              "layer_id": 49,
+              "z_mm": 8.8,
+              "line": 1528313,
+              "all_material_coverage": 0.99947,
+              "dense_coverage": 0.9955,
+              "roles_present": "FILL, WALL, GAPFILL, BRIDGE"
+            },
+            {
+              "depth": 5,
+              "layer_id": 48,
+              "z_mm": 8.6,
+              "line": 1492407,
+              "all_material_coverage": 0.39551,
+              "dense_coverage": 0.01242,
+              "roles_present": "FILL, WALL, GAPFILL, SOLID"
+            },
+            {
+              "depth": 6,
+              "layer_id": 47,
+              "z_mm": 8.4,
+              "line": 1457003,
+              "all_material_coverage": 0.38854,
+              "dense_coverage": 0,
+              "roles_present": "FILL, WALL, GAPFILL"
+            },
+            {
+              "depth": 7,
+              "layer_id": 46,
+              "z_mm": 8.2,
+              "line": 1421476,
+              "all_material_coverage": 0.41725,
+              "dense_coverage": 0,
+              "roles_present": "FILL, WALL, GAPFILL"
+            },
+            {
+              "depth": 8,
+              "layer_id": 45,
+              "z_mm": 8,
+              "line": 1386491,
+              "all_material_coverage": 0.3775,
+              "dense_coverage": 0,
+              "roles_present": "FILL, WALL, GAPFILL"
+            }
+          ],
+          "support_planes_skipped": [],
+          "affected_roofs": [
+            {
+              "layer_id": 53,
+              "z_mm": 9.6,
+              "role": "TOP",
+              "label": "Top most solid infill",
+              "line": 1622878,
+              "area_mm2": 9748.3
+            }
+          ],
+          "unsupported_span": {
+            "length_mm": 4168.61,
+            "total_open_length_mm": 26935.9,
+            "longest_single_move_mm": 29.85,
+            "longest_single_move_line": 1636050,
+            "segment_line": 1636305,
+            "segment_from_xy": [
+              231.407,
+              89.772
+            ],
+            "segment_to_xy": [
+              216.184,
+              74.549
+            ],
+            "note": "longest continuous interval of this roof with no backing on the plane directly beneath; geometric lack of support only, not measured sag and not a predicted failure"
+          },
+          "expected_top_shell_count": null,
+          "expected_top_shell_source": "no profile or project setting in this export states the required top-shell thickness",
+          "thresholds": {
+            "min_region_area_mm2": 5,
+            "min_missing_area_mm2": 5,
+            "max_coverage": 0.1,
+            "min_missing_planes": 2,
+            "foundation_overlap": 0.8,
+            "min_void_width_mm": 1.6,
+            "cell_mm": 0.2,
+            "close_mm": 0.05
+          }
+        },
+        {
+          "finding_id": "local-top-gap-2",
+          "type": "LOCAL_TOP_STACK_GAP",
+          "severity": "error",
+          "geometry_confidence": "high",
+          "cause_confidence": "observed_omission_in_export",
+          "file": {
+            "name": "Fabulous Borwo-Waasa (9)_TINMORRY PETG ECO schwarz+CFC PETG_10h53m.gcode",
+            "sha256": "c678c19266036437cb84d409b1afe3e872ed610fd9c05e93334848753460897a",
+            "generator": "FibreSeek Rocket Slicer v1.4.0.857 on 03.10.2026 at 18:50",
+            "processor": "SK3",
+            "mode": "Plastic Only"
+          },
+          "roof": {
+            "layer_id": 79,
+            "z_mm": 14.8,
+            "bead_height_mm": 0.2,
+            "role": "TOP",
+            "label": "Top intermediate solid infill",
+            "line": 1847916,
+            "macrolayer_id": 74
+          },
+          "region": {
+            "area_mm2": 158.3,
+            "missing_area_mm2": 151.3,
+            "bbox": {
+              "x0": 138.702,
+              "x1": 156.302,
+              "y0": 62.513,
+              "y1": 79.913
+            },
+            "roof_footprint_bbox": {
+              "x0": 138.702,
+              "x1": 156.502,
+              "y0": 62.513,
+              "y1": 79.913
+            },
+            "sample_xy_mm": [
+              148.802,
+              70.013
+            ],
+            "sample_inscribed_radius_mm": 3.8
+          },
+          "representative_line": 1847916,
+          "missing_planes": [
+            {
+              "layer_id": 78,
+              "z_mm": 14.6,
+              "line": 1840205,
+              "all_material_coverage": 0.04017,
+              "dense_coverage": 0,
+              "missing_area_mm2": 152,
+              "roles_present": "FILL, WALL, GAPFILL, TOP",
+              "bead_edge_clearance_mm": 5.23
+            },
+            {
+              "layer_id": 77,
+              "z_mm": 14.4,
+              "line": 1832609,
+              "all_material_coverage": 0.04017,
+              "dense_coverage": 0,
+              "missing_area_mm2": 152,
+              "roles_present": "FILL, WALL, GAPFILL, SOLID, TOP",
+              "bead_edge_clearance_mm": 5.23
+            }
+          ],
+          "missing_plane_count": 2,
+          "highest_missing_z_mm": 14.6,
+          "run_count": 1,
+          "deposition_plane_separation_mm": 0.6,
+          "empty_gap_mm": 0.4,
+          "foundation": {
+            "layer_id": 76,
+            "z_mm": 14.2,
+            "line": 1824803,
+            "role": "top",
+            "roles_present": [
+              "FILL",
+              "WALL",
+              "GAPFILL",
+              "BRIDGE",
+              "TOP"
+            ],
+            "overlap": 0.99823,
+            "dense_overlap": 0.98358
+          },
+          "stack": [
+            {
+              "depth": 1,
+              "layer_id": 78,
+              "z_mm": 14.6,
+              "line": 1840205,
+              "all_material_coverage": 0.04017,
+              "dense_coverage": 0,
+              "roles_present": "FILL, WALL, GAPFILL, TOP"
+            },
+            {
+              "depth": 2,
+              "layer_id": 77,
+              "z_mm": 14.4,
+              "line": 1832609,
+              "all_material_coverage": 0.04017,
+              "dense_coverage": 0,
+              "roles_present": "FILL, WALL, GAPFILL, SOLID, TOP"
+            },
+            {
+              "depth": 3,
+              "layer_id": 76,
+              "z_mm": 14.2,
+              "line": 1824803,
+              "all_material_coverage": 0.99823,
+              "dense_coverage": 0.98358,
+              "roles_present": "FILL, WALL, GAPFILL, BRIDGE, TOP"
+            },
+            {
+              "depth": 4,
+              "layer_id": 75,
+              "z_mm": 14,
+              "line": 1816357,
+              "all_material_coverage": 0.41688,
+              "dense_coverage": 0.00328,
+              "roles_present": "FILL, WALL, GAPFILL, TOP, BRIDGE, SOLID"
+            },
+            {
+              "depth": 5,
+              "layer_id": 74,
+              "z_mm": 13.8,
+              "line": 1807839,
+              "all_material_coverage": 0.4098,
+              "dense_coverage": 0,
+              "roles_present": "FILL, WALL, GAPFILL, SOLID, TOP"
+            },
+            {
+              "depth": 6,
+              "layer_id": 73,
+              "z_mm": 13.6,
+              "line": 1799586,
+              "all_material_coverage": 0.44543,
+              "dense_coverage": 0,
+              "roles_present": "FILL, WALL, GAPFILL"
+            },
+            {
+              "depth": 7,
+              "layer_id": 72,
+              "z_mm": 13.4,
+              "line": 1791422,
+              "all_material_coverage": 0.39717,
+              "dense_coverage": 0,
+              "roles_present": "FILL, WALL, GAPFILL"
+            },
+            {
+              "depth": 8,
+              "layer_id": 71,
+              "z_mm": 13.2,
+              "line": 1783205,
+              "all_material_coverage": 0.42698,
+              "dense_coverage": 0,
+              "roles_present": "FILL, WALL, GAPFILL"
+            }
+          ],
+          "support_planes_skipped": [],
+          "affected_roofs": [
+            {
+              "layer_id": 80,
+              "z_mm": 15,
+              "role": "TOP",
+              "label": "Top most solid infill",
+              "line": 1854861,
+              "area_mm2": 157.7,
+              "rests_on_roof_z_mm": 14.8
+            },
+            {
+              "layer_id": 79,
+              "z_mm": 14.8,
+              "role": "TOP",
+              "label": "Top intermediate solid infill",
+              "line": 1847916,
+              "area_mm2": 158.3
+            }
+          ],
+          "unsupported_span": {
+            "length_mm": 63.92,
+            "total_open_length_mm": 711.84,
+            "longest_single_move_mm": 15.46,
+            "longest_single_move_line": 1854744,
+            "segment_line": 1847968,
+            "segment_from_xy": [
+              145.306,
+              66.134
+            ],
+            "segment_to_xy": [
+              152.851,
+              73.679
+            ],
+            "note": "longest continuous interval of this roof with no backing on the plane directly beneath; geometric lack of support only, not measured sag and not a predicted failure"
+          },
+          "expected_top_shell_count": null,
+          "expected_top_shell_source": "no profile or project setting in this export states the required top-shell thickness",
+          "thresholds": {
+            "min_region_area_mm2": 5,
+            "min_missing_area_mm2": 5,
+            "max_coverage": 0.1,
+            "min_missing_planes": 2,
+            "foundation_overlap": 0.8,
+            "min_void_width_mm": 1.6,
+            "cell_mm": 0.2,
+            "close_mm": 0.05
+          }
+        },
+        {
+          "finding_id": "local-top-gap-3",
+          "type": "LOCAL_TOP_STACK_GAP",
+          "severity": "error",
+          "geometry_confidence": "high",
+          "cause_confidence": "observed_omission_in_export",
+          "file": {
+            "name": "Fabulous Borwo-Waasa (9)_TINMORRY PETG ECO schwarz+CFC PETG_10h53m.gcode",
+            "sha256": "c678c19266036437cb84d409b1afe3e872ed610fd9c05e93334848753460897a",
+            "generator": "FibreSeek Rocket Slicer v1.4.0.857 on 03.10.2026 at 18:50",
+            "processor": "SK3",
+            "mode": "Plastic Only"
+          },
+          "roof": {
+            "layer_id": 79,
+            "z_mm": 14.8,
+            "bead_height_mm": 0.2,
+            "role": "TOP",
+            "label": "Top most solid infill",
+            "line": 1847916,
+            "macrolayer_id": 74
+          },
+          "region": {
+            "area_mm2": 102.4,
+            "missing_area_mm2": 99.3,
+            "bbox": {
+              "x0": 249.502,
+              "x1": 275.502,
+              "y0": 23.113,
+              "y1": 38.913
+            },
+            "roof_footprint_bbox": {
+              "x0": 249.502,
+              "x1": 275.502,
+              "y0": 23.113,
+              "y1": 38.913
+            },
+            "sample_xy_mm": [
+              254.802,
+              29.213
+            ],
+            "sample_inscribed_radius_mm": 2
+          },
+          "representative_line": 1847916,
+          "missing_planes": [
+            {
+              "layer_id": 78,
+              "z_mm": 14.6,
+              "line": 1840205,
+              "all_material_coverage": 0.02462,
+              "dense_coverage": 0,
+              "missing_area_mm2": 99.8,
+              "roles_present": "FILL, WALL, GAPFILL, TOP",
+              "bead_edge_clearance_mm": 2.04
+            },
+            {
+              "layer_id": 77,
+              "z_mm": 14.4,
+              "line": 1832609,
+              "all_material_coverage": 0.01798,
+              "dense_coverage": 0,
+              "missing_area_mm2": 100.5,
+              "roles_present": "FILL, WALL, GAPFILL, SOLID, TOP",
+              "bead_edge_clearance_mm": 2.04
+            },
+            {
+              "layer_id": 76,
+              "z_mm": 14.2,
+              "line": 1824803,
+              "all_material_coverage": 0.01798,
+              "dense_coverage": 0,
+              "missing_area_mm2": 100.5,
+              "roles_present": "FILL, WALL, GAPFILL, BRIDGE, TOP",
+              "bead_edge_clearance_mm": 2.04
+            }
+          ],
+          "missing_plane_count": 3,
+          "highest_missing_z_mm": 14.6,
+          "run_count": 1,
+          "deposition_plane_separation_mm": 0.8,
+          "empty_gap_mm": 0.6,
+          "foundation": {
+            "layer_id": 75,
+            "z_mm": 14,
+            "line": 1816357,
+            "role": "top",
+            "roles_present": [
+              "FILL",
+              "WALL",
+              "GAPFILL",
+              "TOP",
+              "BRIDGE",
+              "SOLID"
+            ],
+            "overlap": 0.99766,
+            "dense_overlap": 0.99492
+          },
+          "stack": [
+            {
+              "depth": 1,
+              "layer_id": 78,
+              "z_mm": 14.6,
+              "line": 1840205,
+              "all_material_coverage": 0.02462,
+              "dense_coverage": 0,
+              "roles_present": "FILL, WALL, GAPFILL, TOP"
+            },
+            {
+              "depth": 2,
+              "layer_id": 77,
+              "z_mm": 14.4,
+              "line": 1832609,
+              "all_material_coverage": 0.01798,
+              "dense_coverage": 0,
+              "roles_present": "FILL, WALL, GAPFILL, SOLID, TOP"
+            },
+            {
+              "depth": 3,
+              "layer_id": 76,
+              "z_mm": 14.2,
+              "line": 1824803,
+              "all_material_coverage": 0.01798,
+              "dense_coverage": 0,
+              "roles_present": "FILL, WALL, GAPFILL, BRIDGE, TOP"
+            },
+            {
+              "depth": 4,
+              "layer_id": 75,
+              "z_mm": 14,
+              "line": 1816357,
+              "all_material_coverage": 0.99766,
+              "dense_coverage": 0.99492,
+              "roles_present": "FILL, WALL, GAPFILL, TOP, BRIDGE, SOLID"
+            },
+            {
+              "depth": 5,
+              "layer_id": 74,
+              "z_mm": 13.8,
+              "line": 1807839,
+              "all_material_coverage": 0.38335,
+              "dense_coverage": 0.01368,
+              "roles_present": "FILL, WALL, GAPFILL, SOLID, TOP"
+            },
+            {
+              "depth": 6,
+              "layer_id": 73,
+              "z_mm": 13.6,
+              "line": 1799586,
+              "all_material_coverage": 0.4236,
+              "dense_coverage": 0,
+              "roles_present": "FILL, WALL, GAPFILL"
+            },
+            {
+              "depth": 7,
+              "layer_id": 72,
+              "z_mm": 13.4,
+              "line": 1791422,
+              "all_material_coverage": 0.38765,
+              "dense_coverage": 0,
+              "roles_present": "FILL, WALL, GAPFILL"
+            },
+            {
+              "depth": 8,
+              "layer_id": 71,
+              "z_mm": 13.2,
+              "line": 1783205,
+              "all_material_coverage": 0.41462,
+              "dense_coverage": 0,
+              "roles_present": "FILL, WALL, GAPFILL"
+            }
+          ],
+          "support_planes_skipped": [],
+          "affected_roofs": [
+            {
+              "layer_id": 79,
+              "z_mm": 14.8,
+              "role": "TOP",
+              "label": "Top most solid infill",
+              "line": 1847916,
+              "area_mm2": 102.4
+            }
+          ],
+          "unsupported_span": {
+            "length_mm": 140.17,
+            "total_open_length_mm": 711.84,
+            "longest_single_move_mm": 15.46,
+            "longest_single_move_line": 1854744,
+            "segment_line": 1854743,
+            "segment_from_xy": [
+              264.31,
+              38.626
+            ],
+            "segment_to_xy": [
+              263.824,
+              38.647
+            ],
+            "note": "longest continuous interval of this roof with no backing on the plane directly beneath; geometric lack of support only, not measured sag and not a predicted failure"
+          },
+          "expected_top_shell_count": null,
+          "expected_top_shell_source": "no profile or project setting in this export states the required top-shell thickness",
+          "thresholds": {
+            "min_region_area_mm2": 5,
+            "min_missing_area_mm2": 5,
+            "max_coverage": 0.1,
+            "min_missing_planes": 2,
+            "foundation_overlap": 0.8,
+            "min_void_width_mm": 1.6,
+            "cell_mm": 0.2,
+            "close_mm": 0.05
+          }
+        }
+      ]
+    }
+  ]
+}
