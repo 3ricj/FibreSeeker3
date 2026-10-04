@@ -1,0 +1,95 @@
+-- Selecting Windows SDK version 10.0.26100.0 to target Windows 10.0.26200.
+-- SLIC3R_ASAN: OFF
+-- SLIC3R_BUILD_SANDBOXES: OFF
+-- SLIC3R_BUNDLED_WARNINGS: OFF
+-- SLIC3R_CAD: ON
+-- SLIC3R_DESKTOP_INTEGRATION: ON
+-- SLIC3R_ENC_CHECK: OFF
+-- SLIC3R_FHS: OFF
+-- SLIC3R_GTK: 3
+-- SLIC3R_GUI: ON
+-- SLIC3R_MSVC_COMPILE_PARALLEL: ON
+-- SLIC3R_MSVC_PDB: ON
+-- SLIC3R_PCH: ON
+-- SLIC3R_PROFILE: OFF
+-- SLIC3R_RELATIVE_DEBUG_PATHS: OFF
+-- SLIC3R_STATIC: ON
+-- SLIC3R_WARNINGS: OFF
+-- CMAKE_INSTALL_PREFIX: C:/Users/3ricj/.openvibely/repos/288e09695603e28b9fc187875ade9fdf/buildfs/OrcaSlicer
+-- DEP_BUILD_DIR: C:/Users/3ricj/.openvibely/repos/288e09695603e28b9fc187875ade9fdf/deps/buildfs (from cache or command line)
+-- CMAKE_PREFIX_PATH: C:/Users/3ricj/Documents/GitHub/OrcaSlicer/deps/build/OrcaSlicer_dep/usr/local (from cache or command line)
+-- PROJECT_SOURCE_DIR: C:/Users/3ricj/.openvibely/repos/288e09695603e28b9fc187875ade9fdf
+-- CMAKE_MODULE_PATH: C:/Users/3ricj/.openvibely/repos/288e09695603e28b9fc187875ade9fdf/cmake/modules/
+-- LIBDIR: C:/Users/3ricj/.openvibely/repos/288e09695603e28b9fc187875ade9fdf/src
+-- LIBDIR_BIN: C:/Users/3ricj/.openvibely/repos/288e09695603e28b9fc187875ade9fdf/buildfs/src
+-- TBB found in C:/Users/3ricj/Documents/GitHub/OrcaSlicer/deps/build/OrcaSlicer_dep/usr/local/lib/cmake/TBB
+-- Found NLopt in 'C:/Users/3ricj/Documents/GitHub/OrcaSlicer/deps/build/OrcaSlicer_dep/usr/local/lib'.
+-- Using NLopt include directory 'C:/Users/3ricj/Documents/GitHub/OrcaSlicer/deps/build/OrcaSlicer_dep/usr/local/include'.
+-- Found NLopt RELEASE library: C:/Users/3ricj/Documents/GitHub/OrcaSlicer/deps/build/OrcaSlicer_dep/usr/local/lib/nlopt.lib
+-- Could NOT find PkgConfig (missing: PKG_CONFIG_EXECUTABLE) 
+-- OpenVDB ABI Version: 8
+-- TBB found in C:/Users/3ricj/Documents/GitHub/OrcaSlicer/deps/build/OrcaSlicer_dep/usr/local/lib/cmake/TBB
+-- OpenVDB libraries: C:/Users/3ricj/Documents/GitHub/OrcaSlicer/deps/build/OrcaSlicer_dep/usr/local/lib/libopenvdb.lib
+-- SPNAV library NOT found, Spacenavd not supported
+-- IGL NOT found, using bundled version...
+-- [MCUT] version: 1.2.0
+-- [MCUT] MCUT_INCLUDE_DIR=C:/Users/3ricj/.openvibely/repos/288e09695603e28b9fc187875ade9fdf/deps_src/mcut/include
+-- [MCUT] compilation_flags=/W4;/wd26812;/wd4131;/wd4704;/wd4245;/wd4297;/wd4505;/wd4701;/bigobj
+-- [MCUT] preprocessor_defs=-DMCUT_WITH_COMPUTE_HELPER_THREADPOOL=1;-D_CRT_SECURE_NO_WARNINGS
+-- [MCUT] extra_libs=Threads::Threads
+-- [MCUT] create target: name=mcut type=STATIC
+-- [MCUT] MCUT_LIB_PATH=$<TARGET_FILE:mcut>
+-- Minilzo using bundled version...
+-- qhull Version: 7.2.0 (static linking)
+-- Found libnoise include directory: C:/Users/3ricj/Documents/GitHub/OrcaSlicer/deps/build/OrcaSlicer_dep/usr/local/include
+-- Found libnoise RELEASE library: C:/Users/3ricj/Documents/GitHub/OrcaSlicer/deps/build/OrcaSlicer_dep/usr/local/lib/libnoise_static.lib
+-- Visual Leak Detector (VLD) is not found.
+-- Using header-only CGAL
+-- Targeting Visual Studio 18 2026
+-- Target build environment supports auto-linking
+-- Using VC toolset 145.
+-- Generator uses intermediate configuration directory: $(Configuration)
+-- Boost include dirs: C:/Users/3ricj/Documents/GitHub/OrcaSlicer/deps/build/OrcaSlicer_dep/usr/local/include/boost-1_84
+-- Boost libraries:    
+-- OpenCV ARCH: x64
+-- OpenCV RUNTIME: vc18
+-- OpenCV STATIC: ON
+-- Found OpenCV 4.6.0 in C:/Users/3ricj/Documents/GitHub/OrcaSlicer/deps/build/OrcaSlicer_dep/usr/local/x64/vc18/staticlib
+-- Adding precompiled header pchheader.hpp to target libslic3r.
+-- WXWIN environment set to: 
+-- wx libs: wx::base;wx::net;wx::core;wx::adv;wx::aui;wx::html;wx::propgrid;wx::webview;wx::media;wx::gl;C:/Users/3ricj/Documents/GitHub/OrcaSlicer/deps/build/OrcaSlicer_dep/usr/local/lib/libpng16_static.lib;C:/Users/3ricj/Documents/GitHub/OrcaSlicer/deps/build/OrcaSlicer_dep/usr/local/lib/zlib.lib;C:/Users/3ricj/Documents/GitHub/OrcaSlicer/deps/build/OrcaSlicer_dep/usr/local/lib/jpeg-static.lib;C:/Users/3ricj/Documents/GitHub/OrcaSlicer/deps/build/OrcaSlicer_dep/usr/local/lib/expat.lib;wxInspector::wxInspector
+-- Adding precompiled header pchheader.hpp to target libslic3r_gui.
+set out_dir to CMAKE_CURRENT_BINARY_DIR/config: C:/Users/3ricj/.openvibely/repos/288e09695603e28b9fc187875ade9fdf/buildfs/src/Debug
+set out_dir to CMAKE_CURRENT_BINARY_DIR/config: C:/Users/3ricj/.openvibely/repos/288e09695603e28b9fc187875ade9fdf/buildfs/src/Release
+set out_dir to CMAKE_CURRENT_BINARY_DIR/config: C:/Users/3ricj/.openvibely/repos/288e09695603e28b9fc187875ade9fdf/buildfs/src/MinSizeRel
+set out_dir to CMAKE_CURRENT_BINARY_DIR/config: C:/Users/3ricj/.openvibely/repos/288e09695603e28b9fc187875ade9fdf/buildfs/src/RelWithDebInfo
+-- libslic3r-CMAKE_BUILD_TYPE: Release
+-- CMAKE_CURRENT_BINARY_DIR: C:/Users/3ricj/.openvibely/repos/288e09695603e28b9fc187875ade9fdf/buildfs/src
+set out_dir to CMAKE_CURRENT_BINARY_DIR/config: C:/Users/3ricj/.openvibely/repos/288e09695603e28b9fc187875ade9fdf/buildfs/tests/libnest2d/Debug
+set out_dir to CMAKE_CURRENT_BINARY_DIR/config: C:/Users/3ricj/.openvibely/repos/288e09695603e28b9fc187875ade9fdf/buildfs/tests/libnest2d/Release
+set out_dir to CMAKE_CURRENT_BINARY_DIR/config: C:/Users/3ricj/.openvibely/repos/288e09695603e28b9fc187875ade9fdf/buildfs/tests/libnest2d/MinSizeRel
+set out_dir to CMAKE_CURRENT_BINARY_DIR/config: C:/Users/3ricj/.openvibely/repos/288e09695603e28b9fc187875ade9fdf/buildfs/tests/libnest2d/RelWithDebInfo
+set out_dir to CMAKE_CURRENT_BINARY_DIR/config: C:/Users/3ricj/.openvibely/repos/288e09695603e28b9fc187875ade9fdf/buildfs/tests/libslic3r/Debug
+set out_dir to CMAKE_CURRENT_BINARY_DIR/config: C:/Users/3ricj/.openvibely/repos/288e09695603e28b9fc187875ade9fdf/buildfs/tests/libslic3r/Release
+set out_dir to CMAKE_CURRENT_BINARY_DIR/config: C:/Users/3ricj/.openvibely/repos/288e09695603e28b9fc187875ade9fdf/buildfs/tests/libslic3r/MinSizeRel
+set out_dir to CMAKE_CURRENT_BINARY_DIR/config: C:/Users/3ricj/.openvibely/repos/288e09695603e28b9fc187875ade9fdf/buildfs/tests/libslic3r/RelWithDebInfo
+set out_dir to CMAKE_CURRENT_BINARY_DIR/config: C:/Users/3ricj/.openvibely/repos/288e09695603e28b9fc187875ade9fdf/buildfs/tests/slic3rutils/Debug
+set out_dir to CMAKE_CURRENT_BINARY_DIR/config: C:/Users/3ricj/.openvibely/repos/288e09695603e28b9fc187875ade9fdf/buildfs/tests/slic3rutils/Release
+set out_dir to CMAKE_CURRENT_BINARY_DIR/config: C:/Users/3ricj/.openvibely/repos/288e09695603e28b9fc187875ade9fdf/buildfs/tests/slic3rutils/MinSizeRel
+set out_dir to CMAKE_CURRENT_BINARY_DIR/config: C:/Users/3ricj/.openvibely/repos/288e09695603e28b9fc187875ade9fdf/buildfs/tests/slic3rutils/RelWithDebInfo
+set out_dir to CMAKE_CURRENT_BINARY_DIR/config: C:/Users/3ricj/.openvibely/repos/288e09695603e28b9fc187875ade9fdf/buildfs/tests/fff_print/Debug
+set out_dir to CMAKE_CURRENT_BINARY_DIR/config: C:/Users/3ricj/.openvibely/repos/288e09695603e28b9fc187875ade9fdf/buildfs/tests/fff_print/Release
+set out_dir to CMAKE_CURRENT_BINARY_DIR/config: C:/Users/3ricj/.openvibely/repos/288e09695603e28b9fc187875ade9fdf/buildfs/tests/fff_print/MinSizeRel
+set out_dir to CMAKE_CURRENT_BINARY_DIR/config: C:/Users/3ricj/.openvibely/repos/288e09695603e28b9fc187875ade9fdf/buildfs/tests/fff_print/RelWithDebInfo
+set out_dir to CMAKE_CURRENT_BINARY_DIR/config: C:/Users/3ricj/.openvibely/repos/288e09695603e28b9fc187875ade9fdf/buildfs/tests/sla_print/Debug
+set out_dir to CMAKE_CURRENT_BINARY_DIR/config: C:/Users/3ricj/.openvibely/repos/288e09695603e28b9fc187875ade9fdf/buildfs/tests/sla_print/Release
+set out_dir to CMAKE_CURRENT_BINARY_DIR/config: C:/Users/3ricj/.openvibely/repos/288e09695603e28b9fc187875ade9fdf/buildfs/tests/sla_print/MinSizeRel
+set out_dir to CMAKE_CURRENT_BINARY_DIR/config: C:/Users/3ricj/.openvibely/repos/288e09695603e28b9fc187875ade9fdf/buildfs/tests/sla_print/RelWithDebInfo
+set out_dir to CMAKE_CURRENT_BINARY_DIR/config: C:/Users/3ricj/.openvibely/repos/288e09695603e28b9fc187875ade9fdf/buildfs/tests/filament_group/Debug
+set out_dir to CMAKE_CURRENT_BINARY_DIR/config: C:/Users/3ricj/.openvibely/repos/288e09695603e28b9fc187875ade9fdf/buildfs/tests/filament_group/Release
+set out_dir to CMAKE_CURRENT_BINARY_DIR/config: C:/Users/3ricj/.openvibely/repos/288e09695603e28b9fc187875ade9fdf/buildfs/tests/filament_group/MinSizeRel
+set out_dir to CMAKE_CURRENT_BINARY_DIR/config: C:/Users/3ricj/.openvibely/repos/288e09695603e28b9fc187875ade9fdf/buildfs/tests/filament_group/RelWithDebInfo
+-- Configuring done (27.7s)
+-- Generating done (9.3s)
+-- Build files have been written to: C:/Users/3ricj/.openvibely/repos/288e09695603e28b9fc187875ade9fdf/buildfs
+CFG_RC=0

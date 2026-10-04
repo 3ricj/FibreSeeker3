@@ -1,0 +1,221 @@
+MSBuild version 18.4.0+6e61e96ac for .NET Framework
+
+  miniz_static.vcxproj -> C:\Users\3ricj\.openvibely\repos\288e09695603e28b9fc187875ade9fdf\buildctrl\deps_src\miniz\Release\miniz_static.lib
+  Clipper2.vcxproj -> C:\Users\3ricj\.openvibely\repos\288e09695603e28b9fc187875ade9fdf\buildctrl\deps_src\clipper2\Release\Clipper2.lib
+  semver.vcxproj -> C:\Users\3ricj\.openvibely\repos\288e09695603e28b9fc187875ade9fdf\buildctrl\lib\Release\semver.lib
+  clipper.vcxproj -> C:\Users\3ricj\.openvibely\repos\288e09695603e28b9fc187875ade9fdf\buildctrl\deps_src\clipper\Release\clipper.lib
+  qoi.vcxproj -> C:\Users\3ricj\.openvibely\repos\288e09695603e28b9fc187875ade9fdf\buildctrl\deps_src\qoi\Release\qoi.lib
+  glu-libtess.vcxproj -> C:\Users\3ricj\.openvibely\repos\288e09695603e28b9fc187875ade9fdf\buildctrl\deps_src\glu-libtess\Release\glu-libtess.lib
+  qhullstatic.vcxproj -> C:\Users\3ricj\.openvibely\repos\288e09695603e28b9fc187875ade9fdf\buildctrl\deps_src\qhull\Release\qhullstatic.lib
+  mcut.vcxproj -> C:\Users\3ricj\.openvibely\repos\288e09695603e28b9fc187875ade9fdf\buildctrl\deps_src\mcut\Release\mcut.lib
+  admesh.vcxproj -> C:\Users\3ricj\.openvibely\repos\288e09695603e28b9fc187875ade9fdf\buildctrl\deps_src\admesh\Release\admesh.lib
+  libslic3r_cgal.vcxproj -> C:\Users\3ricj\.openvibely\repos\288e09695603e28b9fc187875ade9fdf\buildctrl\src\libslic3r\Release\libslic3r_cgal.lib
+cl : command line  warning D9025: overriding '/W1' with '/w' [C:\Users\3ricj\.openvibely\repos\288e09695603e28b9fc187875ade9fdf\buildctrl\src\libslic3r\libslic3r.vcxproj]
+cl : command line  warning D9025: overriding '/W1' with '/w' [C:\Users\3ricj\.openvibely\repos\288e09695603e28b9fc187875ade9fdf\buildctrl\src\libslic3r\libslic3r.vcxproj]
+cl : command line  warning D9025: overriding '/W1' with '/w' [C:\Users\3ricj\.openvibely\repos\288e09695603e28b9fc187875ade9fdf\buildctrl\src\libslic3r\libslic3r.vcxproj]
+  AppConfig.cpp
+  WallToolPaths.cpp
+cl : command line  warning D9025: overriding '/W1' with '/w' [C:\Users\3ricj\.openvibely\repos\288e09695603e28b9fc187875ade9fdf\buildctrl\src\libslic3r\libslic3r.vcxproj]
+cl : command line  warning D9025: overriding '/W1' with '/w' [C:\Users\3ricj\.openvibely\repos\288e09695603e28b9fc187875ade9fdf\buildctrl\src\libslic3r\libslic3r.vcxproj]
+cl : command line  warning D9025: overriding '/W1' with '/w' [C:\Users\3ricj\.openvibely\repos\288e09695603e28b9fc187875ade9fdf\buildctrl\src\libslic3r\libslic3r.vcxproj]
+cl : command line  warning D9025: overriding '/W1' with '/w' [C:\Users\3ricj\.openvibely\repos\288e09695603e28b9fc187875ade9fdf\buildctrl\src\libslic3r\libslic3r.vcxproj]
+cl : command line  warning D9025: overriding '/W1' with '/w' [C:\Users\3ricj\.openvibely\repos\288e09695603e28b9fc187875ade9fdf\buildctrl\src\libslic3r\libslic3r.vcxproj]
+cl : command line  warning D9025: overriding '/W1' with '/w' [C:\Users\3ricj\.openvibely\repos\288e09695603e28b9fc187875ade9fdf\buildctrl\src\libslic3r\libslic3r.vcxproj]
+cl : command line  warning D9025: overriding '/W1' with '/w' [C:\Users\3ricj\.openvibely\repos\288e09695603e28b9fc187875ade9fdf\buildctrl\src\libslic3r\libslic3r.vcxproj]
+cl : command line  warning D9025: overriding '/W1' with '/w' [C:\Users\3ricj\.openvibely\repos\288e09695603e28b9fc187875ade9fdf\buildctrl\src\libslic3r\libslic3r.vcxproj]
+cl : command line  warning D9025: overriding '/W1' with '/w' [C:\Users\3ricj\.openvibely\repos\288e09695603e28b9fc187875ade9fdf\buildctrl\src\libslic3r\libslic3r.vcxproj]
+  Arrange.cpp
+  Brim.cpp
+  BuildVolume.cpp
+  calib.cpp
+  Config.cpp
+  ContourZ.cpp
+  CustomGCode.cpp
+  CutUtils.cpp
+cl : command line  warning D9025: overriding '/W1' with '/w' [C:\Users\3ricj\.openvibely\repos\288e09695603e28b9fc187875ade9fdf\buildctrl\src\libslic3r\libslic3r.vcxproj]
+cl : command line  warning D9025: overriding '/W1' with '/w' [C:\Users\3ricj\.openvibely\repos\288e09695603e28b9fc187875ade9fdf\buildctrl\src\libslic3r\libslic3r.vcxproj]
+  FiberModePlan.cpp
+cl : command line  warning D9025: overriding '/W1' with '/w' [C:\Users\3ricj\.openvibely\repos\288e09695603e28b9fc187875ade9fdf\buildctrl\src\libslic3r\libslic3r.vcxproj]
+cl : command line  warning D9025: overriding '/W1' with '/w' [C:\Users\3ricj\.openvibely\repos\288e09695603e28b9fc187875ade9fdf\buildctrl\src\libslic3r\libslic3r.vcxproj]
+cl : command line  warning D9025: overriding '/W1' with '/w' [C:\Users\3ricj\.openvibely\repos\288e09695603e28b9fc187875ade9fdf\buildctrl\src\libslic3r\libslic3r.vcxproj]
+cl : command line  warning D9025: overriding '/W1' with '/w' [C:\Users\3ricj\.openvibely\repos\288e09695603e28b9fc187875ade9fdf\buildctrl\src\libslic3r\libslic3r.vcxproj]
+cl : command line  warning D9025: overriding '/W1' with '/w' [C:\Users\3ricj\.openvibely\repos\288e09695603e28b9fc187875ade9fdf\buildctrl\src\libslic3r\libslic3r.vcxproj]
+cl : command line  warning D9025: overriding '/W1' with '/w' [C:\Users\3ricj\.openvibely\repos\288e09695603e28b9fc187875ade9fdf\buildctrl\src\libslic3r\libslic3r.vcxproj]
+cl : command line  warning D9025: overriding '/W1' with '/w' [C:\Users\3ricj\.openvibely\repos\288e09695603e28b9fc187875ade9fdf\buildctrl\src\libslic3r\libslic3r.vcxproj]
+cl : command line  warning D9025: overriding '/W1' with '/w' [C:\Users\3ricj\.openvibely\repos\288e09695603e28b9fc187875ade9fdf\buildctrl\src\libslic3r\libslic3r.vcxproj]
+cl : command line  warning D9025: overriding '/W1' with '/w' [C:\Users\3ricj\.openvibely\repos\288e09695603e28b9fc187875ade9fdf\buildctrl\src\libslic3r\libslic3r.vcxproj]
+cl : command line  warning D9025: overriding '/W1' with '/w' [C:\Users\3ricj\.openvibely\repos\288e09695603e28b9fc187875ade9fdf\buildctrl\src\libslic3r\libslic3r.vcxproj]
+cl : command line  warning D9025: overriding '/W1' with '/w' [C:\Users\3ricj\.openvibely\repos\288e09695603e28b9fc187875ade9fdf\buildctrl\src\libslic3r\libslic3r.vcxproj]
+cl : command line  warning D9025: overriding '/W1' with '/w' [C:\Users\3ricj\.openvibely\repos\288e09695603e28b9fc187875ade9fdf\buildctrl\src\libslic3r\libslic3r.vcxproj]
+cl : command line  warning D9025: overriding '/W1' with '/w' [C:\Users\3ricj\.openvibely\repos\288e09695603e28b9fc187875ade9fdf\buildctrl\src\libslic3r\libslic3r.vcxproj]
+cl : command line  warning D9025: overriding '/W1' with '/w' [C:\Users\3ricj\.openvibely\repos\288e09695603e28b9fc187875ade9fdf\buildctrl\src\libslic3r\libslic3r.vcxproj]
+  FiberStrandPlanner.cpp
+  Extruder.cpp
+cl : command line  warning D9025: overriding '/W1' with '/w' [C:\Users\3ricj\.openvibely\repos\288e09695603e28b9fc187875ade9fdf\buildctrl\src\libslic3r\libslic3r.vcxproj]
+cl : command line  warning D9025: overriding '/W1' with '/w' [C:\Users\3ricj\.openvibely\repos\288e09695603e28b9fc187875ade9fdf\buildctrl\src\libslic3r\libslic3r.vcxproj]
+cl : command line  warning D9025: overriding '/W1' with '/w' [C:\Users\3ricj\.openvibely\repos\288e09695603e28b9fc187875ade9fdf\buildctrl\src\libslic3r\libslic3r.vcxproj]
+  FaceDetector.cpp
+  FuzzySkin.cpp
+cl : command line  warning D9025: overriding '/W1' with '/w' [C:\Users\3ricj\.openvibely\repos\288e09695603e28b9fc187875ade9fdf\buildctrl\src\libslic3r\libslic3r.vcxproj]
+  InterlockingGenerator.cpp
+cl : command line  warning D9025: overriding '/W1' with '/w' [C:\Users\3ricj\.openvibely\repos\288e09695603e28b9fc187875ade9fdf\buildctrl\src\libslic3r\libslic3r.vcxproj]
+  VoxelUtils.cpp
+cl : command line  warning D9025: overriding '/W1' with '/w' [C:\Users\3ricj\.openvibely\repos\288e09695603e28b9fc187875ade9fdf\buildctrl\src\libslic3r\libslic3r.vcxproj]
+  Fill3DHoneycomb.cpp
+  FillAdaptive.cpp
+cl : command line  warning D9025: overriding '/W1' with '/w' [C:\Users\3ricj\.openvibely\repos\288e09695603e28b9fc187875ade9fdf\buildctrl\src\libslic3r\libslic3r.vcxproj]
+  FillBase.cpp
+cl : command line  warning D9025: overriding '/W1' with '/w' [C:\Users\3ricj\.openvibely\repos\288e09695603e28b9fc187875ade9fdf\buildctrl\src\libslic3r\libslic3r.vcxproj]
+  FillConcentric.cpp
+cl : command line  warning D9025: overriding '/W1' with '/w' [C:\Users\3ricj\.openvibely\repos\288e09695603e28b9fc187875ade9fdf\buildctrl\src\libslic3r\libslic3r.vcxproj]
+cl : command line  warning D9025: overriding '/W1' with '/w' [C:\Users\3ricj\.openvibely\repos\288e09695603e28b9fc187875ade9fdf\buildctrl\src\libslic3r\libslic3r.vcxproj]
+  FillSpiralInset.cpp
+cl : command line  warning D9025: overriding '/W1' with '/w' [C:\Users\3ricj\.openvibely\repos\288e09695603e28b9fc187875ade9fdf\buildctrl\src\libslic3r\libslic3r.vcxproj]
+  FillConcentricInternal.cpp
+  Fill.cpp
+cl : command line  warning D9025: overriding '/W1' with '/w' [C:\Users\3ricj\.openvibely\repos\288e09695603e28b9fc187875ade9fdf\buildctrl\src\libslic3r\libslic3r.vcxproj]
+cl : command line  warning D9025: overriding '/W1' with '/w' [C:\Users\3ricj\.openvibely\repos\288e09695603e28b9fc187875ade9fdf\buildctrl\src\libslic3r\libslic3r.vcxproj]
+  FillCrossHatch.cpp
+cl : command line  warning D9025: overriding '/W1' with '/w' [C:\Users\3ricj\.openvibely\repos\288e09695603e28b9fc187875ade9fdf\buildctrl\src\libslic3r\libslic3r.vcxproj]
+cl : command line  warning D9025: overriding '/W1' with '/w' [C:\Users\3ricj\.openvibely\repos\288e09695603e28b9fc187875ade9fdf\buildctrl\src\libslic3r\libslic3r.vcxproj]
+cl : command line  warning D9025: overriding '/W1' with '/w' [C:\Users\3ricj\.openvibely\repos\288e09695603e28b9fc187875ade9fdf\buildctrl\src\libslic3r\libslic3r.vcxproj]
+  FillGyroid.cpp
+  FillHoneycomb.cpp
+cl : command line  warning D9025: overriding '/W1' with '/w' [C:\Users\3ricj\.openvibely\repos\288e09695603e28b9fc187875ade9fdf\buildctrl\src\libslic3r\libslic3r.vcxproj]
+cl : command line  warning D9025: overriding '/W1' with '/w' [C:\Users\3ricj\.openvibely\repos\288e09695603e28b9fc187875ade9fdf\buildctrl\src\libslic3r\libslic3r.vcxproj]
+cl : command line  warning D9025: overriding '/W1' with '/w' [C:\Users\3ricj\.openvibely\repos\288e09695603e28b9fc187875ade9fdf\buildctrl\src\libslic3r\libslic3r.vcxproj]
+cl : command line  warning D9025: overriding '/W1' with '/w' [C:\Users\3ricj\.openvibely\repos\288e09695603e28b9fc187875ade9fdf\buildctrl\src\libslic3r\libslic3r.vcxproj]
+cl : command line  warning D9025: overriding '/W1' with '/w' [C:\Users\3ricj\.openvibely\repos\288e09695603e28b9fc187875ade9fdf\buildctrl\src\libslic3r\libslic3r.vcxproj]
+cl : command line  warning D9025: overriding '/W1' with '/w' [C:\Users\3ricj\.openvibely\repos\288e09695603e28b9fc187875ade9fdf\buildctrl\src\libslic3r\libslic3r.vcxproj]
+cl : command line  warning D9025: overriding '/W1' with '/w' [C:\Users\3ricj\.openvibely\repos\288e09695603e28b9fc187875ade9fdf\buildctrl\src\libslic3r\libslic3r.vcxproj]
+cl : command line  warning D9025: overriding '/W1' with '/w' [C:\Users\3ricj\.openvibely\repos\288e09695603e28b9fc187875ade9fdf\buildctrl\src\libslic3r\libslic3r.vcxproj]
+cl : command line  warning D9025: overriding '/W1' with '/w' [C:\Users\3ricj\.openvibely\repos\288e09695603e28b9fc187875ade9fdf\buildctrl\src\libslic3r\libslic3r.vcxproj]
+cl : command line  warning D9025: overriding '/W1' with '/w' [C:\Users\3ricj\.openvibely\repos\288e09695603e28b9fc187875ade9fdf\buildctrl\src\libslic3r\libslic3r.vcxproj]
+cl : command line  warning D9025: overriding '/W1' with '/w' [C:\Users\3ricj\.openvibely\repos\288e09695603e28b9fc187875ade9fdf\buildctrl\src\libslic3r\libslic3r.vcxproj]
+  FillLightning.cpp
+cl : command line  warning D9025: overriding '/W1' with '/w' [C:\Users\3ricj\.openvibely\repos\288e09695603e28b9fc187875ade9fdf\buildctrl\src\libslic3r\libslic3r.vcxproj]
+cl : command line  warning D9025: overriding '/W1' with '/w' [C:\Users\3ricj\.openvibely\repos\288e09695603e28b9fc187875ade9fdf\buildctrl\src\libslic3r\libslic3r.vcxproj]
+  FillLine.cpp
+cl : command line  warning D9025: overriding '/W1' with '/w' [C:\Users\3ricj\.openvibely\repos\288e09695603e28b9fc187875ade9fdf\buildctrl\src\libslic3r\libslic3r.vcxproj]
+  FillPlanePath.cpp
+cl : command line  warning D9025: overriding '/W1' with '/w' [C:\Users\3ricj\.openvibely\repos\288e09695603e28b9fc187875ade9fdf\buildctrl\src\libslic3r\libslic3r.vcxproj]
+cl : command line  warning D9025: overriding '/W1' with '/w' [C:\Users\3ricj\.openvibely\repos\288e09695603e28b9fc187875ade9fdf\buildctrl\src\libslic3r\libslic3r.vcxproj]
+cl : command line  warning D9025: overriding '/W1' with '/w' [C:\Users\3ricj\.openvibely\repos\288e09695603e28b9fc187875ade9fdf\buildctrl\src\libslic3r\libslic3r.vcxproj]
+cl : command line  warning D9025: overriding '/W1' with '/w' [C:\Users\3ricj\.openvibely\repos\288e09695603e28b9fc187875ade9fdf\buildctrl\src\libslic3r\libslic3r.vcxproj]
+cl : command line  warning D9025: overriding '/W1' with '/w' [C:\Users\3ricj\.openvibely\repos\288e09695603e28b9fc187875ade9fdf\buildctrl\src\libslic3r\libslic3r.vcxproj]
+cl : command line  warning D9025: overriding '/W1' with '/w' [C:\Users\3ricj\.openvibely\repos\288e09695603e28b9fc187875ade9fdf\buildctrl\src\libslic3r\libslic3r.vcxproj]
+cl : command line  warning D9025: overriding '/W1' with '/w' [C:\Users\3ricj\.openvibely\repos\288e09695603e28b9fc187875ade9fdf\buildctrl\src\libslic3r\libslic3r.vcxproj]
+  FillRectilinear.cpp
+  FillTpmsD.cpp
+  FillTpmsFK.cpp
+  DistanceField.cpp
+  Generator.cpp
+  TexturePainting.cpp
+  Flow.cpp
+  FlushVolCalc.cpp
+  3mf.cpp
+  AMF.cpp
+  DRC.cpp
+  bbs_3mf.cpp
+  OBJ.cpp
+  SL1.cpp
+  STEP.cpp
+  STL.cpp
+  ZipperArchiveImport.cpp
+  AdaptivePAProcessor.cpp
+  AvoidCrossingPerimeters.cpp
+  ConflictChecker.cpp
+  CoolingBuffer.cpp
+  TimelapsePosPicker.cpp
+  GCode.cpp
+  FanMover.cpp
+  GCodeProcessor.cpp
+  ElegooGCodeProcessorHelper.cpp
+  PressureEqualizer.cpp
+  PrintExtents.cpp
+  GCodeReader.cpp
+  SeamPlacer.cpp
+  PreciseSeam.cpp
+  SmallAreaInfillFlowCompensator.cpp
+  SpiralVase.cpp
+  Thumbnails.cpp
+  ToolOrdering.cpp
+  OrderingStrategies.cpp
+  WipeTower2.cpp
+  WipeTower.cpp
+  WipeTowerEstimate.cpp
+  GCodeWriter.cpp
+  LayerRegion.cpp
+  LayOnFace.cpp
+  ModelArrange.cpp
+  Model.cpp
+  MultiMaterialSegmentation.cpp
+  NormalUtils.cpp
+  Orient.cpp
+  ParameterUtils.cpp
+  PerimeterGenerator.cpp
+  PlaceholderParser.cpp
+  PresetBundle.cpp
+  PresetCacheFormat.cpp
+  Preset.cpp
+  PublishSettings.cpp
+  PrintApply.cpp
+  PrintBase.cpp
+  PrintConfig.cpp
+  Print.cpp
+  PrintObject.cpp
+  PrintObjectSlice.cpp
+  PrintRegion.cpp
+  TextShape.cpp
+  ShortEdgeCollapse.cpp
+  ShortestPath.cpp
+  SLAPrint.cpp
+  SLAPrintSteps.cpp
+  Rotfinder.cpp
+  SupportPointGenerator.cpp
+  SupportTree.cpp
+  SlicingAdaptive.cpp
+  Slicing.cpp
+  SupportCommon.cpp
+  SupportMaterial.cpp
+  SupportSpotsGenerator.cpp
+  TreeModelVolumes.cpp
+  TreeSupport3D.cpp
+  TreeSupport.cpp
+  TriangleMesh.cpp
+  TriangleSelector.cpp
+  utils.cpp
+  FilamentGroup.cpp
+  FilamentGroupUtils.cpp
+  MultiNozzleUtils.cpp
+  ToolOrderUtils.cpp
+C:\Program Files (x86)\Microsoft Visual Studio\18\BuildTools\VC\Tools\MSVC\14.50.35717\include\xutility(6455,29): warning C4805: '==': unsafe mix of type 'const unsigned char' and type 'const _Ty' in operation [C:\Users\3ricj\.openvibely\repos\288e09695603e28b9fc187875ade9fdf\buildctrl\src\libslic3r\libslic3r.vcxproj]
+C:\Program Files (x86)\Microsoft Visual Studio\18\BuildTools\VC\Tools\MSVC\14.50.35717\include\xutility(6455,29): warning C4805:         with [C:\Users\3ricj\.openvibely\repos\288e09695603e28b9fc187875ade9fdf\buildctrl\src\libslic3r\libslic3r.vcxproj]
+C:\Program Files (x86)\Microsoft Visual Studio\18\BuildTools\VC\Tools\MSVC\14.50.35717\include\xutility(6455,29): warning C4805:         [ [C:\Users\3ricj\.openvibely\repos\288e09695603e28b9fc187875ade9fdf\buildctrl\src\libslic3r\libslic3r.vcxproj]
+C:\Program Files (x86)\Microsoft Visual Studio\18\BuildTools\VC\Tools\MSVC\14.50.35717\include\xutility(6455,29): warning C4805:             _Ty=bool [C:\Users\3ricj\.openvibely\repos\288e09695603e28b9fc187875ade9fdf\buildctrl\src\libslic3r\libslic3r.vcxproj]
+C:\Program Files (x86)\Microsoft Visual Studio\18\BuildTools\VC\Tools\MSVC\14.50.35717\include\xutility(6455,29): warning C4805:         ] [C:\Users\3ricj\.openvibely\repos\288e09695603e28b9fc187875ade9fdf\buildctrl\src\libslic3r\libslic3r.vcxproj]
+  (compiling source file '../../../ctrl1220/src/libslic3r/PresetBundle.cpp')
+      C:\Program Files (x86)\Microsoft Visual Studio\18\BuildTools\VC\Tools\MSVC\14.50.35717\include\xutility(6455,29):
+      the template instantiation context (the oldest one first) is
+          C:\Users\3ricj\.openvibely\repos\288e09695603e28b9fc187875ade9fdf\ctrl1220\src\libslic3r\PresetBundle.cpp(3582,45):
+          see reference to function template instantiation '__int64 std::count<std::_Vector_const_iterator<std::_Vector_val<std::_Simple_types<_Ty>>>,bool>(const _InIt,const _InIt,const bool &)' being compiled
+          with
+          [
+              _Ty=unsigned char,
+              _InIt=std::_Vector_const_iterator<std::_Vector_val<std::_Simple_types<unsigned char>>>
+          ]
+  
+cl : command line  warning D9025: overriding '/W1' with '/w' [C:\Users\3ricj\.openvibely\repos\288e09695603e28b9fc187875ade9fdf\buildctrl\src\libslic3r\libslic3r.vcxproj]
+  Circle.cpp
+cl : command line  warning D9025: overriding '/W1' with '/w' [C:\Users\3ricj\.openvibely\repos\288e09695603e28b9fc187875ade9fdf\buildctrl\src\libslic3r\libslic3r.vcxproj]
+  Layer.cpp
+cl : command line  warning D9025: overriding '/W1' with '/w' [C:\Users\3ricj\.openvibely\repos\288e09695603e28b9fc187875ade9fdf\buildctrl\src\libslic3r\libslic3r.vcxproj]
+  svg.cpp
+cl : command line  warning D9025: overriding '/W1' with '/w' [C:\Users\3ricj\.openvibely\repos\288e09695603e28b9fc187875ade9fdf\buildctrl\src\libslic3r\libslic3r.vcxproj]
+  Circle.cpp
+cl : command line  warning D9025: overriding '/W1' with '/w' [C:\Users\3ricj\.openvibely\repos\288e09695603e28b9fc187875ade9fdf\buildctrl\src\libslic3r\libslic3r.vcxproj]
+  Layer.cpp
+cl : command line  warning D9025: overriding '/W1' with '/w' [C:\Users\3ricj\.openvibely\repos\288e09695603e28b9fc187875ade9fdf\buildctrl\src\libslic3r\libslic3r.vcxproj]
+  SVG.cpp
+  libslic3r.vcxproj -> C:\Users\3ricj\.openvibely\repos\288e09695603e28b9fc187875ade9fdf\buildctrl\src\libslic3r\Release\libslic3r.lib
+BUILD_RC=0
