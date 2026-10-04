@@ -1,0 +1,636 @@
+MSBuild version 18.4.0+6e61e96ac for .NET Framework
+
+  Clipper2.vcxproj -> C:\Users\3ricj\.openvibely\repos\288e09695603e28b9fc187875ade9fdf\buildfs\deps_src\clipper2\Release\Clipper2.lib
+  glu-libtess.vcxproj -> C:\Users\3ricj\.openvibely\repos\288e09695603e28b9fc187875ade9fdf\buildfs\deps_src\glu-libtess\Release\glu-libtess.lib
+  clipper.vcxproj -> C:\Users\3ricj\.openvibely\repos\288e09695603e28b9fc187875ade9fdf\buildfs\deps_src\clipper\Release\clipper.lib
+  Building Custom Rule C:/Users/3ricj/.openvibely/repos/288e09695603e28b9fc187875ade9fdf/src/glad/CMakeLists.txt
+  Building Custom Rule C:/Users/3ricj/.openvibely/repos/288e09695603e28b9fc187875ade9fdf/deps_src/hidapi/CMakeLists.txt
+  admesh.vcxproj -> C:\Users\3ricj\.openvibely\repos\288e09695603e28b9fc187875ade9fdf\buildfs\deps_src\admesh\Release\admesh.lib
+  hid.c
+  miniz_static.vcxproj -> C:\Users\3ricj\.openvibely\repos\288e09695603e28b9fc187875ade9fdf\buildfs\deps_src\miniz\Release\miniz_static.lib
+cl : command line  warning D9025: overriding '/W1' with '/w' [C:\Users\3ricj\.openvibely\repos\288e09695603e28b9fc187875ade9fdf\buildfs\src\glad\glad.vcxproj]
+  gl.c
+  mcut.vcxproj -> C:\Users\3ricj\.openvibely\repos\288e09695603e28b9fc187875ade9fdf\buildfs\deps_src\mcut\Release\mcut.lib
+  Building Custom Rule C:/Users/3ricj/.openvibely/repos/288e09695603e28b9fc187875ade9fdf/deps_src/mdns/CMakeLists.txt
+  Building Custom Rule C:/Users/3ricj/.openvibely/repos/288e09695603e28b9fc187875ade9fdf/deps_src/imgui/CMakeLists.txt
+  qoi.vcxproj -> C:\Users\3ricj\.openvibely\repos\288e09695603e28b9fc187875ade9fdf\buildfs\deps_src\qoi\Release\qoi.lib
+  semver.vcxproj -> C:\Users\3ricj\.openvibely\repos\288e09695603e28b9fc187875ade9fdf\buildfs\lib\Release\semver.lib
+  qhullstatic.vcxproj -> C:\Users\3ricj\.openvibely\repos\288e09695603e28b9fc187875ade9fdf\buildfs\deps_src\qhull\Release\qhullstatic.lib
+  Building Custom Rule C:/Users/3ricj/.openvibely/repos/288e09695603e28b9fc187875ade9fdf/deps_src/md4c/src/CMakeLists.txt
+  Resolving the git commit hash
+  Building Custom Rule C:/Users/3ricj/.openvibely/repos/288e09695603e28b9fc187875ade9fdf/deps_src/minilzo/CMakeLists.txt
+  mdns.c
+  md4c.c
+  imgui.cpp
+  imgui_demo.cpp
+  imgui_draw.cpp
+  imgui_stdlib.cpp
+  imgui_tables.cpp
+  imgui_widgets.cpp
+  minilzo.c
+  -- Build commit: 12205f3623-dirty
+  Building Custom Rule C:/Users/3ricj/.openvibely/repos/288e09695603e28b9fc187875ade9fdf/src/slic3r/CMakeLists.txt
+  libslic3r_cgal.vcxproj -> C:\Users\3ricj\.openvibely\repos\288e09695603e28b9fc187875ade9fdf\buildfs\src\libslic3r\Release\libslic3r_cgal.lib
+  hidapi.vcxproj -> C:\Users\3ricj\.openvibely\repos\288e09695603e28b9fc187875ade9fdf\buildfs\deps_src\hidapi\Release\hidapi.lib
+  glad.vcxproj -> C:\Users\3ricj\.openvibely\repos\288e09695603e28b9fc187875ade9fdf\buildfs\src\glad\Release\glad.lib
+  minilzo_static.vcxproj -> C:\Users\3ricj\.openvibely\repos\288e09695603e28b9fc187875ade9fdf\buildfs\deps_src\minilzo\Release\minilzo_static.lib
+  Building Custom Rule C:/Users/3ricj/.openvibely/repos/288e09695603e28b9fc187875ade9fdf/src/libvgcode/CMakeLists.txt
+cl : command line  warning D9025: overriding '/W1' with '/w' [C:\Users\3ricj\.openvibely\repos\288e09695603e28b9fc187875ade9fdf\buildfs\src\libvgcode\libvgcode.vcxproj]
+cl : command line  warning D9025: overriding '/W1' with '/w' [C:\Users\3ricj\.openvibely\repos\288e09695603e28b9fc187875ade9fdf\buildfs\src\libvgcode\libvgcode.vcxproj]
+cl : command line  warning D9025: overriding '/W1' with '/w' [C:\Users\3ricj\.openvibely\repos\288e09695603e28b9fc187875ade9fdf\buildfs\src\libvgcode\libvgcode.vcxproj]
+cl : command line  warning D9025: overriding '/W1' with '/w' [C:\Users\3ricj\.openvibely\repos\288e09695603e28b9fc187875ade9fdf\buildfs\src\libvgcode\libvgcode.vcxproj]
+  Bitset.cpp
+  CogMarker.cpp
+  ColorPrint.cpp
+cl : command line  warning D9025: overriding '/W1' with '/w' [C:\Users\3ricj\.openvibely\repos\288e09695603e28b9fc187875ade9fdf\buildfs\src\libvgcode\libvgcode.vcxproj]
+cl : command line  warning D9025: overriding '/W1' with '/w' [C:\Users\3ricj\.openvibely\repos\288e09695603e28b9fc187875ade9fdf\buildfs\src\libvgcode\libvgcode.vcxproj]
+  ColorRange.cpp
+cl : command line  warning D9025: overriding '/W1' with '/w' [C:\Users\3ricj\.openvibely\repos\288e09695603e28b9fc187875ade9fdf\buildfs\src\libvgcode\libvgcode.vcxproj]
+cl : command line  warning D9025: overriding '/W1' with '/w' [C:\Users\3ricj\.openvibely\repos\288e09695603e28b9fc187875ade9fdf\buildfs\src\libvgcode\libvgcode.vcxproj]
+cl : command line  warning D9025: overriding '/W1' with '/w' [C:\Users\3ricj\.openvibely\repos\288e09695603e28b9fc187875ade9fdf\buildfs\src\libvgcode\libvgcode.vcxproj]
+  ExtrusionRoles.cpp
+  GCodeInputData.cpp
+  Layers.cpp
+cl : command line  warning D9025: overriding '/W1' with '/w' [C:\Users\3ricj\.openvibely\repos\288e09695603e28b9fc187875ade9fdf\buildfs\src\libvgcode\libvgcode.vcxproj]
+cl : command line  warning D9025: overriding '/W1' with '/w' [C:\Users\3ricj\.openvibely\repos\288e09695603e28b9fc187875ade9fdf\buildfs\src\libvgcode\libvgcode.vcxproj]
+  OpenGLUtils.cpp
+cl : command line  warning D9025: overriding '/W1' with '/w' [C:\Users\3ricj\.openvibely\repos\288e09695603e28b9fc187875ade9fdf\buildfs\src\libvgcode\libvgcode.vcxproj]
+cl : command line  warning D9025: overriding '/W1' with '/w' [C:\Users\3ricj\.openvibely\repos\288e09695603e28b9fc187875ade9fdf\buildfs\src\libvgcode\libvgcode.vcxproj]
+cl : command line  warning D9025: overriding '/W1' with '/w' [C:\Users\3ricj\.openvibely\repos\288e09695603e28b9fc187875ade9fdf\buildfs\src\libvgcode\libvgcode.vcxproj]
+  OptionTemplate.cpp
+  PathVertex.cpp
+cl : command line  warning D9025: overriding '/W1' with '/w' [C:\Users\3ricj\.openvibely\repos\288e09695603e28b9fc187875ade9fdf\buildfs\src\libvgcode\libvgcode.vcxproj]
+  Range.cpp
+  SegmentTemplate.cpp
+  Settings.cpp
+cl : command line  warning D9025: overriding '/W1' with '/w' [C:\Users\3ricj\.openvibely\repos\288e09695603e28b9fc187875ade9fdf\buildfs\src\libvgcode\libvgcode.vcxproj]
+cl : command line  warning D9025: overriding '/W1' with '/w' [C:\Users\3ricj\.openvibely\repos\288e09695603e28b9fc187875ade9fdf\buildfs\src\libvgcode\libvgcode.vcxproj]
+  md4c.vcxproj -> C:\Users\3ricj\.openvibely\repos\288e09695603e28b9fc187875ade9fdf\buildfs\deps_src\md4c\src\Release\md4c.lib
+cl : command line  warning D9025: overriding '/W1' with '/w' [C:\Users\3ricj\.openvibely\repos\288e09695603e28b9fc187875ade9fdf\buildfs\src\libvgcode\libvgcode.vcxproj]
+cl : command line  warning D9025: overriding '/W1' with '/w' [C:\Users\3ricj\.openvibely\repos\288e09695603e28b9fc187875ade9fdf\buildfs\src\libvgcode\libvgcode.vcxproj]
+cl : command line  warning D9025: overriding '/W1' with '/w' [C:\Users\3ricj\.openvibely\repos\288e09695603e28b9fc187875ade9fdf\buildfs\src\libvgcode\libvgcode.vcxproj]
+  ToolMarker.cpp
+  Types.cpp
+  Utils.cpp
+  Viewer.cpp
+  ViewerImpl.cpp
+  ViewRange.cpp
+  cxmdns.cpp
+  Building Custom Rule C:/Users/3ricj/.openvibely/repos/288e09695603e28b9fc187875ade9fdf/deps_src/md4c/src/CMakeLists.txt
+  md4c-html.c
+  entity.c
+  md4c-html.vcxproj -> C:\Users\3ricj\.openvibely\repos\288e09695603e28b9fc187875ade9fdf\buildfs\deps_src\md4c\src\Release\md4c-html.lib
+  libslic3r.vcxproj -> C:\Users\3ricj\.openvibely\repos\288e09695603e28b9fc187875ade9fdf\buildfs\src\libslic3r\Release\libslic3r.lib
+  libnest2d.vcxproj -> C:\Users\3ricj\.openvibely\repos\288e09695603e28b9fc187875ade9fdf\buildfs\deps_src\libnest2d\Release\libnest2d.lib
+  mdns.vcxproj -> C:\Users\3ricj\.openvibely\repos\288e09695603e28b9fc187875ade9fdf\buildfs\deps_src\mdns\Release\mdns.lib
+  libvgcode.vcxproj -> C:\Users\3ricj\.openvibely\repos\288e09695603e28b9fc187875ade9fdf\buildfs\src\libvgcode\Release\libvgcode.lib
+  imgui.vcxproj -> C:\Users\3ricj\.openvibely\repos\288e09695603e28b9fc187875ade9fdf\buildfs\deps_src\imgui\Release\imgui.lib
+  Building Custom Rule C:/Users/3ricj/.openvibely/repos/288e09695603e28b9fc187875ade9fdf/deps_src/imguizmo/CMakeLists.txt
+  ImGuizmo.cpp
+  imguizmo.vcxproj -> C:\Users\3ricj\.openvibely\repos\288e09695603e28b9fc187875ade9fdf\buildfs\deps_src\imguizmo\Release\imguizmo.lib
+  Building Custom Rule C:/Users/3ricj/.openvibely/repos/288e09695603e28b9fc187875ade9fdf/src/slic3r/CMakeLists.txt
+cl : command line  warning D9025: overriding '/W1' with '/w' [C:\Users\3ricj\.openvibely\repos\288e09695603e28b9fc187875ade9fdf\buildfs\src\slic3r\libslic3r_gui.vcxproj]
+  cmake_pch.cxx
+cl : command line  warning D9025: overriding '/W1' with '/w' [C:\Users\3ricj\.openvibely\repos\288e09695603e28b9fc187875ade9fdf\buildfs\src\slic3r\libslic3r_gui.vcxproj]
+cl : command line  warning D9025: overriding '/W1' with '/w' [C:\Users\3ricj\.openvibely\repos\288e09695603e28b9fc187875ade9fdf\buildfs\src\slic3r\libslic3r_gui.vcxproj]
+  AnimaController.cpp
+cl : command line  warning D9025: overriding '/W1' with '/w' [C:\Users\3ricj\.openvibely\repos\288e09695603e28b9fc187875ade9fdf\buildfs\src\slic3r\libslic3r_gui.vcxproj]
+cl : command line  warning D9025: overriding '/W1' with '/w' [C:\Users\3ricj\.openvibely\repos\288e09695603e28b9fc187875ade9fdf\buildfs\src\slic3r\libslic3r_gui.vcxproj]
+cl : command line  warning D9025: overriding '/W1' with '/w' [C:\Users\3ricj\.openvibely\repos\288e09695603e28b9fc187875ade9fdf\buildfs\src\slic3r\libslic3r_gui.vcxproj]
+cl : command line  warning D9025: overriding '/W1' with '/w' [C:\Users\3ricj\.openvibely\repos\288e09695603e28b9fc187875ade9fdf\buildfs\src\slic3r\libslic3r_gui.vcxproj]
+cl : command line  warning D9025: overriding '/W1' with '/w' [C:\Users\3ricj\.openvibely\repos\288e09695603e28b9fc187875ade9fdf\buildfs\src\slic3r\libslic3r_gui.vcxproj]
+cl : command line  warning D9025: overriding '/W1' with '/w' [C:\Users\3ricj\.openvibely\repos\288e09695603e28b9fc187875ade9fdf\buildfs\src\slic3r\libslic3r_gui.vcxproj]
+cl : command line  warning D9025: overriding '/W1' with '/w' [C:\Users\3ricj\.openvibely\repos\288e09695603e28b9fc187875ade9fdf\buildfs\src\slic3r\libslic3r_gui.vcxproj]
+  Snapshot.cpp
+  Version.cpp
+cl : command line  warning D9025: overriding '/W1' with '/w' [C:\Users\3ricj\.openvibely\repos\288e09695603e28b9fc187875ade9fdf\buildfs\src\slic3r\libslic3r_gui.vcxproj]
+  2DBed.cpp
+cl : command line  warning D9025: overriding '/W1' with '/w' [C:\Users\3ricj\.openvibely\repos\288e09695603e28b9fc187875ade9fdf\buildfs\src\slic3r\libslic3r_gui.vcxproj]
+cl : command line  warning D9025: overriding '/W1' with '/w' [C:\Users\3ricj\.openvibely\repos\288e09695603e28b9fc187875ade9fdf\buildfs\src\slic3r\libslic3r_gui.vcxproj]
+cl : command line  warning D9025: overriding '/W1' with '/w' [C:\Users\3ricj\.openvibely\repos\288e09695603e28b9fc187875ade9fdf\buildfs\src\slic3r\libslic3r_gui.vcxproj]
+cl : command line  warning D9025: overriding '/W1' with '/w' [C:\Users\3ricj\.openvibely\repos\288e09695603e28b9fc187875ade9fdf\buildfs\src\slic3r\libslic3r_gui.vcxproj]
+  3DBed.cpp
+  3DScene.cpp
+  FilamentLoad.cpp
+cl : command line  warning D9025: overriding '/W1' with '/w' [C:\Users\3ricj\.openvibely\repos\288e09695603e28b9fc187875ade9fdf\buildfs\src\slic3r\libslic3r_gui.vcxproj]
+  AboutDialog.cpp
+cl : command line  warning D9025: overriding '/W1' with '/w' [C:\Users\3ricj\.openvibely\repos\288e09695603e28b9fc187875ade9fdf\buildfs\src\slic3r\libslic3r_gui.vcxproj]
+cl : command line  warning D9025: overriding '/W1' with '/w' [C:\Users\3ricj\.openvibely\repos\288e09695603e28b9fc187875ade9fdf\buildfs\src\slic3r\libslic3r_gui.vcxproj]
+cl : command line  warning D9025: overriding '/W1' with '/w' [C:\Users\3ricj\.openvibely\repos\288e09695603e28b9fc187875ade9fdf\buildfs\src\slic3r\libslic3r_gui.vcxproj]
+cl : command line  warning D9025: overriding '/W1' with '/w' [C:\Users\3ricj\.openvibely\repos\288e09695603e28b9fc187875ade9fdf\buildfs\src\slic3r\libslic3r_gui.vcxproj]
+cl : command line  warning D9025: overriding '/W1' with '/w' [C:\Users\3ricj\.openvibely\repos\288e09695603e28b9fc187875ade9fdf\buildfs\src\slic3r\libslic3r_gui.vcxproj]
+cl : command line  warning D9025: overriding '/W1' with '/w' [C:\Users\3ricj\.openvibely\repos\288e09695603e28b9fc187875ade9fdf\buildfs\src\slic3r\libslic3r_gui.vcxproj]
+cl : command line  warning D9025: overriding '/W1' with '/w' [C:\Users\3ricj\.openvibely\repos\288e09695603e28b9fc187875ade9fdf\buildfs\src\slic3r\libslic3r_gui.vcxproj]
+cl : command line  warning D9025: overriding '/W1' with '/w' [C:\Users\3ricj\.openvibely\repos\288e09695603e28b9fc187875ade9fdf\buildfs\src\slic3r\libslic3r_gui.vcxproj]
+cl : command line  warning D9025: overriding '/W1' with '/w' [C:\Users\3ricj\.openvibely\repos\288e09695603e28b9fc187875ade9fdf\buildfs\src\slic3r\libslic3r_gui.vcxproj]
+cl : command line  warning D9025: overriding '/W1' with '/w' [C:\Users\3ricj\.openvibely\repos\288e09695603e28b9fc187875ade9fdf\buildfs\src\slic3r\libslic3r_gui.vcxproj]
+cl : command line  warning D9025: overriding '/W1' with '/w' [C:\Users\3ricj\.openvibely\repos\288e09695603e28b9fc187875ade9fdf\buildfs\src\slic3r\libslic3r_gui.vcxproj]
+cl : command line  warning D9025: overriding '/W1' with '/w' [C:\Users\3ricj\.openvibely\repos\288e09695603e28b9fc187875ade9fdf\buildfs\src\slic3r\libslic3r_gui.vcxproj]
+cl : command line  warning D9025: overriding '/W1' with '/w' [C:\Users\3ricj\.openvibely\repos\288e09695603e28b9fc187875ade9fdf\buildfs\src\slic3r\libslic3r_gui.vcxproj]
+cl : command line  warning D9025: overriding '/W1' with '/w' [C:\Users\3ricj\.openvibely\repos\288e09695603e28b9fc187875ade9fdf\buildfs\src\slic3r\libslic3r_gui.vcxproj]
+cl : command line  warning D9025: overriding '/W1' with '/w' [C:\Users\3ricj\.openvibely\repos\288e09695603e28b9fc187875ade9fdf\buildfs\src\slic3r\libslic3r_gui.vcxproj]
+cl : command line  warning D9025: overriding '/W1' with '/w' [C:\Users\3ricj\.openvibely\repos\288e09695603e28b9fc187875ade9fdf\buildfs\src\slic3r\libslic3r_gui.vcxproj]
+  AmsMappingPopup.cpp
+cl : command line  warning D9025: overriding '/W1' with '/w' [C:\Users\3ricj\.openvibely\repos\288e09695603e28b9fc187875ade9fdf\buildfs\src\slic3r\libslic3r_gui.vcxproj]
+cl : command line  warning D9025: overriding '/W1' with '/w' [C:\Users\3ricj\.openvibely\repos\288e09695603e28b9fc187875ade9fdf\buildfs\src\slic3r\libslic3r_gui.vcxproj]
+cl : command line  warning D9025: overriding '/W1' with '/w' [C:\Users\3ricj\.openvibely\repos\288e09695603e28b9fc187875ade9fdf\buildfs\src\slic3r\libslic3r_gui.vcxproj]
+cl : command line  warning D9025: overriding '/W1' with '/w' [C:\Users\3ricj\.openvibely\repos\288e09695603e28b9fc187875ade9fdf\buildfs\src\slic3r\libslic3r_gui.vcxproj]
+cl : command line  warning D9025: overriding '/W1' with '/w' [C:\Users\3ricj\.openvibely\repos\288e09695603e28b9fc187875ade9fdf\buildfs\src\slic3r\libslic3r_gui.vcxproj]
+  AmsMappingPopupUpdate.cpp
+  AMSMaterialsSetting.cpp
+  AMSSetting.cpp
+cl : command line  warning D9025: overriding '/W1' with '/w' [C:\Users\3ricj\.openvibely\repos\288e09695603e28b9fc187875ade9fdf\buildfs\src\slic3r\libslic3r_gui.vcxproj]
+  AMSDryControl.cpp
+cl : command line  warning D9025: overriding '/W1' with '/w' [C:\Users\3ricj\.openvibely\repos\288e09695603e28b9fc187875ade9fdf\buildfs\src\slic3r\libslic3r_gui.vcxproj]
+cl : command line  warning D9025: overriding '/W1' with '/w' [C:\Users\3ricj\.openvibely\repos\288e09695603e28b9fc187875ade9fdf\buildfs\src\slic3r\libslic3r_gui.vcxproj]
+cl : command line  warning D9025: overriding '/W1' with '/w' [C:\Users\3ricj\.openvibely\repos\288e09695603e28b9fc187875ade9fdf\buildfs\src\slic3r\libslic3r_gui.vcxproj]
+cl : command line  warning D9025: overriding '/W1' with '/w' [C:\Users\3ricj\.openvibely\repos\288e09695603e28b9fc187875ade9fdf\buildfs\src\slic3r\libslic3r_gui.vcxproj]
+cl : command line  warning D9025: overriding '/W1' with '/w' [C:\Users\3ricj\.openvibely\repos\288e09695603e28b9fc187875ade9fdf\buildfs\src\slic3r\libslic3r_gui.vcxproj]
+cl : command line  warning D9025: overriding '/W1' with '/w' [C:\Users\3ricj\.openvibely\repos\288e09695603e28b9fc187875ade9fdf\buildfs\src\slic3r\libslic3r_gui.vcxproj]
+cl : command line  warning D9025: overriding '/W1' with '/w' [C:\Users\3ricj\.openvibely\repos\288e09695603e28b9fc187875ade9fdf\buildfs\src\slic3r\libslic3r_gui.vcxproj]
+cl : command line  warning D9025: overriding '/W1' with '/w' [C:\Users\3ricj\.openvibely\repos\288e09695603e28b9fc187875ade9fdf\buildfs\src\slic3r\libslic3r_gui.vcxproj]
+cl : command line  warning D9025: overriding '/W1' with '/w' [C:\Users\3ricj\.openvibely\repos\288e09695603e28b9fc187875ade9fdf\buildfs\src\slic3r\libslic3r_gui.vcxproj]
+cl : command line  warning D9025: overriding '/W1' with '/w' [C:\Users\3ricj\.openvibely\repos\288e09695603e28b9fc187875ade9fdf\buildfs\src\slic3r\libslic3r_gui.vcxproj]
+cl : command line  warning D9025: overriding '/W1' with '/w' [C:\Users\3ricj\.openvibely\repos\288e09695603e28b9fc187875ade9fdf\buildfs\src\slic3r\libslic3r_gui.vcxproj]
+cl : command line  warning D9025: overriding '/W1' with '/w' [C:\Users\3ricj\.openvibely\repos\288e09695603e28b9fc187875ade9fdf\buildfs\src\slic3r\libslic3r_gui.vcxproj]
+cl : command line  warning D9025: overriding '/W1' with '/w' [C:\Users\3ricj\.openvibely\repos\288e09695603e28b9fc187875ade9fdf\buildfs\src\slic3r\libslic3r_gui.vcxproj]
+  AmsWidgets.cpp
+cl : command line  warning D9025: overriding '/W1' with '/w' [C:\Users\3ricj\.openvibely\repos\288e09695603e28b9fc187875ade9fdf\buildfs\src\slic3r\libslic3r_gui.vcxproj]
+cl : command line  warning D9025: overriding '/W1' with '/w' [C:\Users\3ricj\.openvibely\repos\288e09695603e28b9fc187875ade9fdf\buildfs\src\slic3r\libslic3r_gui.vcxproj]
+cl : command line  warning D9025: overriding '/W1' with '/w' [C:\Users\3ricj\.openvibely\repos\288e09695603e28b9fc187875ade9fdf\buildfs\src\slic3r\libslic3r_gui.vcxproj]
+cl : command line  warning D9025: overriding '/W1' with '/w' [C:\Users\3ricj\.openvibely\repos\288e09695603e28b9fc187875ade9fdf\buildfs\src\slic3r\libslic3r_gui.vcxproj]
+cl : command line  warning D9025: overriding '/W1' with '/w' [C:\Users\3ricj\.openvibely\repos\288e09695603e28b9fc187875ade9fdf\buildfs\src\slic3r\libslic3r_gui.vcxproj]
+cl : command line  warning D9025: overriding '/W1' with '/w' [C:\Users\3ricj\.openvibely\repos\288e09695603e28b9fc187875ade9fdf\buildfs\src\slic3r\libslic3r_gui.vcxproj]
+cl : command line  warning D9025: overriding '/W1' with '/w' [C:\Users\3ricj\.openvibely\repos\288e09695603e28b9fc187875ade9fdf\buildfs\src\slic3r\libslic3r_gui.vcxproj]
+cl : command line  warning D9025: overriding '/W1' with '/w' [C:\Users\3ricj\.openvibely\repos\288e09695603e28b9fc187875ade9fdf\buildfs\src\slic3r\libslic3r_gui.vcxproj]
+cl : command line  warning D9025: overriding '/W1' with '/w' [C:\Users\3ricj\.openvibely\repos\288e09695603e28b9fc187875ade9fdf\buildfs\src\slic3r\libslic3r_gui.vcxproj]
+cl : command line  warning D9025: overriding '/W1' with '/w' [C:\Users\3ricj\.openvibely\repos\288e09695603e28b9fc187875ade9fdf\buildfs\src\slic3r\libslic3r_gui.vcxproj]
+cl : command line  warning D9025: overriding '/W1' with '/w' [C:\Users\3ricj\.openvibely\repos\288e09695603e28b9fc187875ade9fdf\buildfs\src\slic3r\libslic3r_gui.vcxproj]
+cl : command line  warning D9025: overriding '/W1' with '/w' [C:\Users\3ricj\.openvibely\repos\288e09695603e28b9fc187875ade9fdf\buildfs\src\slic3r\libslic3r_gui.vcxproj]
+cl : command line  warning D9025: overriding '/W1' with '/w' [C:\Users\3ricj\.openvibely\repos\288e09695603e28b9fc187875ade9fdf\buildfs\src\slic3r\libslic3r_gui.vcxproj]
+  Auxiliary.cpp
+cl : command line  warning D9025: overriding '/W1' with '/w' [C:\Users\3ricj\.openvibely\repos\288e09695603e28b9fc187875ade9fdf\buildfs\src\slic3r\libslic3r_gui.vcxproj]
+cl : command line  warning D9025: overriding '/W1' with '/w' [C:\Users\3ricj\.openvibely\repos\288e09695603e28b9fc187875ade9fdf\buildfs\src\slic3r\libslic3r_gui.vcxproj]
+  AuxiliaryDataViewModel.cpp
+  AuxiliaryDialog.cpp
+  AVVideoDecoder.cpp
+  BackgroundSlicingProcess.cpp
+  PostProcessor.cpp
+  BBLStatusBarBind.cpp
+  BBLStatusBar.cpp
+  BBLStatusBarSend.cpp
+  BBLTopbar.cpp
+  BedShapeDialog.cpp
+  BindDialog.cpp
+  BitmapCache.cpp
+  BitmapComboBox.cpp
+  BonjourDialog.cpp
+  BuildCommit.cpp
+  CrealityDiscoveryDialog.cpp
+  calib_dlg.cpp
+  Calibration.cpp
+  CalibrationPanel.cpp
+  CalibrationWizardCaliPage.cpp
+  CalibrationWizard.cpp
+  CalibrationWizardPage.cpp
+  CalibrationWizardPresetPage.cpp
+  CalibrationWizardSavePage.cpp
+  CalibrationWizardStartPage.cpp
+  CaliHistoryDialog.cpp
+  Camera.cpp
+  CameraPopup.cpp
+  CameraUtils.cpp
+  CloneDialog.cpp
+  ConfigManipulation.cpp
+  ConfigValueFormatter.cpp
+  ConfigWizard.cpp
+  ConnectPrinter.cpp
+  CreatePresetsDialog.cpp
+  DailyTips.cpp
+  DesktopIntegrationDialog.cpp
+  DeviceManager.cpp
+  Downloader.cpp
+  DownloaderFileGet.cpp
+  DownloadProgressDialog.cpp
+  PluginPickerDialog.cpp
+  PluginsDialog.cpp
+  Shortcuts.cpp
+  SpeedDialDialog.cpp
+  ActionRegistry.cpp
+  NativeCommands.cpp
+  PluginsConfigDialog.cpp
+  ProcessRunner.cpp
+  TerminalDialog.cpp
+  PluginProgressDialog.cpp
+  WebDialog.cpp
+  DockPanel.cpp
+  WebPanel.cpp
+  WebHosting.cpp
+  AuiPaneLayout.cpp
+  DragCanvas.cpp
+  EditGCodeDialog.cpp
+  EncodedFilament.cpp
+  ExtraRenderers.cpp
+  ExtrusionCalibration.cpp
+  Field.cpp
+  FileArchiveDialog.cpp
+  GCodeViewer.cpp
+  GizmoObjectManipulation.cpp
+  GLGizmoAssembly.cpp
+  GLGizmoBase.cpp
+  GLGizmoBrimEars.cpp
+  GLGizmoCut.cpp
+  GLGizmoEmboss.cpp
+  GLGizmoFdmSupports.cpp
+  GLGizmoFlatten.cpp
+  GLGizmoFuzzySkin.cpp
+  GLGizmoMeasure.cpp
+  GLGizmoMeshBoolean.cpp
+  GLGizmoMmuSegmentation.cpp
+  GLGizmoMove.cpp
+  GLGizmoPainterBase.cpp
+  GLGizmoRotate.cpp
+  GLGizmoScale.cpp
+  GLGizmosCommon.cpp
+  GLGizmoSeam.cpp
+  GLGizmoSimplify.cpp
+  GLGizmosManager.cpp
+  GLGizmoSVG.cpp
+  GLGizmoUtils.cpp
+  GLCanvas3D.cpp
+  GLModel.cpp
+  GLSelectionRectangle.cpp
+  GLShader.cpp
+  GLShadersManager.cpp
+  GLTexture.cpp
+  GLToolbar.cpp
+  GuiColor.cpp
+  ImageDPIFrame.cpp
+  GUI_App.cpp
+  GUI_AuxiliaryList.cpp
+  GUI_Colors.cpp
+  GUI.cpp
+  GUI_Factories.cpp
+  GUI_Geometry.cpp
+  GUI_Init.cpp
+  GUI_ObjectLayers.cpp
+  GUI_ObjectList.cpp
+  GUI_ObjectSettings.cpp
+  GUI_ObjectTable.cpp
+  GUI_ObjectTableSettings.cpp
+  GUI_Preview.cpp
+  GUI_Utils.cpp
+  HintNotification.cpp
+  ThermalPreconditioningDialog.cpp
+  HMS.cpp
+  HMSPanel.cpp
+  HttpServer.cpp
+  I18N.cpp
+  DragDropPanel.cpp
+  CapsuleButton.cpp
+  FilamentMapPanel.cpp
+  FilamentMapDialog.cpp
+  IconManager.cpp
+  IdleScheduler.cpp
+  ImageGrid.cpp
+  ImGuiWrapper.cpp
+  FilamentPickerDialog.cpp
+  FilamentBitmapUtils.cpp
+  BaseTransparentDPIFrame.cpp
+  SyncAmsInfoDialog.cpp
+  IMSlider.cpp
+  DeviceErrorDialog.cpp
+  IMToolbar.cpp
+  InstanceCheck.cpp
+  ArrangeJob.cpp
+  BindJob.cpp
+  BoostThreadWorker.cpp
+  CreateFontNameImageJob.cpp
+  CreateFontStyleImagesJob.cpp
+  EmbossJob.cpp
+  FillBedJob.cpp
+  NotificationProgressIndicator.cpp
+  OAuthJob.cpp
+  OrientJob.cpp
+  PrintJob.cpp
+  RotoptimizeJob.cpp
+  SendJob.cpp
+  SLAImportJob.cpp
+  UpgradeNetworkJob.cpp
+  KBShortcutsDialog.cpp
+  KeyChord.cpp
+  Lazy.cpp
+  LazyPage.cpp
+  LibVGCodeWrapper.cpp
+  LinuxDisplayBackend.cpp
+  MainFrame.cpp
+  MarkdownTip.cpp
+  MediaFilePanel.cpp
+  MediaPlayCtrl.cpp
+  MeshUtils.cpp
+  ModelMall.cpp
+  MonitorBasePanel.cpp
+  BBLStatusBarPrint.cpp
+  Monitor.cpp
+  MonitorPage.cpp
+  MixedFilamentDialog.cpp
+  GradientCurveEditor.cpp
+  ColorDecomposeDialog.cpp
+  ColorDecomposeSupport.cpp
+  TextureImportDialog.cpp
+  Mouse3DController.cpp
+  MsgDialog.cpp
+  MultiChoiceDialog.cpp
+  MultiMachine.cpp
+  MultiMachineManagerPage.cpp
+  MultiMachinePage.cpp
+  MultiPrintJob.cpp
+  MultiSendMachineModel.cpp
+  MultiTaskManagerPage.cpp
+  MultiTaskModel.cpp
+  NetworkTestDialog.cpp
+  Notebook.cpp
+  NotificationManager.cpp
+  OAuthDialog.cpp
+  ObjColorDialog.cpp
+  ObjectDataViewModel.cpp
+  OG_CustomCtrl.cpp
+  OpenGLManager.cpp
+  OptionsGroup.cpp
+  ParamsDialog.cpp
+  ParamsPanel.cpp
+  PartPlate.cpp
+  FilamentGroupPopup.cpp
+  PhysicalPrinterDialog.cpp
+  Plater.cpp
+  PlateSettingsDialog.cpp
+  Preferences.cpp
+  PresetBundleDialog.cpp
+  ExportPresetBundleDialog.cpp
+  PresetComboBoxes.cpp
+  PresetHints.cpp
+  PrinterCloudAuthDialog.cpp
+  PrinterFileSystem.cpp
+  PrinterWebView.cpp
+  PrinterWebViewHandler.cpp
+  PrintHostDialogs.cpp
+  PrintOptionsDialog.cpp
+  PrivacyUpdateDialog.cpp
+  ProgressStatusBar.cpp
+  Project.cpp
+  ProjectDirtyStateManager.cpp
+  PublishDialog.cpp
+  PublishSettingsDialog.cpp
+  PurgeModeDialog.cpp
+  RammingChart.cpp
+  RecenterDialog.cpp
+  ReleaseNote.cpp
+  RemovableDriveManager.cpp
+  SavePresetDialog.cpp
+  SceneRaycaster.cpp
+  SceneCache.cpp
+  PartSkipDialog.cpp
+  SkipPartCanvas.cpp
+  Search.cpp
+  SettingsIndex.cpp
+  Selection.cpp
+  SelectMachine.cpp
+  PrePrintChecker.cpp
+  SelectMachinePop.cpp
+  SendMultiMachinePage.cpp
+  SendSystemInfoDialog.cpp
+  SendToPrinter.cpp
+  SingleChoiceDialog.cpp
+  SliceInfoPanel.cpp
+  SlicingProgressNotification.cpp
+  StatusPanel.cpp
+  StepMeshDialog.cpp
+  SurfaceDrag.cpp
+  Tabbook.cpp
+  TabButton.cpp
+  Tab.cpp
+  TaskManager.cpp
+  TextLines.cpp
+  TickCode.cpp
+  TroubleshootDialog.cpp
+  UnsavedChangesDialog.cpp
+  UpdateDialogs.cpp
+  NetworkPluginDialog.cpp
+  UpgradePanel.cpp
+  UserManager.cpp
+  UserNotification.cpp
+  WebDownPluginDlg.cpp
+  WebGuideDialog.cpp
+  WebUserLoginDialog.cpp
+  WebViewDialog.cpp
+  AMSControl.cpp
+  AMSItem.cpp
+  MultiNozzleSync.cpp
+  AxisCtrlButton.cpp
+  SafetyOptionsDialog.cpp
+  Button.cpp
+  CheckBox.cpp
+  CheckList.cpp
+  ComboBox.cpp
+  DialogButtons.cpp
+  DropDown.cpp
+  ErrorMsgStaticText.cpp
+  FanControl.cpp
+  HyperLink.cpp
+  ImageSwitchButton.cpp
+  Label.cpp
+  LabeledStaticBox.cpp
+  PopupWindow.cpp
+  ProgressBar.cpp
+  ProgressDialog.cpp
+  RadioBox.cpp
+  RadioGroup.cpp
+  RoundedRectangle.cpp
+  Scrollbar.cpp
+  ScrolledWindow.cpp
+  SideButton.cpp
+  SideMenuPopup.cpp
+  SideTools.cpp
+  SpinInput.cpp
+  StateColor.cpp
+  StateHandler.cpp
+  StaticBox.cpp
+  StaticLine.cpp
+  StepCtrl.cpp
+  SwitchButton.cpp
+  TabCtrl.cpp
+  TempInput.cpp
+  TextInput.cpp
+  WebViewHostDialog.cpp
+  WebView.cpp
+  WipeTowerDialog.cpp
+  wxExtensions.cpp
+  wxMediaCtrl3.cpp
+  PythonInterpreter.cpp
+  PythonPluginBridge.cpp
+  PluginHost.cpp
+  PluginHostApp.cpp
+  PluginHostGeometry.cpp
+  PluginHostMesh.cpp
+  PluginHostModel.cpp
+  PluginHostPresets.cpp
+  PluginHostSlicing.cpp
+  PluginHostUi.cpp
+  PluginPages.cpp
+  CloudPluginService.cpp
+  PluginFsUtils.cpp
+  PluginConfig.cpp
+  PluginLoader.cpp
+  PluginHooks.cpp
+  PluginManager.cpp
+  PluginAuditManager.cpp
+  PluginResolver.cpp
+  PrinterAgentPluginCapability.cpp
+  PagesPluginCapability.cpp
+  ScriptPluginCapability.cpp
+  SlicingPipelinePluginCapability.cpp
+  pchheader.cpp
+  ASCIIFolding.cpp
+  AstroBox.cpp
+  Bonjour.cpp
+  MeshInspect.cpp
+  PaintCLI.cpp
+  CalibUtils.cpp
+  ColorSpaceConvert.cpp
+  CrealityPrint.cpp
+  CrealityPrintAgent.cpp
+  CrealityHostDiscovery.cpp
+  Duet.cpp
+  ElegooLink.cpp
+  EmbossStyleManager.cpp
+  ESP3D.cpp
+  FileHelp.cpp
+  FixModelByCgal.cpp
+  FlashAir.cpp
+  Flashforge.cpp
+  FontConfigHelp.cpp
+  HexFile.cpp
+  Http.cpp
+  InstanceID.cpp
+  json_diff.cpp
+  minilzo_extension.cpp
+  MKS.cpp
+  NetworkAgent.cpp
+  NetworkAgentFactory.cpp
+  OrcaCloudServiceAgent.cpp
+  OrcaPrinterAgent.cpp
+  QidiPrinterAgent.cpp
+  SnapmakerPrinterAgent.cpp
+  MoonrakerPrinterAgent.cpp
+  Moonraker.cpp
+  BBLCloudServiceAgent.cpp
+  BBLPrinterAgent.cpp
+  BBLNetworkPlugin.cpp
+  Obico.cpp
+  OctoPrint.cpp
+  PresetUpdater.cpp
+  PrintHost.cpp
+  Process.cpp
+  RaycastManager.cpp
+  Repetier.cpp
+  Serial.cpp
+  SimplyPrint.cpp
+  TCPConsole.cpp
+  UltiMaker.cpp
+  UndoRedo.cpp
+  3DPrinterOS.cpp
+  WxFontUtils.cpp
+  FileTransferUtils.cpp
+  DPIAwarePlugin.cpp
+  CustomWidgetsPlugin.cpp
+  DesignPanel.cpp
+  DesignCanvas.cpp
+  DesignSketchTool.cpp
+  SketchInlineEditor.cpp
+  McpControl.cpp
+  GLGizmoSketch.cpp
+  GLGizmoPrimitive.cpp
+  DevBed.cpp
+  DevConfig.cpp
+  DevConfigUtil.cpp
+  DevCtrl.cpp
+  DevExtensionTool.cpp
+  DevExtruderSystem.cpp
+  DevExtruderSystemCtrl.cpp
+  DevFan.cpp
+  DevFilaAmsSetting.cpp
+  DevFilaAmsSettingCtrl.cpp
+  DevFilaBlackList.cpp
+  DevFilaSystem.cpp
+  DevFilaSystemCtrl.cpp
+  DevFilaSwitch.cpp
+  DevFirmware.cpp
+  DevPrintOptions.cpp
+  DevPrintTaskInfo.cpp
+  DevHMS.cpp
+  DevStorage.cpp
+  DevInfo.cpp
+  DevLamp.cpp
+  DevLampCtrl.cpp
+  DevManager.cpp
+  DevMapping.cpp
+  DevMappingNozzle.cpp
+  DevNozzleSystem.cpp
+  DevNozzleRack.cpp
+  DevNozzleRackCtrl.cpp
+  DevUtil.cpp
+  DevUtilBackend.cpp
+  DevAxis.cpp
+  DevAxisCtrl.cpp
+  DevCalib.cpp
+  DevChamber.cpp
+  DevChamberCtrl.cpp
+  DevStatus.cpp
+  DevUpgrade.cpp
+  DevUpgradeCtrl.cpp
+  uiAmsHumidityPopup.cpp
+  uiAMSBestPositionPopup.cpp
+  uiDeviceUpdateVersion.cpp
+  wgtDeviceNozzleRack.cpp
+  wgtDeviceNozzleRackUpdate.cpp
+  wgtDeviceNozzleSelect.cpp
+  wgtMsgBox.cpp
+  wgtMsgPanel.cpp
+  dark_mode.cpp
+  BaseException.cpp
+  StackWalker.cpp
+  libslic3r_gui.vcxproj -> C:\Users\3ricj\.openvibely\repos\288e09695603e28b9fc187875ade9fdf\buildfs\src\slic3r\Release\libslic3r_gui.lib
+  Building Custom Rule C:/Users/3ricj/.openvibely/repos/288e09695603e28b9fc187875ade9fdf/src/CMakeLists.txt
+cl : command line  warning D9025: overriding '/W1' with '/w' [C:\Users\3ricj\.openvibely\repos\288e09695603e28b9fc187875ade9fdf\buildfs\src\OrcaSlicer.vcxproj]
+  OrcaSlicer.cpp
+C:\Program Files (x86)\Microsoft Visual Studio\18\BuildTools\VC\Tools\MSVC\14.50.35717\include\xutility(6455,29): warning C4805: '==': unsafe mix of type 'const unsigned char' and type 'const _Ty' in operation [C:\Users\3ricj\.openvibely\repos\288e09695603e28b9fc187875ade9fdf\buildfs\src\OrcaSlicer.vcxproj]
+C:\Program Files (x86)\Microsoft Visual Studio\18\BuildTools\VC\Tools\MSVC\14.50.35717\include\xutility(6455,29): warning C4805:         with [C:\Users\3ricj\.openvibely\repos\288e09695603e28b9fc187875ade9fdf\buildfs\src\OrcaSlicer.vcxproj]
+C:\Program Files (x86)\Microsoft Visual Studio\18\BuildTools\VC\Tools\MSVC\14.50.35717\include\xutility(6455,29): warning C4805:         [ [C:\Users\3ricj\.openvibely\repos\288e09695603e28b9fc187875ade9fdf\buildfs\src\OrcaSlicer.vcxproj]
+C:\Program Files (x86)\Microsoft Visual Studio\18\BuildTools\VC\Tools\MSVC\14.50.35717\include\xutility(6455,29): warning C4805:             _Ty=bool [C:\Users\3ricj\.openvibely\repos\288e09695603e28b9fc187875ade9fdf\buildfs\src\OrcaSlicer.vcxproj]
+C:\Program Files (x86)\Microsoft Visual Studio\18\BuildTools\VC\Tools\MSVC\14.50.35717\include\xutility(6455,29): warning C4805:         ] [C:\Users\3ricj\.openvibely\repos\288e09695603e28b9fc187875ade9fdf\buildfs\src\OrcaSlicer.vcxproj]
+  (compiling source file '../../src/OrcaSlicer.cpp')
+      C:\Program Files (x86)\Microsoft Visual Studio\18\BuildTools\VC\Tools\MSVC\14.50.35717\include\xutility(6455,29):
+      the template instantiation context (the oldest one first) is
+          C:\Users\3ricj\.openvibely\repos\288e09695603e28b9fc187875ade9fdf\src\OrcaSlicer.cpp(6515,124):
+          see reference to function template instantiation '__int64 std::count<std::_Vector_const_iterator<std::_Vector_val<std::_Simple_types<_Ty>>>,bool>(const _InIt,const _InIt,const bool &)' being compiled
+          with
+          [
+              _Ty=unsigned char,
+              _InIt=std::_Vector_const_iterator<std::_Vector_val<std::_Simple_types<unsigned char>>>
+          ]
+  
+     Creating library C:/Users/3ricj/.openvibely/repos/288e09695603e28b9fc187875ade9fdf/buildfs/src/Release/OrcaSlicer.lib and object C:/Users/3ricj/.openvibely/repos/288e09695603e28b9fc187875ade9fdf/buildfs/src/Release/OrcaSlicer.exp
+LINK : warning LNK4098: defaultlib 'LIBCMT' conflicts with use of other libs; use /NODEFAULTLIB:library [C:\Users\3ricj\.openvibely\repos\288e09695603e28b9fc187875ade9fdf\buildfs\src\OrcaSlicer.vcxproj]
+  LINK : /LTCG specified but no code generation required; remove /LTCG from the link command line to improve linker performance
+  OrcaSlicer.vcxproj -> C:\Users\3ricj\.openvibely\repos\288e09695603e28b9fc187875ade9fdf\buildfs\src\Release\OrcaSlicer.dll
+  Symlinking the resources directory into the build tree	Symlinking the resources directory into the build tree	Symlinking the resources directory into the build tree	Symlinking the resources directory into the build tree	Copying Python runtime into the build tree
+  Junction created for C:\Users\3ricj\.openvibely\repos\288e09695603e28b9fc187875ade9fdf\buildfs\src\Debug\resources <<===>> C:\Users\3ricj\.openvibely\repos\288e09695603e28b9fc187875ade9fdf\resources
+  Junction created for C:\Users\3ricj\.openvibely\repos\288e09695603e28b9fc187875ade9fdf\buildfs\src\Release\resources <<===>> C:\Users\3ricj\.openvibely\repos\288e09695603e28b9fc187875ade9fdf\resources
+  Junction created for C:\Users\3ricj\.openvibely\repos\288e09695603e28b9fc187875ade9fdf\buildfs\src\MinSizeRel\resources <<===>> C:\Users\3ricj\.openvibely\repos\288e09695603e28b9fc187875ade9fdf\resources
+  Junction created for C:\Users\3ricj\.openvibely\repos\288e09695603e28b9fc187875ade9fdf\buildfs\src\RelWithDebInfo\resources <<===>> C:\Users\3ricj\.openvibely\repos\288e09695603e28b9fc187875ade9fdf\resources
+  Building Custom Rule C:/Users/3ricj/.openvibely/repos/288e09695603e28b9fc187875ade9fdf/src/CMakeLists.txt
+cl : command line  warning D9025: overriding '/W1' with '/w' [C:\Users\3ricj\.openvibely\repos\288e09695603e28b9fc187875ade9fdf\buildfs\src\OrcaSlicer_app_gui.vcxproj]
+  OrcaSlicer_app_msvc.cpp
+     Creating library C:/Users/3ricj/.openvibely/repos/288e09695603e28b9fc187875ade9fdf/buildfs/src/Release/orca-slicer.lib and object C:/Users/3ricj/.openvibely/repos/288e09695603e28b9fc187875ade9fdf/buildfs/src/Release/orca-slicer.exp
+  LINK : /LTCG specified but no code generation required; remove /LTCG from the link command line to improve linker performance
+  OrcaSlicer_app_gui.vcxproj -> C:\Users\3ricj\.openvibely\repos\288e09695603e28b9fc187875ade9fdf\buildfs\src\Release\orca-slicer.exe
