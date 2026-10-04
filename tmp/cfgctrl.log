@@ -18,7 +18,6 @@
 -- SLIC3R_BUNDLED_WARNINGS: OFF
 -- SLIC3R_CAD: ON
 -- SLIC3R_DESKTOP_INTEGRATION: ON
--- SLIC3R_ENC_CHECK: OFF
 -- SLIC3R_FHS: OFF
 -- SLIC3R_GTK: 3
 -- SLIC3R_GUI: ON
@@ -28,15 +27,15 @@
 -- SLIC3R_PROFILE: OFF
 -- SLIC3R_RELATIVE_DEBUG_PATHS: OFF
 -- SLIC3R_STATIC: ON
--- SLIC3R_WARNINGS: OFF
+-- SLIC3R_WARNINGS: ON
 -- Automatically setting CMAKE_INSTALL_PREFIX
--- CMAKE_INSTALL_PREFIX: C:/Users/3ricj/.openvibely/repos/288e09695603e28b9fc187875ade9fdf/buildctrl/OrcaSlicer
+-- CMAKE_INSTALL_PREFIX: C:/Users/3ricj/.openvibely/repos/288e09695603e28b9fc187875ade9fdf/ctrl1220/buildctrl/OrcaSlicer
 -- DEP_BUILD_DIR: C:/Users/3ricj/.openvibely/repos/288e09695603e28b9fc187875ade9fdf/ctrl1220/deps/buildctrl (generated automatically and saved to cache)
 -- CMAKE_PREFIX_PATH: C:/Users/3ricj/Documents/GitHub/OrcaSlicer/deps/build/OrcaSlicer_dep/usr/local (from cache or command line)
 -- PROJECT_SOURCE_DIR: C:/Users/3ricj/.openvibely/repos/288e09695603e28b9fc187875ade9fdf/ctrl1220
 -- CMAKE_MODULE_PATH: C:/Users/3ricj/.openvibely/repos/288e09695603e28b9fc187875ade9fdf/ctrl1220/cmake/modules/
 -- LIBDIR: C:/Users/3ricj/.openvibely/repos/288e09695603e28b9fc187875ade9fdf/ctrl1220/src
--- LIBDIR_BIN: C:/Users/3ricj/.openvibely/repos/288e09695603e28b9fc187875ade9fdf/buildctrl/src
+-- LIBDIR_BIN: C:/Users/3ricj/.openvibely/repos/288e09695603e28b9fc187875ade9fdf/ctrl1220/buildctrl/src
 -- Performing Test CMAKE_HAVE_LIBC_PTHREAD
 -- Performing Test CMAKE_HAVE_LIBC_PTHREAD - Failed
 -- Looking for pthread_create in pthreads
@@ -98,13 +97,42 @@
 -- WXWIN environment set to: 
 -- wx libs: wx::base;wx::net;wx::core;wx::adv;wx::aui;wx::html;wx::propgrid;wx::webview;wx::media;wx::gl;C:/Users/3ricj/Documents/GitHub/OrcaSlicer/deps/build/OrcaSlicer_dep/usr/local/lib/libpng16_static.lib;C:/Users/3ricj/Documents/GitHub/OrcaSlicer/deps/build/OrcaSlicer_dep/usr/local/lib/zlib.lib;C:/Users/3ricj/Documents/GitHub/OrcaSlicer/deps/build/OrcaSlicer_dep/usr/local/lib/jpeg-static.lib;C:/Users/3ricj/Documents/GitHub/OrcaSlicer/deps/build/OrcaSlicer_dep/usr/local/lib/expat.lib;wxInspector::wxInspector
 -- Adding precompiled header pchheader.hpp to target libslic3r_gui.
-set out_dir to CMAKE_CURRENT_BINARY_DIR/config: C:/Users/3ricj/.openvibely/repos/288e09695603e28b9fc187875ade9fdf/buildctrl/src/Debug
-set out_dir to CMAKE_CURRENT_BINARY_DIR/config: C:/Users/3ricj/.openvibely/repos/288e09695603e28b9fc187875ade9fdf/buildctrl/src/Release
-set out_dir to CMAKE_CURRENT_BINARY_DIR/config: C:/Users/3ricj/.openvibely/repos/288e09695603e28b9fc187875ade9fdf/buildctrl/src/MinSizeRel
-set out_dir to CMAKE_CURRENT_BINARY_DIR/config: C:/Users/3ricj/.openvibely/repos/288e09695603e28b9fc187875ade9fdf/buildctrl/src/RelWithDebInfo
+set out_dir to CMAKE_CURRENT_BINARY_DIR/config: C:/Users/3ricj/.openvibely/repos/288e09695603e28b9fc187875ade9fdf/ctrl1220/buildctrl/src/Debug
+set out_dir to CMAKE_CURRENT_BINARY_DIR/config: C:/Users/3ricj/.openvibely/repos/288e09695603e28b9fc187875ade9fdf/ctrl1220/buildctrl/src/Release
+set out_dir to CMAKE_CURRENT_BINARY_DIR/config: C:/Users/3ricj/.openvibely/repos/288e09695603e28b9fc187875ade9fdf/ctrl1220/buildctrl/src/MinSizeRel
+set out_dir to CMAKE_CURRENT_BINARY_DIR/config: C:/Users/3ricj/.openvibely/repos/288e09695603e28b9fc187875ade9fdf/ctrl1220/buildctrl/src/RelWithDebInfo
 -- libslic3r-CMAKE_BUILD_TYPE: Release
--- CMAKE_CURRENT_BINARY_DIR: C:/Users/3ricj/.openvibely/repos/288e09695603e28b9fc187875ade9fdf/buildctrl/src
--- Configuring done (12.4s)
--- Generating done (3.7s)
--- Build files have been written to: C:/Users/3ricj/.openvibely/repos/288e09695603e28b9fc187875ade9fdf/buildctrl
-CFG_RC=0
+-- CMAKE_CURRENT_BINARY_DIR: C:/Users/3ricj/.openvibely/repos/288e09695603e28b9fc187875ade9fdf/ctrl1220/buildctrl/src
+set out_dir to CMAKE_CURRENT_BINARY_DIR/config: C:/Users/3ricj/.openvibely/repos/288e09695603e28b9fc187875ade9fdf/ctrl1220/buildctrl/tests/libnest2d/Debug
+set out_dir to CMAKE_CURRENT_BINARY_DIR/config: C:/Users/3ricj/.openvibely/repos/288e09695603e28b9fc187875ade9fdf/ctrl1220/buildctrl/tests/libnest2d/Release
+set out_dir to CMAKE_CURRENT_BINARY_DIR/config: C:/Users/3ricj/.openvibely/repos/288e09695603e28b9fc187875ade9fdf/ctrl1220/buildctrl/tests/libnest2d/MinSizeRel
+set out_dir to CMAKE_CURRENT_BINARY_DIR/config: C:/Users/3ricj/.openvibely/repos/288e09695603e28b9fc187875ade9fdf/ctrl1220/buildctrl/tests/libnest2d/RelWithDebInfo
+set out_dir to CMAKE_CURRENT_BINARY_DIR/config: C:/Users/3ricj/.openvibely/repos/288e09695603e28b9fc187875ade9fdf/ctrl1220/buildctrl/tests/libslic3r/Debug
+set out_dir to CMAKE_CURRENT_BINARY_DIR/config: C:/Users/3ricj/.openvibely/repos/288e09695603e28b9fc187875ade9fdf/ctrl1220/buildctrl/tests/libslic3r/Release
+set out_dir to CMAKE_CURRENT_BINARY_DIR/config: C:/Users/3ricj/.openvibely/repos/288e09695603e28b9fc187875ade9fdf/ctrl1220/buildctrl/tests/libslic3r/MinSizeRel
+set out_dir to CMAKE_CURRENT_BINARY_DIR/config: C:/Users/3ricj/.openvibely/repos/288e09695603e28b9fc187875ade9fdf/ctrl1220/buildctrl/tests/libslic3r/RelWithDebInfo
+set out_dir to CMAKE_CURRENT_BINARY_DIR/config: C:/Users/3ricj/.openvibely/repos/288e09695603e28b9fc187875ade9fdf/ctrl1220/buildctrl/tests/slic3rutils/Debug
+set out_dir to CMAKE_CURRENT_BINARY_DIR/config: C:/Users/3ricj/.openvibely/repos/288e09695603e28b9fc187875ade9fdf/ctrl1220/buildctrl/tests/slic3rutils/Release
+set out_dir to CMAKE_CURRENT_BINARY_DIR/config: C:/Users/3ricj/.openvibely/repos/288e09695603e28b9fc187875ade9fdf/ctrl1220/buildctrl/tests/slic3rutils/MinSizeRel
+set out_dir to CMAKE_CURRENT_BINARY_DIR/config: C:/Users/3ricj/.openvibely/repos/288e09695603e28b9fc187875ade9fdf/ctrl1220/buildctrl/tests/slic3rutils/RelWithDebInfo
+set out_dir to CMAKE_CURRENT_BINARY_DIR/config: C:/Users/3ricj/.openvibely/repos/288e09695603e28b9fc187875ade9fdf/ctrl1220/buildctrl/tests/fff_print/Debug
+set out_dir to CMAKE_CURRENT_BINARY_DIR/config: C:/Users/3ricj/.openvibely/repos/288e09695603e28b9fc187875ade9fdf/ctrl1220/buildctrl/tests/fff_print/Release
+set out_dir to CMAKE_CURRENT_BINARY_DIR/config: C:/Users/3ricj/.openvibely/repos/288e09695603e28b9fc187875ade9fdf/ctrl1220/buildctrl/tests/fff_print/MinSizeRel
+set out_dir to CMAKE_CURRENT_BINARY_DIR/config: C:/Users/3ricj/.openvibely/repos/288e09695603e28b9fc187875ade9fdf/ctrl1220/buildctrl/tests/fff_print/RelWithDebInfo
+set out_dir to CMAKE_CURRENT_BINARY_DIR/config: C:/Users/3ricj/.openvibely/repos/288e09695603e28b9fc187875ade9fdf/ctrl1220/buildctrl/tests/sla_print/Debug
+set out_dir to CMAKE_CURRENT_BINARY_DIR/config: C:/Users/3ricj/.openvibely/repos/288e09695603e28b9fc187875ade9fdf/ctrl1220/buildctrl/tests/sla_print/Release
+set out_dir to CMAKE_CURRENT_BINARY_DIR/config: C:/Users/3ricj/.openvibely/repos/288e09695603e28b9fc187875ade9fdf/ctrl1220/buildctrl/tests/sla_print/MinSizeRel
+set out_dir to CMAKE_CURRENT_BINARY_DIR/config: C:/Users/3ricj/.openvibely/repos/288e09695603e28b9fc187875ade9fdf/ctrl1220/buildctrl/tests/sla_print/RelWithDebInfo
+set out_dir to CMAKE_CURRENT_BINARY_DIR/config: C:/Users/3ricj/.openvibely/repos/288e09695603e28b9fc187875ade9fdf/ctrl1220/buildctrl/tests/filament_group/Debug
+set out_dir to CMAKE_CURRENT_BINARY_DIR/config: C:/Users/3ricj/.openvibely/repos/288e09695603e28b9fc187875ade9fdf/ctrl1220/buildctrl/tests/filament_group/Release
+set out_dir to CMAKE_CURRENT_BINARY_DIR/config: C:/Users/3ricj/.openvibely/repos/288e09695603e28b9fc187875ade9fdf/ctrl1220/buildctrl/tests/filament_group/MinSizeRel
+set out_dir to CMAKE_CURRENT_BINARY_DIR/config: C:/Users/3ricj/.openvibely/repos/288e09695603e28b9fc187875ade9fdf/ctrl1220/buildctrl/tests/filament_group/RelWithDebInfo
+-- Configuring done (16.5s)
+-- Generating done (4.7s)
+CMake Warning:
+  Manually-specified variables were not used by the project:
+
+    OPENCV_DO_NOT_USE
+
+
+-- Build files have been written to: C:/Users/3ricj/.openvibely/repos/288e09695603e28b9fc187875ade9fdf/ctrl1220/buildctrl
