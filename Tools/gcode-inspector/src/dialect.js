@@ -139,7 +139,11 @@
   var RE_LAYER = /^;\s*LAYER:(\d+)\s*\[([^\]]+)\]/;
   var RE_MACROLAYER = /^;\s*MACROLAYER:/;
   var RE_SEAM = /^;\s*SEAM\s+(Plastic|Fiber)\s+at\s+X([-\d.,]+)\s+Y([-\d.,]+)\s+Z([-\d.,]+)/;
-
+  // Modal bead geometry. Rocket emits the width and height of the *next* move as
+  // a comment pair immediately before it, so these are modal metadata, not
+  // per-feature constants: a tapering gap-fill run changes width every line.
+  var RE_LINE_WIDTH = /^;\s*LINE_WIDTH:\s*([-\d.,]+)/;
+  var RE_ENTITY_LINE_HEIGHT = /^;\s*ENTITY_LINE_HEIGHT:\s*([-\d.,]+)/;
   // Parse a comment-side number tolerating a comma decimal separator. When both
   // separators appear the comma is a thousands group, so it is simply dropped.
   function num(text) {
@@ -520,6 +524,7 @@
     MACHINE_FLAGS: MACHINE_FLAGS,
     parseLine: parseLine,
     num: num,
+    DEFAULT_WIDTH: DEFAULT_WIDTH,
     extrusionDeltas: extrusionDeltas,
     isCustomVerb: isCustomVerb,
     parseSession: parseSession,
@@ -531,6 +536,8 @@
     beadWidth: beadWidth,
     RE_LAYER: RE_LAYER,
     RE_MACROLAYER: RE_MACROLAYER,
+    RE_LINE_WIDTH: RE_LINE_WIDTH,
+    RE_ENTITY_LINE_HEIGHT: RE_ENTITY_LINE_HEIGHT,
     RE_SEAM: RE_SEAM,
     RE_SECTION: RE_SECTION,
     RE_TYPE: RE_TYPE,
