@@ -6,10 +6,9 @@ Community tools and handy tricks for working with the FibreSeeker 3.
 
 ## 🛠️ G-code Inspector
 
-**[Vilos G-code Inspector](http://vilos.com/fibreseeker3gcode/)**
+**[`Tools/gcode-inspector/g-code-inspector.html`](Tools/gcode-inspector/g-code-inspector.html)** — a self-contained, offline browser tool checked into this repository. Double-click the file (or drag it into a tab), pick `.gcode` files, and read the results; no install, no network. Also usable from the command line — see the [tool README](Tools/gcode-inspector/README.md).
 
-A web-based tool for inspecting G-code generated for the FibreSeeker 3. Useful for looking under the hood of a slice — checking what the machine will actually do, verifying slicer settings took effect, and digging into the details when diagnosing print problems.
-
+Useful for looking under the hood of a slice — checking what the machine will actually do, verifying slicer settings took effect, and digging into the details when diagnosing print problems.
 Need to know what's actually in FibreSeeker G-code? See the [G-code Reference](GCODE_REFERENCE.md) for the Rocket Slicer's custom axes (`U`/`V`), M-codes, and layer-marker quirks.
 
 ## 🖥️ The Printer's Hidden Web Homepage
