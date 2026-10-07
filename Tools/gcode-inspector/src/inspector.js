@@ -136,6 +136,7 @@
     this.feature = null;
     this.featureName = null;
     this.layer = -1;
+    this.orcaBoundary = false;
     this.layerZ = 0;
     this.layerLine = 0;
     this.layerTime = 0;
@@ -207,7 +208,7 @@
 
     // Pull the SESSION echo first so profile settings are known before motion.
     for (var i = 0; i < lines.length; i++) {
-      if (lines[i].length > 400 && D.RE_SESSION.test(lines[i])) {
+      if (D.RE_SESSION.test(lines[i])) {
         this.session = D.parseSession(lines[i]);
         break;
       }
@@ -262,6 +263,12 @@
     if (D.RE_MACROLAYER.test(line)) return;
 
     if ((m = D.RE_LAYER.exec(line))) { this.onLayer(+m[1], D.num(m[2])); return; }
+    if (/^;\s*LAYER_CHANGE\b/.test(line)) { this.orcaBoundary = true; return; }
+    if ((m = /^;\s*Z:\s*([-\d.,]+)/.exec(line)) && this.orcaBoundary) {
+      this.orcaBoundary = false;
+      this.onLayer(this.layer < 0 ? 1 : this.layer + 1, D.num(m[1]));
+      return;
+    }
     if ((m = D.RE_TYPE.exec(line))) { this.onType(m[1]); return; }
     if ((m = D.RE_SEAM.exec(line))) {
       this.seams.push({ kind: m[1], x: D.num(m[2]), y: D.num(m[3]), z: D.num(m[4]), layer: this.layer, line: this.lineNo });
@@ -283,6 +290,8 @@
     }
 
     if ((m = D.RE_SECTION.exec(line))) {
+      this.flushUnsupRun();
+      this.sustained.t = 0; this.sustained.v = 0;
       var key = m[1], kind = m[2];
       if (D.FEATURES[key]) {
         if (kind === 'start') {
@@ -394,6 +403,8 @@
    * and is reported at C11 so a dialect gap surfaces as a finding.
    */
   Inspector.prototype.onType = function (role) {
+    this.flushUnsupRun();
+    this.sustained.t = 0; this.sustained.v = 0;
     var f = D.TYPE_FEATURES[role];
     if (!f) {
       if (role !== 'Custom') this.unknownTypes[role] = (this.unknownTypes[role] || 0) + 1;
@@ -420,6 +431,7 @@
   Inspector.prototype.onLayer = function (num, z) {
     if (this.layer >= 0 && this.layerStart) this.closeLayer();
     this.flushUnsupRun();
+    this.sustained.t = 0; this.sustained.v = 0;
     this.layer = num;
     this.layerZ = z;
     this.layerLine = this.lineNo;
@@ -509,6 +521,9 @@
     var dz = z - this.pos.z;
     var axis = (a.E !== undefined) ? 'E' : ((a.U !== undefined || a.V !== undefined) ? 'UV' : null);
     var speed = f / 60;
+    if (!extruding || dist === 0) {
+      this.sustained.t = 0; this.sustained.v = 0;
+    }
 
     this.stats.moves++;
     this.layerMoves++;
@@ -579,7 +594,7 @@
 
       // Checks that need the pre-move coverage state run *before* stamping.
       if (dist > 0) {
-        this.onExtrusionMove(p, feature, width, height, dist, speed, d);
+        this.onExtrusionMove(p, feature, width, height, dist, speed, d, x, y);
       }
       if (this.raster && dist > 0) this.raster.stamp(this.pos.x, this.pos.y, x, y, width, !!feature.wall);
     } else if (retracting) {
@@ -610,8 +625,9 @@
    * Issue #1 post-pass: resolve the tiered classification over the collected
    * population, then emit the individually reportable defects.
    *
-   * Z-hop mitigation is a ±3-line window (the report's rule), which is why this
-   * cannot run inline. The same pass finds the emission-ordering defect: a
+   * The historical Z-hop classification uses a ±3-line window. A hop alone
+   * cannot stop ooze, so hopped crossings without retraction are also reported.
+   * The same pass finds the emission-ordering defect: a
    * retraction written 1–3 lines *after* an unprotected risk travel means the
    * nozzle already crossed the gap loaded.
    */
@@ -625,7 +641,7 @@
       for (var i = a; i < n && arr[i] <= hi; i++) if (arr[i] >= lo) return true;
       return false;
     }
-    var worst = 0, worstLine = 0;
+    var worst = 0, worstLine = 0, hoppedCount = 0, hoppedWorst = null;
     for (var i = 0; i < this.riskTravels.length; i++) {
       var t = this.riskTravels[i];
       var hop = inWindow(zs, nz, t.line, t.line - 3, t.line + 3);
@@ -634,6 +650,10 @@
       if (hop) this.riskZhop[t.cls]++;
       if (t.cls === 'solid') continue;
       this.riskDefects++;
+      if (hop && t.dist >= this.minTravel) {
+        hoppedCount++;
+        if (!hoppedWorst || t.dist > hoppedWorst.dist) hoppedWorst = t;
+      }
       if (!hop) {
         this.unmitigated++;
         if (t.dist > worst) { worst = t.dist; worstLine = t.line; }
@@ -657,6 +677,13 @@
           }
         }
       }
+    }
+    if (hoppedWorst) {
+      this.add('C01', 'info', hoppedWorst.line, hoppedWorst.layer,
+        hoppedCount + ' unretracted plastic crossing(s) with a nearby Z-hop; longest ' +
+        hoppedWorst.dist.toFixed(1) + ' mm (stringing risk remains)',
+        hoppedWorst.code + ' \u2014 Z-hop observed; a lift does not stop ooze; no prior retraction');
+      this.worstSet('C01', hoppedWorst.dist);
     }
     this.riskZhopTotal = this.riskZhop.solid + this.riskZhop.void + this.riskZhop.air;
     this.riskWorst = worst;
@@ -699,7 +726,7 @@
    *     individually: a 0.3 mm hop between collinear wall segments cannot
    *     strand a visible thread.
    *
-   * Z-hop mitigation uses the report's own window: a Z move greater than 0.05 mm
+   * Z-hop classification uses the report's own window: a Z move greater than 0.05 mm
    * within three G-code lines before or after the travel. Because that window
    * extends forwards, classification is resolved in `c01Pass()` after the scan.
    */
@@ -724,17 +751,16 @@
     this.lastTravel = { line: this.lineNo, dist: dist, cls: cls };
   };
 
-  Inspector.prototype.onExtrusionMove = function (p, feature, width, height, dist, speed, d) {
+  Inspector.prototype.onExtrusionMove = function (p, feature, width, height, dist, speed, d, x, y) {
     // --- volumetric flow (issue #4) ---
-    var ceiling = GENERIC_CEILING[this.settings.material] || 12;
-    var feedMm3 = 0;
-    if (feature.type === 'FIBER' || d.dU > 0) {
-      // Fiber moves carry no E word; the melt demand is the matrix (V) feed.
-      var dV = Math.max(0, d.dV);
-      if (dV > 0) feedMm3 = (dV / dist) * Math.PI * Math.pow(this.settings.filamentDiameter / 2, 2) * speed;
-    } else {
-      feedMm3 = (d.dE / dist) * width * height * speed;
-    }
+    var matrix = feature.type === 'FIBER' || d.dU > 0 || d.dV > 0;
+    var flow = D.flowSettings(this.settings, feature.entity, matrix);
+    var ceiling = flow.maxVolumetricSpeed || GENERIC_CEILING[flow.material] || 12;
+    var source = flow.maxVolumetricSpeed ? 'exported profile limit' : 'generic fallback ceiling';
+    // E and V are filament length, not deposited bead length. U is fibre and
+    // contributes no plastic volume. Convert using the feeding filament area.
+    var feed = Math.max(0, matrix ? d.dV : d.dE);
+    var feedMm3 = feed / dist * Math.PI * Math.pow(flow.filamentDiameter / 2, 2) * speed;
     if (feedMm3 > this.stats.maxFlow) { this.stats.maxFlow = feedMm3; this.stats.maxFlowLine = this.lineNo; }
 
     if (feedMm3 > ceiling) {
@@ -748,7 +774,7 @@
           var sev = avg >= ceiling * this.flowCritical ? 'critical' : 'warning';
           this.add('C04', sev, this.lineNo, this.layer,
             'Sustained volumetric demand ' + avg.toFixed(1) + ' mm\u00b3/s against a ' +
-            ceiling + ' mm\u00b3/s ' + (this.settings.material || 'generic') + ' ceiling',
+            ceiling + ' mm\u00b3/s ' + (flow.material || 'generic') + ' ' + source,
             p.code + ' F' + (p.args.F || Math.round(this.pos.f)) + ' \u2014 ' + feature.type +
             ', ' + width + 'x' + height.toFixed(2) + ' mm bead');
           this.worstSet('C04', avg);
@@ -773,9 +799,8 @@
     var skip = feature.type === 'SUPPORT' || feature.type === 'SKIRT' ||
                feature.type === 'BRIM' || feature.type === 'PRIMING' ||
                feature.type === 'WIPE';
-    if (this.raster && this.layer > 1 && !skip && d.dE > 0 &&
-        p.args.X !== undefined && p.args.Y !== undefined) {
-      if (this.segmentUnsupported(this.pos.x, this.pos.y, p.args.X, p.args.Y,
+    if (this.raster && this.layer > 1 && !skip && d.dE > 0) {
+      if (this.segmentUnsupported(this.pos.x, this.pos.y, x, y,
                                   this.supportRadius, this.supportDepth)) {
         if (this.unsupRun === 0) {
           this.unsupStartLine = this.lineNo;
@@ -830,6 +855,7 @@
   };
 
   Inspector.prototype.finish = function () {
+    this.flushUnsupRun();
     if (this.layerStart) this.closeLayer();
     if (this.m1001Open > 0) {
       this.add('C08', 'warning', 0, null,
@@ -907,15 +933,17 @@
 
     // C04 header-derived nominal wall flow (issue #4 corroboration)
     if (s.inset0Speed && s.inset0EWMM) {
-      var ceiling = GENERIC_CEILING[s.material] || 12;
-      var nominal = s.inset0EWMM * (s.macroLayerHeight || 0.2) * s.inset0Speed;
+      var wallFlow = D.flowSettings(s, 'INSET0');
+      var ceiling = wallFlow.maxVolumetricSpeed || GENERIC_CEILING[wallFlow.material] || 12;
+      var wallHeight = s.inset0Height || s.macroLayerHeight || 0.2;
+      var nominal = s.inset0EWMM * wallHeight * s.inset0Speed;
       if (nominal > ceiling) {
         this.add('C04', 'warning', 0, null,
           'Header Inset0Speed=' + s.inset0Speed + ' mm/s on a ' + s.inset0EWMM + ' \u00d7 ' +
-          (s.macroLayerHeight || 0.2) + ' mm bead = ' + nominal.toFixed(1) +
-          ' mm\u00b3/s constant wall demand vs a ' + ceiling + ' mm\u00b3/s ' +
-          (s.material || 'generic') + ' ceiling',
-          'Inset0Speed / Inset0EWMM / MacroLayerHeight from the SESSION echo');
+          wallHeight + ' mm bead = ' + nominal.toFixed(1) +
+          ' mm\u00b3/s nominal wall demand vs a ' + ceiling + ' mm\u00b3/s ' +
+          (wallFlow.maxVolumetricSpeed ? 'exported profile limit' : 'generic fallback ceiling'),
+          'profile speed and rectangular bead estimate; actual emitted flow is checked separately');
         this.worstSet('C04', nominal);
       }
     }
@@ -1294,6 +1322,8 @@
       settings: {
         source: s.settingsSource,
         material: s.material, doZHop: s.doZHop, zhopP: s.zhopP, minLayerTime: s.minLayerTime,
+        filamentDiameter: s.filamentDiameter, maxVolumetricSpeed: s.maxVolumetricSpeed,
+        flowBySlot: s.flowBySlot || {},
         doZHopKey: s.doZHopKey, minLayerTimeKey: s.minLayerTimeKey,
         inset0Speed: s.inset0Speed, inset0EWMM: s.inset0EWMM, macroLayerHeight: s.macroLayerHeight,
         seamDistributionPlastic: s.seamDistributionPlastic,

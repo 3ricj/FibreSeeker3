@@ -81,7 +81,8 @@
     // inter-strand channels this gate exists to reject measure 0.8 mm.
     minVoidWidthMm: 1.6,
     maxPlanes: 4096,         // hard cap on retained planes
-    maxSegsPerPlane: 4000000 // hard cap on retained segments per plane
+    maxSegsPerPlane: 4000000, // hard cap on retained segments per plane
+    expectTop: null
   };
 
   // ---------------------------------------------------------------------------
@@ -139,11 +140,9 @@
    * (enforced by the caller), so the lookup is an origin shift — no resampling,
    * no interpolation, no blur.
    *
-   * The index conversion is a *containment* test (`floor`), not a nearest-centre
-   * rounding. Rounding to the nearest centre introduces a systematic half-cell
-   * shift between two masks whose origins differ, which is harmless on a 99%
-   * solid plane and badly wrong on a sparse one: it was measured to inflate a
-   * 1.7% coverage reading to 5.2%.
+   * Test each region cell's centre against the containing cell on the backing
+   * plane. Sampling a cell's corner instead produces a half-cell shift; it can
+   * also drift a whole cell after cropping because of floating-point rounding.
    */
   function coverageOf(region, plane) {
     if (!plane || !plane.mask || !plane.mask.data) return 0;
@@ -153,12 +152,12 @@
     var ox = region.x0 - plane.mask.x0, oy = region.y0 - plane.mask.y0;
     var hit = 0;
     for (var ry = 0; ry < region.rows; ry++) {
-      var prY = Math.floor((ry * cell + oy) / cell);
+      var prY = Math.floor(((ry + 0.5) * cell + oy) / cell);
       if (prY < 0 || prY >= pr) continue;
       var rbase = ry * region.cols, pbase = prY * pc;
       for (var cx = 0; cx < region.cols; cx++) {
         if (!rd[rbase + cx]) continue;
-        var pcX = Math.floor((cx * cell + ox) / cell);
+        var pcX = Math.floor(((cx + 0.5) * cell + ox) / cell);
         if (pcX < 0 || pcX >= pc) continue;
         if (pd[pbase + pcX]) hit++;
       }
@@ -180,12 +179,12 @@
     var ox = region.x0 - plane.mask.x0, oy = region.y0 - plane.mask.y0;
     for (var ry = 0; ry < region.rows; ry++) {
       var rbase = ry * region.cols;
-      var prY = pd ? Math.floor((ry * cell + oy) / cell) : -1;
+      var prY = pd ? Math.floor(((ry + 0.5) * cell + oy) / cell) : -1;
       var pbase = (pd && prY >= 0 && prY < pr) ? prY * pc : -1;
       for (var cx = 0; cx < region.cols; cx++) {
         if (!rd[rbase + cx]) continue;
         if (pbase < 0) { od[rbase + cx] = 1; continue; }
-        var pcX = Math.floor((cx * cell + ox) / cell);
+        var pcX = Math.floor(((cx + 0.5) * cell + ox) / cell);
         var covered = pcX >= 0 && pcX < pc && pd[pbase + pcX];
         if (!covered) od[rbase + cx] = 1;
       }
@@ -263,8 +262,16 @@
           }
         }
         if (n >= minCells) {
-          var m = emptyMask(cols, rows, mask.x0, mask.y0, mask.cell);
-          for (var k = 0; k < cells.length; k++) m.data[cells[k]] = 1;
+          // Retain this island's grid, not another copy of the whole layer.
+          // One empty cell of padding preserves boundary-distance measurements.
+          var left = Math.max(0, x0 - 1), top = Math.max(0, y0 - 1);
+          var width = Math.min(cols - 1, x1 + 1) - left + 1;
+          var height = Math.min(rows - 1, y1 + 1) - top + 1;
+          var m = emptyMask(width, height, mask.x0 + left * mask.cell, mask.y0 + top * mask.cell, mask.cell);
+          for (var k = 0; k < cells.length; k++) {
+            var px = cells[k] % cols, py = Math.floor(cells[k] / cols);
+            m.data[(py - top) * width + px - left] = 1;
+          }
           out.push({
             mask: m, cells: n,
             bbox: { x0: x0, x1: x1, y0: y0, y1: y1 },
@@ -295,9 +302,11 @@
     var qx = new Int32Array(w * h), qy = new Int32Array(w * h);
     var head = 0, tail = 0, truncated = false;
     var seed = comp.mask.data;
+    var seedX = Math.round((comp.mask.x0 - mask.x0) / mask.cell);
+    var seedY = Math.round((comp.mask.y0 - mask.y0) / mask.cell);
     for (var sy = comp.bbox.y0; sy <= comp.bbox.y1; sy++) {
       for (var sx = comp.bbox.x0; sx <= comp.bbox.x1; sx++) {
-        if (!seed[sy * cols + sx]) continue;
+        if (!seed[(sy - seedY) * comp.mask.cols + sx - seedX]) continue;
         dist[(sy - y0) * w + (sx - x0)] = 0;
         qx[tail] = sx; qy[tail] = sy; tail++;
       }
@@ -431,6 +440,8 @@
       o[k] = opts[k] === undefined ? DEFAULTS[k] : opts[k];
     });
     this.planes = [];
+    this.planesByZ = new Map();
+    this.layerRecords = {};
     this.cur = null;
     this.notes = [];
     this.sectionSeq = 0;
@@ -448,6 +459,9 @@
    * agrees about.
    */
   RoofStack.prototype.beginPlane = function (info) {
+    this.recordLayer(info.layerId, info.headerZ, info.line);
+    var existing = this.planesByZ.get(info.z);
+    if (existing) { this.cur = existing; return; }
     if (this.planes.length >= this.opts.maxPlanes) {
       if (!this._planeCapWarned) { this.warn('plane_cap', 'plane retention capped at ' + this.opts.maxPlanes); this._planeCapWarned = true; }
       this.cur = null; return;
@@ -462,6 +476,12 @@
       hasSupport: false, hasModel: false
     };
     this.planes.push(this.cur);
+    this.planesByZ.set(info.z, this.cur);
+  };
+
+  RoofStack.prototype.recordLayer = function (id, z, line) {
+    if (id === null || id === undefined) return;
+    if (!this.layerRecords[id]) this.layerRecords[id] = { z: z, firstLine: line };
   };
 
   /*
@@ -495,7 +515,7 @@
       x0: seg.x0, y0: seg.y0, x1: seg.x1, y1: seg.y1,
       w: seg.width, h: seg.height, len: len,
       role: seg.role, cls: cls, label: seg.label || seg.role, tool: seg.tool || null,
-      line: seg.line || 0, section: this.sectionSeq
+      line: seg.line || 0, section: this.sectionSeq, path: seg.path || 0
     });
     p.anyDeposition = true;
     if (p.firstLine === null) p.firstLine = seg.line;
@@ -553,8 +573,11 @@
       p.mask = emptyMask(cols, rows, x0, y0, cell);
       p.denseMask = emptyMask(cols, rows, x0, y0, cell);
       p.maxHalf = 0;
+      var minHeight = Infinity, minRoofHeight = Infinity;
       for (var s = 0; s < p.segs.length; s++) {
         var seg = p.segs[s];
+        minHeight = Math.min(minHeight, seg.h);
+        if (ROOF_ROLES[seg.role]) minRoofHeight = Math.min(minRoofHeight, seg.h);
         var half = seg.w * 0.5;
         if (half > p.maxHalf) p.maxHalf = half;
         stampCapsule(p.mask, seg.x0, seg.y0, seg.x1, seg.y1, half);
@@ -562,7 +585,9 @@
       }
       p.area = maskCount(p.mask) * cell * cell;
       p.denseArea = maskCount(p.denseMask) * cell * cell;
-      p.beadHeight = p.bbox.h;
+      // A wall recorded first can be half the height of this plane's top skin.
+      // Use the roof beads; the minimum is conservative for mixed heights.
+      p.beadHeight = isFinite(minRoofHeight) ? minRoofHeight : minHeight;
       /*
        * A plane is support-only when it carries support material and no model
        * material. Support is real physical backing and is still measured, but it
@@ -651,7 +676,7 @@
     var rows = [], runs = [], cur = null;
     var foundation = null, foundationBelow = null, contact = null, supportSeen = [];
     var stopAtFoundation = false;
-    var depth = 0, prevZ = plane.z;
+    var depth = 0, prevZ = plane.z, aboveHeight = plane.beadHeight || 0.2;
     var zTop = plane.z;
     var maxMm = (deep ? Math.max(o.maxDepthMm, 2.4) : o.maxDepthMm) + (plane.beadHeight || 0.2);
     var maxPlanes = deep ? Math.max(o.maxDepthPlanes, 12) : o.maxDepthPlanes;
@@ -664,6 +689,19 @@
         continue;
       }
       var all = coverageOf(region, q);
+      // A wall sublayer inside the spanning bead is not a gap when material
+      // actually contacts the bead's underside. Require that contact before
+      // skipping: a thick bead can still have a real gap below it.
+      var bottom = prevZ - aboveHeight;
+      if (all < o.maxCoverage && q.z > bottom + 1e-6) {
+        var contactBacking = false;
+        for (var k = j - 1; k >= 0 && this.planes[k].z >= bottom - 1e-6; k--) {
+          if (this.planes[k].mask && coverageOf(region, this.planes[k]) >= o.maxCoverage) {
+            contactBacking = true; break;
+          }
+        }
+        if (contactBacking) continue;
+      }
       var dense = coverageOf(region, { mask: q.denseMask });
       var miss = missingOf(region, q);
       var missArea = maskCount(miss) * o.cell * o.cell;
@@ -709,6 +747,7 @@
         cur = null;
       }
       prevZ = q.z;
+      aboveHeight = q.beadHeight || 0.2;
       if (stopAtFoundation || depth >= maxPlanes) break;
     }
     // The foundation that actually underlies the deepest missing run: for a
@@ -750,7 +789,7 @@
       return !!bd[cy * bc + cx];
     }
     var best = { max: 0, total: 0, seg: null, segMax: 0, segSeg: null };
-    var curSection = -1, open = false, openLen = 0, openSeg = null;
+    var curSection = -1, open = false, openLen = 0, openSeg = null, previous = null;
     var moveOpen = 0, moveSeg = null;
     /*
      * An interval is *continuous*: it ends the moment a backed sample is seen.
@@ -769,7 +808,10 @@
       var isRoof = !!ROOF_ROLES[s.role];
       // A travel, a section change or a stroke outside this region all break the
       // interval: what is reported must be one continuous span of THIS roof.
-      if (!isRoof || s.section !== curSection || !inRegion((s.x0 + s.x1) / 2, (s.y0 + s.y1) / 2)) {
+      var disconnected = !previous || previous.path !== s.path ||
+        Math.abs(previous.x1 - s.x0) > 1e-6 || Math.abs(previous.y1 - s.y0) > 1e-6;
+      previous = s;
+      if (!isRoof || s.section !== curSection || disconnected) {
         flush();
         curSection = s.section;
         if (!isRoof) continue;
@@ -784,7 +826,7 @@
       var step = s.len / n;
       for (var k = 0; k < n; k++) {
         var t = (k + 0.5) / n, px = s.x0 + dx * t, py = s.y0 + dy * t;
-        if (backed(px, py)) { flush(); continue; }
+        if (!inRegion(px, py) || backed(px, py)) { flush(); continue; }
         if (!open) { open = true; openSeg = { line: s.line, x0: s.x0, y0: s.y0, x1: s.x1, y1: s.y1 }; }
         if (!moveSeg) moveSeg = { line: s.line, x0: s.x0, y0: s.y0, x1: s.x1, y1: s.y1 };
         openLen += step; moveOpen += step; best.total += step;
@@ -1152,12 +1194,12 @@
    */
   RoofStack.prototype.globalGaps = function () {
     var present = {}, maxId = 0, minId = 1e9;
-    this.planes.forEach(function (p) {
-      if (p.layerId === null || p.layerId === undefined) return;
-      present[p.layerId] = p;
-      if (p.layerId > maxId) maxId = p.layerId;
-      if (p.layerId < minId) minId = p.layerId;
-    });
+    Object.keys(this.layerRecords).forEach(function (id) {
+      var n = Number(id);
+      present[n] = this.layerRecords[id];
+      if (n > maxId) maxId = n;
+      if (n < minId) minId = n;
+    }, this);
     if (!maxId) return [];
     var missing = [];
     for (var n = minId; n <= maxId; n++) if (!present[n]) missing.push(n);
@@ -1199,6 +1241,24 @@
       if (Math.abs(this.planes[i].z - run.aboveZ) < 1e-6) return this.planes[i];
     }
     return cand.plane;
+  };
+
+  // Count locally contiguous top skins, including the roof being inspected.
+  // A buried gap is not a thickness shortfall if the requested skins above it
+  // are already present. Wall sublayers within a skin do not consume a skin.
+  RoofStack.prototype.topShellCount = function (plane, region, required) {
+    var count = 0, bottom = plane.z;
+    for (var i = plane.index; i >= 0 && count < required; i--) {
+      var q = this.planes[i];
+      if (!q.mask || q.supportOnly) continue;
+      if (count > 0 && q.z < bottom - 1e-6) break;
+      var dense = coverageOf(region, { mask: q.denseMask });
+      if (q.roles.TOP && dense >= this.opts.foundationOverlap) {
+        count++;
+        bottom = q.z - (q.beadHeight || 0.2);
+      } else if (q.z <= bottom + 1e-6) break;
+    }
+    return count;
   };
 
   RoofStack.prototype.analyse = function () {
@@ -1402,6 +1462,24 @@
     });
 
     findings.forEach(function (f) {
+      if (o.expectTop > 0 && f.type === 'LOCAL_TOP_STACK_GAP') {
+        var counts = [];
+        f.affected_roofs.forEach(function (roof) {
+          var p = self.planesByZ.get(roof.z_mm);
+          if (!p || !p.roles.TOP) return;
+          var count = self.topShellCount(p, f._common, o.expectTop);
+          roof.observed_top_shell_count = count;
+          counts.push(count);
+        });
+        f.expected_top_shell_count = o.expectTop;
+        f.expected_top_shell_source = 'user configuration --expect-top';
+        // Affected roofs are ordered highest first. Judge the completed stack
+        // from its highest roof, not an earlier intermediate pass.
+        f.observed_top_shell_count = counts.length ? counts[0] : null;
+        if (counts.length && f.observed_top_shell_count < o.expectTop) {
+          f.type = 'TOP_SHELL_THICKNESS_SHORTFALL';
+        }
+      }
       var sp = f._common ? samplePoint(f._common, o.cell) : null;
       if (sp) {
         f.region.sample_xy_mm = [round(sp[0], 3), round(sp[1], 3)];

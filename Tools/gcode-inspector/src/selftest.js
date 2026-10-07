@@ -178,6 +178,9 @@ function main() {
     var r = per[file], best = 0, line = 0;
     r.findings.forEach(function (fd) {
       if (fd.check !== check) return;
+      // Retain the historical no-hop calibration separately from the newly
+      // reported hopped crossings, which can still ooze without retraction.
+      if (check === 'C01' && /Z-hop observed/.test(fd.evidence)) return;
       var m = /([\d.]+)\s*mm/.exec(fd.message);
       var v = m ? parseFloat(m[1]) : 0;
       if (v > best) { best = v; line = fd.line; }
@@ -200,7 +203,7 @@ function main() {
       f + ' worst C01 ' + w.v.toFixed(1) + ' mm (issue #1: ' + expect[f] + ')');
   });
   ok(worst('Benchy_fortified.gcode', 'C01').v === 0,
-    'Benchy_fortified.gcode fully mitigated (issue #1: no unmitigated travel)');
+    'Benchy_fortified.gcode has no unretracted crossing without a nearby hop');
 
   console.log('calibration: C06 vs issue #6 population');
   // The C06 window/radius constants were calibrated against issue #6, which is a
@@ -238,9 +241,17 @@ function main() {
 
   console.log('sanity: every fixture parses (C11)');
   var unparsed = Object.keys(per).filter(function (f) {
-    return per[f].findings.some(function (fd) { return fd.check === 'C11'; });
+    var r = per[f];
+    if (r.stats.layers === 0 || r.stats.extrudeMoves === 0) return true;
+    return r.findings.some(function (fd) {
+      if (fd.check !== 'C11') return false;
+      // A header disagreement is valid evidence, not a failure to parse. All
+      // other C11 findings remain failures of this corpus sanity guard.
+      return fd.message !== 'Header LAYER_COUNT=' + r.header.layerCount + ' but ' +
+        r.stats.layers + ' ; LAYER: markers parsed';
+    });
   });
-  ok(unparsed.length === 0, 'no parse/geometry findings' +
+  ok(unparsed.length === 0, 'every corpus file parses; only reported header-count disagreements are allowed' +
     (unparsed.length ? ' — ' + unparsed.join(', ') : ''));
 
   /*

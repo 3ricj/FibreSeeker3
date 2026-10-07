@@ -82,6 +82,7 @@
     this.absXYZ = true;
     this.absE = null;            // null until the file says
     this.lastE = 0;
+    this.retractionDebt = {};
     this.unitsKnown = true;      // G21 is the default; G20 refuses the analysis
     this.tool = null;
     this.retracted = true;
@@ -98,6 +99,7 @@
     this.sawM82M83 = false;
     this.sawG91 = false;
     this.planeKey = null;
+    this.pathSeq = 0;
     this.orcaBoundary = false;
     this.inThumb = false;
     this.lastWidthSource = null;
@@ -152,6 +154,7 @@
     if ((m = D.RE_LAYER.exec(line))) {
       this.layer = +m[1];
       this.layerZ = D.num(m[2]);
+      if (this.stack) this.stack.recordLayer(this.layer, this.layerZ, this.lineNo);
       return;
     }
     if ((m = /^;\s*MACROLAYER:(\d+)\s*\[([^\]]+)\]/.exec(line))) {
@@ -166,6 +169,7 @@
         this.orcaBoundary = false;
         this.layer = (this.layer === null ? 0 : this.layer) + 1;
         this.layerZ = D.num(m[1]);
+        if (this.stack) this.stack.recordLayer(this.layer, this.layerZ, this.lineNo);
       }
       return;
     }
@@ -242,6 +246,7 @@
       return;
     }
     if (verb === 'G92') {
+      this.pathSeq++;
       if (args.E !== undefined) this.lastE = this.eIsAbsolute() ? args.E : 0;
       // G92 on a linear axis re-bases the coordinate system without any motion.
       ['X', 'Y', 'Z'].forEach(function (ax) {
@@ -250,6 +255,7 @@
       return;
     }
     if (/^T\d+$/.test(verb)) {
+      this.pathSeq++;
       this.tool = verb;
       this.stats.toolChanges++;
       // A tool change leaves the new extruder's load state unknown.
@@ -259,6 +265,7 @@
     if (MOTION[verb] || ARC[verb]) return this.onMotion(verb, args);
     if (INERT[verb]) return;
     if (MOVING_MACROS[verb]) {
+      this.pathSeq++;
       this.positionValid = false;
       this.stats.unknownMacros++;
       this.warn('moving_macro', 'line ' + this.lineNo + ': ' + verb + ' moves the tool — position unknown until a command states X and Y');
@@ -267,6 +274,7 @@
     // Anything else is opaque: it may move the tool, change offsets or change
     // extrusion state. Report the uncertainty; never invent motion.
     this.stats.unknownMacros++;
+    this.pathSeq++;
     this.positionValid = false;
     this.warn('opaque_macro', 'line ' + this.lineNo + ': "' + verb + '" is not a documented no-op — deposition state invalidated until re-established');
   };
@@ -296,11 +304,20 @@
     var dU = args.U === undefined ? 0 : args.U;
     var dV = args.V === undefined ? 0 : args.V;
 
+    // Recovering previously withdrawn filament is not new material. Account
+    // for it per tool, including recovery combined with XY motion.
+    var debtKey = this.tool || 'default';
+    var debt = this.retractionDebt[debtKey] || 0;
+    var recovered = dE > 0 ? Math.min(debt, dE) : 0;
+    this.retractionDebt[debtKey] = dE < 0 ? debt - dE : debt - recovered;
+    var depositedE = dE - recovered;
+
     var material = null;
-    if (dE > 1e-9) material = 'plastic';
+    if (depositedE > 1e-9) material = 'plastic';
     else if (dU > 1e-9) material = 'fiber';
     else if (dV > 1e-9) material = 'matrix';
     var extruding = material !== null;
+    if (!extruding || recovered > 0) this.pathSeq++;
     if (dE < -1e-9 || dU < -1e-9 || dV < -1e-9) this.retracted = true;
     if (extruding) this.retracted = false;
 
@@ -312,7 +329,8 @@
     }
 
     if (ARC[verb]) {
-      this.onArc(verb, args, x, y, z, f, material, dE);
+      this.onArc(verb, args, x, y, z, f, material,
+        material === 'plastic' ? recovered / dE : 0);
       return;
     }
     if (extruding && xyLen > 0) {
@@ -320,7 +338,8 @@
         this.stats.invalidState++;
         this.warn('invalid_state', 'line ' + this.lineNo + ': deposition with an unresolved start position — segment dropped rather than guessed');
       } else {
-        this.emit(this.pos.x, this.pos.y, x, y, z, material);
+        var fraction = material === 'plastic' ? recovered / dE : 0;
+        this.emit(this.pos.x + dx * fraction, this.pos.y + dy * fraction, x, y, z, material);
       }
     }
     this.pos.x = x; this.pos.y = y; this.pos.z = z;
@@ -340,7 +359,7 @@
    * `arcToleranceMm`. Endpoint chords are never substituted: flattening a quarter
    * arc to its chord throws away most of the footprint this analysis counts.
    */
-  Collector.prototype.onArc = function (verb, args, x, y, z, f, material, dE) {
+  Collector.prototype.onArc = function (verb, args, x, y, z, f, material, startFraction) {
     var sx = this.pos.x, sy = this.pos.y;
     var ccw = verb === 'G3';
     var cx, cy, r;
@@ -388,7 +407,10 @@
       var a = a0 + sweep * (i / n);
       var nx = cx + r * Math.cos(a), ny = cy + r * Math.sin(a);
       if (i === n) { nx = x; ny = y; }
-      if (material && this.positionValid) this.emit(px2, py2, nx, ny, z, material, true);
+      if (material && this.positionValid && i / n > startFraction) {
+        var trim = Math.max(0, startFraction * n - (i - 1));
+        this.emit(px2 + (nx - px2) * trim, py2 + (ny - py2) * trim, nx, ny, z, material, true);
+      }
       px2 = nx; py2 = ny;
     }
     this.pos.x = x; this.pos.y = y; this.pos.z = z;
@@ -458,7 +480,7 @@
       width: width, height: height,
       role: this.feature ? this.feature.type : 'UNKNOWN',
       label: this.featureName || (this.feature ? this.feature.type : 'unsectioned'),
-      tool: this.tool, line: this.lineNo, arc: !!isArc, material: material,
+      tool: this.tool, line: this.lineNo, arc: !!isArc, material: material, path: this.pathSeq,
       widthSource: widthSource, heightSource: heightSource
     });
     this.lastWidthSource = widthSource;

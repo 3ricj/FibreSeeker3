@@ -1,11 +1,12 @@
 'use strict';
 /*
- * Performance harness for the roof-stack analyser: wall time and peak heap on the
+ * Performance harness for the roof-stack analyser: wall time and retained heap on the
  * large reference export, plus a resolution-sensitivity sweep that must keep the
  * severe findings.
  */
 const fs = require('fs');
 const path = require('path');
+const assert = require('assert');
 require('./dialect.js'); require('./roofstack.js'); require('./collector.js');
 const FS3 = globalThis.FS3;
 const FILE = path.join(__dirname, '..', '..', '..', 'Test_files',
@@ -24,7 +25,7 @@ function runOnce(opts) {
       bytes += c.length;
       buf += c.toString('latin1');
       let i;
-      while ((i = buf.indexOf('\n')) >= 0) { const l = buf.slice(0, i); buf = buf.slice(i + 1); if (l.length) col.feed(l); }
+      while ((i = buf.indexOf('\n')) >= 0) { const l = buf.slice(0, i); buf = buf.slice(i + 1); col.feed(l); }
     });
     rs.on('end', () => {
       if (buf.length) col.feed(buf);
@@ -32,14 +33,14 @@ function runOnce(opts) {
       const t1 = process.hrtime.bigint();
       const res = stack.analyse();
       const analyseNs = Number(process.hrtime.bigint() - t1);
-      const heapPeak = process.memoryUsage().heapUsed;
+      const heapAfter = process.memoryUsage().heapUsed;
       resolve({
         opts, res, bytes,
         parseMs: Math.round(parseNs / 1e6),
         maskMs: stack._maskMs || 0,
         analyseMs: Math.round(analyseNs / 1e6),
         totalMs: Math.round((parseNs + analyseNs) / 1e6),
-        heapDeltaMb: +((heapPeak - heapBefore) / 1048576).toFixed(1),
+        heapDeltaMb: +((heapAfter - heapBefore) / 1048576).toFixed(1),
         segments: stack.planes.reduce((n, p) => n + p.segs.length, 0)
       });
     });
@@ -55,6 +56,7 @@ function runOnce(opts) {
   console.log('  heap delta ' + a.heapDeltaMb + ' MB');
   console.log('  planes ' + a.res.planes + '  candidates ' + a.res.candidates + '  findings ' + a.res.findings.length);
   const gaps = a.res.findings.filter(f => f.type === 'LOCAL_TOP_STACK_GAP');
+  assert.deepStrictEqual(gaps.map(f => f.roof.z_mm).sort((a, b) => a - b), [9.6, 14.8, 14.8]);
   console.log('  stack gaps ' + gaps.length + ' at ' + gaps.map(f => 'Z' + f.roof.z_mm).join(', '));
 
   // Sensitivity: coarser grid, no grouping, tighter/looser missing gate, and a
@@ -72,10 +74,12 @@ function runOnce(opts) {
   for (const o of variants) {
     const r = await runOnce(Object.assign({ cell: 0.2 }, o));
     const g = r.res.findings.filter(f => f.type === 'LOCAL_TOP_STACK_GAP');
+    assert.deepStrictEqual(g.map(f => f.roof.z_mm).sort((a, b) => a - b),
+      o.closeMm === 0.3 ? [9.6] : [9.6, 14.8, 14.8]);
     const cov = g.map(f => Math.max.apply(null, f.missing_planes.map(m => m.all_material_coverage)));
     console.log('VARIANT ' + JSON.stringify(o) + ' -> gaps ' + g.length +
       ' at ' + g.map(f => 'Z' + f.roof.z_mm).join(', ') +
       ' | max missing coverage ' + cov.map(c => (c * 100).toFixed(2) + '%').join(', ') +
       ' | ' + r.totalMs + ' ms, heap ' + r.heapDeltaMb + ' MB');
   }
-})();
+})().catch(err => { console.error(err); process.exitCode = 1; });

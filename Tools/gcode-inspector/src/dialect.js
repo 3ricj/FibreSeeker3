@@ -245,9 +245,30 @@
   }
 
   // Flatten the interesting bits of the SESSION echo into one settings object.
+  var FLOW_SLOTS = {
+    INSET0: 'Inset0Slot', INSET_XP: 'InsetPlasticSlot', INSET_XF: 'InsetFiberSlot',
+    INFILL_CELLULAR_P: 'InfillPlasticCellularSlot', INFILL_FIBER: 'InfillFiberSlot',
+    SUPPORT_THICK: 'SupportSlot', SUPPORT_THIN: 'SupportSlot', SUPPORT_INTERFACE: 'InterfaceSupportSlot',
+    BRIM: 'BrimSlot', SKIRT: 'SkirtSlot'
+  };
+  function materialFlow(mat, composite) {
+    var diameter = Number(composite ? mat.PlasticDiameter : mat.FilamentDiameter);
+    var limit = Number(mat.MaxVolumetricSpeed);
+    return {
+      material: mat.PlasticType || null,
+      filamentDiameter: diameter > 0 && isFinite(diameter) ? diameter : 1.75,
+      maxVolumetricSpeed: limit > 0 && isFinite(limit) ? limit : null
+    };
+  }
+  function flowSettings(settings, entity, matrix) {
+    var slot = FLOW_SLOTS[entity];
+    if (!slot && /INFILL_SOLID|MICRO_INFILL|BRIDGE_SOLID|OVERHANG|REPLACE_FIBER/.test(entity)) slot = 'InfillSolidSlot';
+    return (settings.flowBySlot && settings.flowBySlot[slot]) ||
+      (matrix && settings.matrixFlow) || settings;
+  }
   function sessionSettings(session) {
     var s = {
-      material: null, filamentDiameter: 1.75, zhopP: null, doZHop: null,
+      material: null, filamentDiameter: 1.75, maxVolumetricSpeed: null, flowBySlot: {}, zhopP: null, doZHop: null,
       minLayerTime: null, coolingWindow: null, travelSpeedXY: 500, travelSpeedZ: 10, areaX: 305, areaY: 305,
       inset0Speed: null, inset0EWMM: null, macroLayerHeight: null,
       seamDistributionPlastic: null, seamStartPlastic: null,
@@ -304,8 +325,15 @@
       var slot = session[keys[i]] || {};
       var mat = slot.Plastic || slot.Composite || null;
       if (mat) {
-        if (mat.PlasticType) s.material = s.material || mat.PlasticType;
-        if (mat.FilamentDiameter) s.filamentDiameter = mat.FilamentDiameter;
+        var flow = materialFlow(mat, !slot.Plastic);
+        s.flowBySlot[keys[i]] = flow;
+        if (slot.Plastic && !s.plasticFlow) {
+          s.plasticFlow = flow;
+          s.material = flow.material;
+          s.filamentDiameter = flow.filamentDiameter;
+          s.maxVolumetricSpeed = flow.maxVolumetricSpeed;
+        }
+        if (slot.Composite && !s.matrixFlow) s.matrixFlow = flow;
         if (mat.ZhopP !== undefined && s.zhopP === null) s.zhopP = mat.ZhopP;
         if (mat.RetractionSpeed) s.retractSpeed = mat.RetractionSpeed;
       }
@@ -316,6 +344,7 @@
       var w = es[ek[j]].Width;
       if (w > 0) s.widths[ek[j]] = w;
     }
+    s.inset0Height = es.INSET0 && es.INSET0.Height > 0 ? es.INSET0.Height : null;
     return s;
   }
 
@@ -373,7 +402,7 @@
    */
   function flatSettings(cfg) {
     var s = {
-      material: null, filamentDiameter: 1.75, zhopP: null, doZHop: null,
+      material: null, filamentDiameter: 1.75, maxVolumetricSpeed: null, zhopP: null, doZHop: null,
       minLayerTime: null, coolingWindow: null, travelSpeedXY: 500, travelSpeedZ: 10, areaX: 305, areaY: 305,
       inset0Speed: null, inset0EWMM: null, macroLayerHeight: null,
       seamDistributionPlastic: null, seamStartPlastic: null,
@@ -391,6 +420,8 @@
     s.settingsSource = 'flat-config';
     if (cfg.filament_type) s.material = String(cfg.filament_type).split(',')[0].trim();
     s.filamentDiameter = numOr(cfg.filament_diameter, 1.75);
+    var maxFlow = numOr(cfg.filament_max_volumetric_speed, null);
+    if (maxFlow > 0 && isFinite(maxFlow)) s.maxVolumetricSpeed = maxFlow;
     // `z_hop` is the on/off switch (0 = off); the lift height lives in the
     // per-filament `filament_z_hop`.
     if (cfg.z_hop !== undefined) {
@@ -533,6 +564,7 @@
     sessionSettings: sessionSettings,
     parseConfigDump: parseConfigDump,
     flatSettings: flatSettings,
+    flowSettings: flowSettings,
     beadWidth: beadWidth,
     RE_LAYER: RE_LAYER,
     RE_MACROLAYER: RE_MACROLAYER,

@@ -118,7 +118,7 @@ function analyseFile(file, opts, cb) {
     while ((i = buf.indexOf('\n')) >= 0) {
       var line = buf.slice(0, i);
       buf = buf.slice(i + 1);
-      if (line.length) collector.feed(line);
+      collector.feed(line);
     }
   });
   rs.on('end', function () {
@@ -420,15 +420,6 @@ function main() {
             generator: header.generator, processor: header.processor, mode: header.mode
           };
         });
-        if (opts.expectTop) {
-          res.findings.forEach(function (f) {
-            if (f.type === 'LOCAL_TOP_STACK_GAP' && f.missing_plane_count >= 1) {
-              f.type = 'TOP_SHELL_THICKNESS_SHORTFALL';
-              f.expected_top_shell_count = opts.expectTop;
-              f.expected_top_shell_source = 'user configuration --expect-top';
-            }
-          });
-        }
         try { res.controls = findControls(stack, res.candidateList); } catch (e) { res.controls = []; }
         res._stack = stack;
         results.push(res);
