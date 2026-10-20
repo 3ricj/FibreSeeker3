@@ -5,7 +5,7 @@ FibreSeeker 3. OrcaSlicer / PrusaSlicer output is also read (`;TYPE:` roles,
 `; <role> extrusion width` headers and the flat `; <key> = <value>` config dump).
 No build step, no install, no dependencies, no network.
 
-The deliverable is **`g-code-inspector.html`** — one self-contained ~81 KB file.
+The deliverable is **`g-code-inspector.html`**: one self-contained browser file.
 Double-click it, pick or drop `.gcode` files, read the results. It never makes a
 network request and no file ever leaves the browser.
 
@@ -55,8 +55,12 @@ node src/gen_report.js
 ```bash
 node src/selftest.js   # engine parity, bundle freshness, C01/C06 calibration
 node src/uitest.js     # drives the real upload -> inspect -> render flow
+node src/regression_test.js # numerical flow, profile limits, layer and travel cases
+node src/roof_test.js  # physical contact, gaps, spans and CLI regression cases
 ```
 
+`regression_test.js` checks flow against independently calculated filament
+volumes and tests layer parsing, modal axes, unfinished runs and hopped travel.
 `selftest.js` loads the engine inside a `vm` context with only `self` defined —
 the way a browser does — and asserts the findings match the Node CLI on every
 fixture, then does the same for the shipped bundle. It also re-renders the bundle
@@ -88,7 +92,8 @@ else is a part and lives in `src/`.
 | `src/roofstack.js` | Roof-stack analyser: physical deposition planes, swept bead footprints, per-depth coverage, missing-stack findings. |
 | `src/collector.js` | Streaming deposition recorder feeding `roofstack.js` — modal state, provenance, role normalisation. |
 | `src/roof.js` | Roof-stack CLI (`--help` for every knob). |
-| `src/roof_test.js` | Roof-stack test suite: 55 assertions on synthetic fixtures. |
+| `src/regression_test.js` | Independent numerical and parser regression tests. |
+| `src/roof_test.js` | Synthetic geometry tests, including actual CLI invocations. |
 | `src/roof_bench.js` | Performance + memory measurement and resolution-sensitivity check on a large export. |
 
 The `src/` modules attach to `globalThis.FS3` (aliased to `self`/`window` in the
@@ -117,9 +122,11 @@ them directly; edit `src/`, then re-run `node src/build_bundle.js`.
 Two rules are calibrated against evidence rather than guessed, and both are
 documented in `reports/ISSUE_COVERAGE.md`:
 
-- **C01** reproduces issue #1's evidence table exactly — worst-case distances and
+- **C01** preserves issue #1's historical classification of crossings without a
+  nearby hop: worst-case distances and
   line numbers `51.7 @589`, `52.4 @635`, `51.9 @606`, `51.7 @602`, `51.8 @615`,
-  with `Benchy_fortified.gcode` fully mitigated.
+  with none in `Benchy_fortified.gcode`. Hopped crossings without prior
+  retraction are now reported separately: lifting the nozzle does not stop ooze.
 - **C06** models support by *age* (material deposited within the last
   `supportDepth` layers, excluding the layer being printed). Sweeping that window
   against the slicer's own `BRIDGE`/`OVERHANG` feature labels — independent
@@ -142,7 +149,7 @@ C-check engine.
 
 ```bash
 node src/roof.js ../../Test_files/*.gcode --json ../../reports/roof-reference.json --md ../../reports/roof-reference.md
-node src/roof_test.js     # 55 assertions, synthetic fixtures only
+node src/roof_test.js     # synthetic fixtures and temporary CLI inputs
 node src/roof_bench.js    # timing + RSS + resolution sensitivity (needs a large file)
 ```
 
@@ -168,7 +175,7 @@ that produced it, so a report is self-describing.
 
 | Flag | Default | Notes |
 |---|---|---|
-| `--cell 0.2` | 0.2 mm | Raster resolution. Coverage is measured by cell containment, never nearest-centre. |
+| `--cell 0.2` | 0.2 mm | Raster resolution. Each region cell's centre is tested against the containing backing cell. |
 | `--close 0.05` | 0.05 mm | Grouping tolerance, bounded well under one bead width. Sub-cell at the default grid, so it is a no-op there; raise it together with `--cell`. |
 | `--dilate 0` | 0 mm | Extra grouping growth. Any halo is *excluded* from coverage: the gate uses the grouped region, the measurement uses the grouped region clipped back to real deposited material. |
 | `--depth 8` / `--depth-mm 2` | 8 planes / 2 mm | Bounded diagnostic search when no profile states a top-shell thickness. Support-only planes never consume the plane budget. |
@@ -178,7 +185,7 @@ that produced it, so a report is self-describing.
 | `--foundation 0.8` | 80 % | Underlying-foundation overlap that strengthens the missing-interior-stack reading. |
 | `--min-span 16` | 16 mm | Floor for a standalone unsupported-span finding. |
 | `--min-void-width 1.6` | 1.6 mm | A void must be at least this wide (inscribed diameter) to read as an omitted sheet rather than a channel between strands — four nominal bead widths. The reference voids measure 4.0/7.6/21.2 mm across; the inter-strand channels this gate rejects measure 0.8 mm. |
-| `--expect-top N` | unset | The only route to `TOP_SHELL_THICKNESS_SHORTFALL`. |
+| `--expect-top N` | unset | Names a thickness shortfall only when the observed contiguous top skins fall below N. A satisfied count keeps the geometric gap name. |
 | `--e-mode auto` | auto | `auto` honours the firmware dialect's own `M82`/`M83`; `coupled` forces E to follow `G90`/`G91`. |
 
 ### What it refuses to do
@@ -188,11 +195,28 @@ that produced it, so a report is self-describing.
 - **No invented motion.** An opaque macro that can move the tool invalidates
   position until a command states X and Y again; the gap is reported as an
   analysis limit, not filled with a guess.
-- **No confident error from an uncertain parse.** Non-finite widths, refused unit
-  changes, conflicting extrusion modes, non-planar deposition and unknown tool
-  offsets are warnings that lower confidence, never silent inputs.
-- **No whole-file load.** The 63 MB reference export streams; peak RSS is
-  measured by `roof_bench.js`, not estimated.
+- **Parse limits are reported.** Invalid widths and heights are refused; moving
+  macros and unresolved positions produce warnings. Review these warnings before
+  treating a finding as reliable. Finding confidence does not yet account for
+  every collector warning or inferred bead dimension.
+- **Input streams; geometry is retained.** Memory still grows with deposition
+  records and layer footprints. Small roof regions retain cropped grids.
+  `roof_bench.js` reports timings and heap deltas; use process peak RSS to measure
+  total peak memory.
+
+Plastic flow is filament feed times filament cross-sectional area, divided by
+move duration. Rocket checks use the relevant material slot's diameter and
+`MaxVolumetricSpeed`; flat Orca/Prusa settings use
+`filament_max_volumetric_speed`. An absent or disabled limit uses a labelled
+generic fallback. Header wall estimates use the declared wall height when
+available.
+
+Roof analysis reuses a physical plane when deposition returns to the same Z.
+Travel moves and retractions break unsupported intervals, even when the next
+stroke starts at the previous endpoint. A wall sublayer within a roof bead's
+height is skipped only when backing is observed at or above the bead's underside.
+The minimum roof-bead height is used when a plane mixes heights; this remains a
+conservative plane-level approximation, not a full volume simulation.
 
 ### Reference-export result
 
@@ -250,10 +274,13 @@ which are real single-plane gaps between reinforcement strands, and 15
   area alone could not reject them. Rejections are counted in `rejected.narrow_voids`,
   never dropped silently.
 
-On the 63 MB reference export: **13.5 s total** (4.2 s streaming parse, 9.3 s
-raster and analysis), peak heap delta **247 MB**, 1,875,322 deposition segments
-retained. At `--cell 0.4` the same file takes 6.5 s and 22 MB. Measured by
-`roof_bench.js`, which also prints the tolerance sweep.
+After cropping region grids, one run on the 63 MB reference export took
+**6.2 s total** (2.0 s streaming parse, 4.1 s raster and analysis), retaining
+1,875,322 deposition segments. The end-of-analysis heap delta was **478.5 MB**;
+this is not a peak-memory measurement. The `--cell 0.4` variant took 2.7 s.
+`roof_bench.js` prints these measurements and asserts the expected gap locations
+across the tolerance sweep. Timings and heap deltas depend on the machine and
+garbage collection between runs.
 
 ### Remaining inference limits
 

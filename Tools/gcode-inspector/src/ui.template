@@ -206,7 +206,7 @@
     h += '<div class="grid">' +
       card('Critical findings', crit) +
       card('Stringing-risk travels', risk) +
-      card('\u2026with no mitigation', unmit) +
+      card('\u2026without retract or hop', unmit) +
       card('Perimeter gaps', gaps) +
       card('Unsupported runs', unsup) +
       card('Z-hops vs DoZHop=false', hops) +
@@ -393,7 +393,8 @@
     add('fan commands', fmt(s.fanEvents));
     add('seam markers / clusters', fmt(s.seamMarkers) + ' / ' + s.seamClusters + ' \u22653 layers');
     add('risk travels (void / air)', fmt(s.riskTravels) + ' (' + s.riskClass.void + ' / ' + s.riskClass.air + ')');
-    add('worst unmitigated travel', (s.riskWorst ? fmt(s.riskWorst, 1) + ' mm @ line ' + s.riskWorstLine : 'none'));
+    add('worst crossing without retract or hop', (s.riskWorst ? fmt(s.riskWorst, 1) + ' mm @ line ' + s.riskWorstLine : 'none'));
+    add('exported plastic flow limit', se.maxVolumetricSpeed ? se.maxVolumetricSpeed + ' mm\u00b3/s' : 'none; generic fallback used');
     add('retract-after-travel', fmt(s.retractOrderDefects));
     add('Z-hops / against setting', fmt(s.zhopHops) + ' / ' + fmt(s.zhopHopsAgainstSetting));
     add('gap components', fmt(s.voidComps) + ' (' + fmt(s.voidWallComps) + ' bounded by a wall)');

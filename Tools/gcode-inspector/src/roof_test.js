@@ -255,7 +255,7 @@ function gaps(res) {
   t += section('Top most solid infill');
   t += 'G1 F1200 E0.5\n';                       // stationary prime: no XY, not a path
   t += 'G1 F1200 E-0.4\n';                      // retract
-  t += 'G1 X10 Y10 E0.4\n';                     // recovery + move: deposition resumes
+  t += 'G1 X10 Y10 E0.4\n';                     // pays retraction debt; no new material
   t += 'G1 X30 Y10\n';                          // modal continuation, still extruding? no E -> travel
   t += 'G1 X30 Y12 E0.4\n';
   t += endSection('Top most solid infill');
@@ -263,7 +263,7 @@ function gaps(res) {
   var col = new FS3.Collector({ stack: stack, settings: { widths: {} } });
   t.split('\n').forEach(function (l) { col.feed(l); });
   var info = col.finish();
-  ok(col.stats.depositionMoves === 2, '8. stationary prime and retraction are not paths; two deposition moves remain (got ' + col.stats.depositionMoves + ')');
+  ok(col.stats.depositionMoves === 1, '8. stationary prime and moving recovery are not paths; one deposition move remains (got ' + col.stats.depositionMoves + ')');
   ok(info.eMode.indexOf('independent') === 0, '8. M83 present -> E mode read as independent of G90/G91');
 
   // G92 re-bases E without motion.
@@ -408,12 +408,34 @@ function gaps(res) {
   var r = run(t);
   var g = gaps(r);
   ok(g.length === 1, '14. fixture produces one gap to rename');
-  // Same transformation roof.js applies for --expect-top.
-  g[0].type = 'TOP_SHELL_THICKNESS_SHORTFALL';
-  g[0].expected_top_shell_count = 4;
-  g[0].expected_top_shell_source = 'user configuration --expect-top';
-  ok(g[0].type === 'TOP_SHELL_THICKNESS_SHORTFALL' && g[0].expected_top_shell_count === 4,
-    '14. the stronger contractual name is only reachable with an explicit expectation');
+  var fs = require('fs'), os = require('os'), cp = require('child_process');
+  var dir = fs.mkdtempSync(path.join(os.tmpdir(), 'roof-test-'));
+  try {
+    var input = path.join(dir, 'fixture.gcode'), output = path.join(dir, 'result.json');
+    fs.writeFileSync(input, t.replace('G21\n', 'G21\n\n\n'));
+    function cli(expected) {
+      var p = cp.spawnSync(process.execPath, [path.join(__dirname, 'roof.js'), input,
+        '--expect-top', String(expected), '--json', output, '--quiet'], { encoding: 'utf8' });
+      if (p.status !== 0) throw new Error(p.stderr || p.stdout);
+      return JSON.parse(fs.readFileSync(output, 'utf8')).reports[0];
+    }
+    var short = gaps(cli(4))[0];
+    ok(short && short.type === 'TOP_SHELL_THICKNESS_SHORTFALL' && short.expected_top_shell_count === 4,
+      '14. the actual CLI reports a measured shortfall against four expected skins');
+    var enough = gaps(cli(1))[0];
+    ok(enough && enough.type === 'LOCAL_TOP_STACK_GAP',
+      '14. one expected skin is satisfied: the buried gap keeps its geometric name');
+    var roofLines = t.replace('G21\n', 'G21\n\n\n').split('\n');
+    var topSection = roofLines.findIndex(function (l) { return /Top most solid infill start/.test(l); });
+    var firstBead = roofLines.findIndex(function (l, i) { return i > topSection && /G1 X30.000/.test(l); }) + 1;
+    ok(enough && enough.roof.line === firstBead, '14. CLI provenance counts blank lines in the source');
+    t = t.replace(/Top most solid infill/g, 'Top intermediate solid infill') +
+      layer(6, 1.2) + fill('Top most solid infill', 10, 10, 20, 20, 0.4);
+    fs.writeFileSync(input, t);
+    var two = gaps(cli(2))[0];
+    ok(two && two.type === 'LOCAL_TOP_STACK_GAP' && two.observed_top_shell_count === 2,
+      '14. two completed skins satisfy --expect-top 2 despite the earlier intermediate roof');
+  } finally { fs.rmSync(dir, { recursive: true, force: true }); }
 })();
 
 // ---- 15. header/actual Z cross-check and provenance ------------------------
@@ -465,6 +487,125 @@ function gaps(res) {
     ok(g1[0].foundation && g1[0].foundation.z_mm === 0.4,
       '16. the foundation is still the bridge at Z0.4 under growth');
   }
+})();
+
+// ---- 17. a wall sublayer inside a top bead is not an empty volume ----------
+(function () {
+  var t = head(3);
+  t += layer(1, 0.2) + fill('Top intermediate solid infill', 10, 10, 20, 20, 0.4);
+  t += '; LAYER:2 [0.32]\nG0 Z0.32\n' + walls('Inset 0', 10, 10, 20, 20);
+  t += '; LAYER:3 [0.44]\nG0 Z0.44\n' + walls('Inset 0', 10, 10, 20, 20) +
+    fill('Top most solid infill', 10, 10, 20, 20, 0.4).replace('ENTITY_LINE_HEIGHT: 0.2', 'ENTITY_LINE_HEIGHT: 0.24');
+  var r = run(t);
+  ok(r.findings.length === 0, '17. a 0.24 mm top bead contacts Z0.20 despite the wall-only Z0.32 sublayer');
+})();
+
+// ---- 18. separate strokes cannot become a multi-metre bridge -------------
+(function () {
+  var t = head(3) + layer(1, 0.2) + fill('Bridge solid infill', 10, 10, 20, 20, 0.4) +
+    layer(2, 0.4) + walls('Inset 0', 60, 60, 20, 20) +
+    layer(3, 0.6) + fill('Top most solid infill', 10, 10, 20, 20, 0.4);
+  var spans = run(t).findings.filter(function (f) { return f.type === 'UNSUPPORTED_TOP_DEPOSITION'; });
+  ok(spans.length === 1 && spans[0].unsupported_span.length_mm <= 20.01,
+    '18. travels between 20 mm strokes break the unsupported interval');
+  ok(spans.length === 1 && spans[0].unsupported_span.total_open_length_mm > 500,
+    '18. total open length remains separate from the longest continuous span');
+})();
+
+// ---- 19. revisiting a Z reopens the same physical plane --------------------
+(function () {
+  var s = new FS3.RoofStack({ maxPlanes: 2 });
+  var c = new FS3.Collector({ stack: s, settings: { widths: {} } });
+  var t = head(3) + layer(1, 0.2) + fill('Top intermediate solid infill', 10, 10, 20, 20, 0.4) +
+    layer(2, 0.4) + fill('Top most solid infill', 10, 10, 20, 20, 0.4) +
+    layer(3, 0.2) + walls('Inset 0', 10, 10, 20, 20);
+  t.split('\n').forEach(function (l) { c.feed(l); });
+  var r = s.analyse();
+  ok(s.planes.length === 2 && s.planes[0].roles.TOP && s.planes[0].roles.WALL,
+    '19. revisiting Z0.20 merges deposition even at the plane cap');
+  ok(!r.findings.some(function (f) { return f.type === 'GLOBAL_LAYER_GAP'; }),
+    '19. merged planes retain every observed layer ID');
+})();
+
+// ---- 20. a travel away and back breaks even coincident path endpoints ------
+(function () {
+  var s = new FS3.RoofStack({});
+  var c = new FS3.Collector({ stack: s, settings: { widths: {} } });
+  var t = head(1) + layer(1, 0.2) + section('Top most solid infill') +
+    travel(10, 10) + move(20, 10) + travel(35, 35) + travel(20, 10) + move(30, 10);
+  t.split('\n').forEach(function (l) { c.feed(l); });
+  s.buildMasks();
+  var region = { cols: 200, rows: 200, x0: 0, y0: 0, cell: 0.2, data: new Uint8Array(40000).fill(1) };
+  var backing = { mask: Object.assign({}, region, { data: new Uint8Array(40000) }) };
+  var span = s.unsupportedSpans(s.planes[0], region, backing);
+  ok(Math.abs(span.max - 10) < 1e-6 && Math.abs(span.total - 20) < 1e-6,
+    '20. a travel away and back separates two touching 10 mm strokes');
+  s.planes[0].segs[1].path = s.planes[0].segs[0].path;
+  span = s.unsupportedSpans(s.planes[0], region, backing);
+  ok(Math.abs(span.max - 20) < 1e-6, '20. genuinely continuous extrusion retains the full 20 mm interval');
+})();
+
+// ---- 21. small regions retain their own grids and their complete area ------
+(function () {
+  var s = new FS3.RoofStack({});
+  var c = new FS3.Collector({ stack: s, settings: { widths: {} } });
+  var t = head(1) + layer(1, 0.2) + fill('Top most solid infill', 10, 10, 10, 10, 0.4) +
+    fill('Top most solid infill', 200, 200, 10, 10, 0.4);
+  t.split('\n').forEach(function (l) { c.feed(l); });
+  s.buildMasks();
+  var candidates = s.candidates();
+  ok(candidates.length === 2 && candidates.every(function (a) {
+    return a.region.data.length < s.planes[0].mask.data.length / 100;
+  }), '21. separate small islands do not each retain a full-layer grid');
+  var area = candidates.reduce(function (n, a) { return n + a.area; }, 0);
+  ok(Math.abs(area - s.planes[0].denseArea) < 1e-6,
+    '21. cropping retains every deposited cell on both islands');
+})();
+
+// ---- 22. a thick bead does not fill a gap below its underside --------------
+(function () {
+  var t = head(3) + layer(1, 0.2) + fill('Bridge solid infill', 10, 10, 20, 20, 0.4) +
+    layer(2, 0.4) + walls('Inset 0', 10, 10, 20, 20) +
+    layer(3, 0.6) + fill('Top most solid infill', 10, 10, 20, 20, 0.4)
+      .replace('ENTITY_LINE_HEIGHT: 0.2', 'ENTITY_LINE_HEIGHT: 0.24');
+  var r = run(t);
+  ok(r.findings.some(function (f) { return f.type === 'UNSUPPORTED_TOP_DEPOSITION'; }),
+    '22. a roof underside at Z0.36 is unsupported above a foundation at Z0.20');
+})();
+
+// ---- 23. moving unretraction is not a deposited bead ----------------------
+(function () {
+  var s = new FS3.RoofStack({});
+  var c = new FS3.Collector({ stack: s, settings: { widths: {} } });
+  var t = head(1) + layer(1, 0.2) + section('Inset 0') + travel(10, 10) +
+    'G1 E-1\nG1 X20 E0.6\nG1 X30 E0.5\n';
+  t.split('\n').forEach(function (l) { c.feed(l); });
+  ok(s.planes.length === 1 && s.planes[0].segs.length === 1,
+    '23. a move paying only retraction debt deposits no backing');
+  var bead = s.planes[0] && s.planes[0].segs[0];
+  ok(bead && Math.abs(bead.x0 - 28) < 1e-6 && bead.x1 === 30,
+    '23. recovery plus extrusion deposits only the final 2 mm of a 10 mm move');
+  var arcStack = new FS3.RoofStack({});
+  var arcCol = new FS3.Collector({ stack: arcStack, settings: { widths: {} } });
+  var arc = head(1) + layer(1, 0.2) + section('Inset 0') + travel(10, 10) +
+    'G1 E-1\nG2 X20 Y10 I5 J0 E2\n';
+  arc.split('\n').forEach(function (l) { arcCol.feed(l); });
+  var first = arcStack.planes[0] && arcStack.planes[0].segs[0];
+  ok(first && Math.abs(first.x0 - 15) < 0.03 && Math.abs(first.y0 - 15) < 0.03,
+    '23. moving arc recovery starts deposition halfway around the arc');
+})();
+
+// ---- 24. the top-shell count cannot jump a vertical gap --------------------
+(function () {
+  var s = new FS3.RoofStack({});
+  var c = new FS3.Collector({ stack: s, settings: { widths: {} } });
+  var t = head(2) + layer(1, 0.2) + fill('Top intermediate solid infill', 10, 10, 20, 20, 0.4) +
+    layer(2, 0.8) + fill('Top most solid infill', 10, 10, 20, 20, 0.4);
+  t.split('\n').forEach(function (l) { c.feed(l); });
+  s.buildMasks();
+  var cand = s.candidates().find(function (a) { return a.plane.z === 0.8; });
+  ok(s.topShellCount(cand.plane, cand.region, 2) === 1,
+    '24. a second top skin far below the underside does not satisfy a contiguous shell count');
 })();
 
 console.log('\n' + passes + ' passed, ' + failures + ' failed');process.exit(failures ? 1 : 0);

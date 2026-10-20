@@ -8,7 +8,7 @@
       "issue": 1,
       "severity": "warning",
       "status": "implemented",
-      "predicate": "A plastic (E) travel that immediately follows a plastic extrusion, classified against the coverage raster as crossing a void or open air, with neither a retraction nor a Z-hop within a 3-line window. Also flags the emitter-ordering quirk where the retraction is written after the travel.",
+      "predicate": "A plastic (E) travel that immediately follows a plastic extrusion without prior retraction and crosses a void or open air. Hopped crossings are summarised separately because Z-hop does not stop ooze. Also flags retraction written after the travel.",
       "fixtures": ["Benchy_renforced_level1.gcode", "Benchy_renforced_level2.gcode", "Benchy_fortified-pla.gcode"]
     },
     {
@@ -35,8 +35,8 @@
       "issue": 4,
       "severity": "warning",
       "status": "implemented",
-      "predicate": "Sustained (>= 1 s continuous) melt demand E/dist*width*height*speed above the material ceiling, plus a header-derived corroboration from Inset0Speed x Inset0EWMM x MacroLayerHeight.",
-      "fixtures": ["all 10 files (header-derived)"]
+      "predicate": "Sustained (>= 1 s continuous) melt demand from E or matrix V feed, converted with filament cross-sectional area and move duration, above the exported profile limit or an explicitly labelled generic fallback. Header wall estimates use the declared wall height where available.",
+      "fixtures": ["src/regression_test.js (independent numerical flow and profile-limit cases)"]
     },
     {
       "id": "C05",
