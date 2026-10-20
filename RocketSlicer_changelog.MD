@@ -4,6 +4,58 @@ A history of changes for Rocket Slicer, the slicer for the FibreSeeker 3 continu
 
 ---
 
+## Rocket Slicer 1.4.1 — October 2026 (Hotfix)
+
+> *Source: [FIBRESEEK Wiki — Rocket Slicer 1.4.1 Release Note](https://wiki.fibreseek3d.com/en/software/rocket-slicer/release-notes/rs-v141)*
+
+This hotfix improves slicing performance, progress and cancellation handling, and G-code correctness, and adds new infill capabilities and UI features.
+
+### Major New Features
+
+- Added pause before layer start.
+- Added basic model creation: cubes, cylinders, spheres, tori, and other primitives from the context menu.
+- Redesigned the printer control page with a printer status panel and improved display of temperatures, print progress, layer counts, and filenames.
+- Added a Pro mode toggle that controls access to Fortified mode and the visibility of related parameters.
+- Added eleven new sparse infill patterns, each requiring individual validation: Lateral Grid, Lateral Triangles, Lateral Honeycomb, Octahedral Cells, Cuboidal Cells, Lateral Zigzag, Lateral Diagonal, Adaptive Cubic, Support Cubic, Alternating Line, and Lightning.
+- Added multi-line infill via a new Multi-Line parameter (default 1, range 1–10). Supported for most patterns including Line, Grid, Triangles, Concentric, Honeycomb, TriHexagon, Gyroid, 3D Honeycomb, all lateral cell-based patterns, Cubic variants, Cross Hatch, Hilbert Curve, Archimedean Chords, Octagram Spiral, Diamond, TPMS FK, Alternating Line, and Lightning. Excluded: Zigzag, Lateral Zigzag, Lateral Diagonal, Primitive, Neovius, and Lidinoid.
+- Added infill anchors via new Anchor Length (default 2 mm) and Maximum Anchor Length (default 20 mm) parameters, range 0–1000 mm; 0 disables anchors. Concentric does not support anchors, and Zigzag, Lateral Zigzag, and Lateral Diagonal are not in the anchor support list. Some continuous planar patterns may not generate anchors above 50% infill density.
+- Added pattern-specific parameters: Lateral Grid Angle 1/2, Lateral Triangles Side Angle, Lateral Honeycomb Overhang Angle, Octahedral Side Angle, Octahedral Minimum Interlayer Overlap, Cuboidal Height Ratio, and Lightning Overhang, Pruning, and Straightening angles.
+
+### Correctness Fixes
+
+- Removed the `M1001` and `M1002` commands.
+- Fixed the extruder using the first-layer temperature when switching from a fiber layer to a plastic layer.
+- Fixed top-layer generation failures and missing topmost infill after the migration to floating-point geometry.
+- Fixed missing synchronization of bridge and fiber candidates before ownership is finalized.
+- Corrected the plastic extrusion area and skin parameter mappings.
+- Preserved the coasting state and entity type when switching between model paths and legacy plastic paths, and model ownership during top/bottom surface classification and infill generation.
+- Restored per-layer time information in G-code.
+- Retract before issuing the `M400` command during tool changes.
+- Optimized printing time.
+- Fixed incorrect mask intersection calculations: region errors caused by relying solely on bounding boxes are resolved by using actual geometric intersections.
+- Fixed incomplete validation after model repair; repair results are rechecked after rebuilding the geometry.
+- Fixed insufficient model placement margins: Brim/Skirt margins are now accounted for during import, arrangement, and position adjustments, preventing large models from exceeding the build area after centering.
+- Fixed hidden models occupying placement space when positioning new models.
+- Fixed inconsistent top-view orientation when clicking the top face of the view cube.
+
+### Performance, Progress, and Cancellation
+
+- Replaced repeated linear contour scans with indexed queries; adjusted per-layer task scheduling and limited infill concurrency.
+- Reduced temporary object allocations during streaming and post-processing; pre-quantized geometry for overhang region containment checks; reused clipping subjects, prepared results, and support carriers.
+- Added detailed performance diagnostics, disabled by default in production builds.
+- Provided more granular progress reporting for input preparation, slicing, infill, support generation, and post-processing.
+- Extended cancellation checks into mesh processing, infill, support generation, and post-processing, with proper resource release and state cleanup after a canceled slice.
+
+### UI and Rendering Improvements
+
+- Added reference model controls in preview: show/hide reference models and adjust their opacity.
+- Added five STP import accuracy levels — Coarse, Low, Medium, High, and Fine — with updated accuracy parameters, descriptions, and compatibility handling for legacy settings.
+- Made the title bar device icon clickable and adjusted list button visibility based on whether a printer is linked.
+- Used Chinese time units consistently in material usage statistics and per-layer timing.
+- Improved macOS graphics compatibility by migrating legacy GPU settings and restoring the default graphics backend so legacy software-rendering settings no longer affect WebGPU initialization.
+
+---
+
 ## Rocket Slicer 1.4.0 — September 2026
 
 This update focuses on improving slicing quality for complex models, continuous fiber printing, preview and analysis tools, and overall application stability.
